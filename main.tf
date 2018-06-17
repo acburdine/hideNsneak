@@ -105,3 +105,8 @@ module "aws-sa-east-1" {
   aws_access_key = "${var.aws_access_key}"
   aws_secret_key = "${var.aws_secret_key}"
 }
+
+module "do-example-1" {
+  source   = "modules/droplet-deployment"
+  do_token = "${var.do_token}"
+}
