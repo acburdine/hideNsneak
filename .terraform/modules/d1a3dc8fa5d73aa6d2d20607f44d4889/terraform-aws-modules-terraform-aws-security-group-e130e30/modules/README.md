@@ -1,0 +1,35 @@
+List of Security Groups implemented as Terraform modules
+========================================================
+
+
+* [carbon-relay-ng](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/carbon-relay-ng)
+* [cassandra](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/cassandra)
+* [consul](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/consul)
+* [docker-swarm](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/docker-swarm)
+* [elasticsearch](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/elasticsearch)
+* [http-80](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/http-80)
+* [https-443](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/https-443)
+* [ipsec-4500](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/ipsec-4500)
+* [ipsec-500](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/ipsec-500)
+* [kafka](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/kafka)
+* [ldaps](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/ldaps)
+* [memcached](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/memcached)
+* [mssql](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/mssql)
+* [mysql](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/mysql)
+* [nfs](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/nfs)
+* [nomad](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/nomad)
+* [openvpn](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/openvpn)
+* [oracle-db](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/oracle-db)
+* [postgresql](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/postgresql)
+* [rdp](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/rdp)
+* [redis](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/redis)
+* [redshift](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/redshift)
+* [splunk](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/splunk)
+* [ssh](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/ssh)
+* [storm](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/storm)
+* [web](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/web)
+* [winrm](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/winrm)
+* [zipkin](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/zipkin)
+* [zookeeper](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/zookeeper)
+* [_templates](https://github.com/terraform-aws-modules/terraform-aws-security-group/tree/master/modules/_templates) - Source templates for all other modules. Change carefully, test thoughtfully!
+
