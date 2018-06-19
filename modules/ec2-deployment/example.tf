@@ -28,33 +28,71 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-module "ec2-instance" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "1.9.0"
+resource "aws_instance" "terraform-play" {
+  ami           = "${data.aws_ami.ubuntu.id}"
+  instance_type = "t2.micro"
+  count         = "${var.region_count}"
+  subnet_id     = "${element(data.aws_subnet_ids.all.ids, 0)}"
 
-  # insert the 5 required variables here
-  ami                    = "${data.aws_ami.ubuntu.id}"
-  instance_type          = "t2.micro"
-  name                   = "test"
-  instance_count         = 0
-  subnet_id              = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  vpc_security_group_ids = ["${module.security_group.this_security_group_id}"]
+  tags {
+    Name = "test"
+  }
+
+  depends_on = ["aws_security_group.allow_ssh"]
 }
 
-module "security_group" {
-  source = "terraform-aws-modules/security-group/aws"
+# module "ec2-instance" {
+#   source  = "terraform-aws-modules/ec2-instance/aws"
+#   version = "1.9.0"
 
-  name        = "example"
-  description = "Security group for example usage with EC2 instance"
+#   # insert the 5 required variables here
+#   ami                    = "${data.aws_ami.ubuntu.id}"
+#   instance_type          = "t2.micro"
+#   name                   = "test"
+#   instance_count         = "${var.region_count}"
+#   subnet_id              = "${element(data.aws_subnet_ids.all.ids, 0)}"
+#   vpc_security_group_ids = ["${aws_security_group.allow_ssh.security_group_id}"]
+
+#   depends_on = ["aws_security_group.allow_ssh"]
+# }
+
+# module "security_group" {
+#   source      = "terraform-aws-modules/security-group/aws"
+#   name        = "example"
+#   description = "Security group for example usage with EC2 instance"
+#   vpc_id      = "${data.aws_vpc.default.id}"
+
+#   ingress_with_cidr_blocks = [
+#     {
+#       from_port   = 22
+#       to_port     = 22
+#       protocol    = "tcp"
+#       description = "Default SSH Security Group"
+#       cidr_blocks = "0.0.0.0/0"
+#     },
+#   ]
+# }
+resource "aws_security_group" "allow_ssh" {
+  name        = "SSH_Inbound"
+  description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
+  count       = "${var.region_count > 0 ? 1 : 0}"
 
-  ingress_with_cidr_blocks = [
-    {
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      description = "Default SSH Security Group"
-      cidr_blocks = "0.0.0.0/0"
-    },
-  ]
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+output "security_group_id" {
+  value = "${aws_security_group.allow_ssh.*.id}"
 }
