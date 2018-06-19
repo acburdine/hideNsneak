@@ -1,2 +1,1 @@
-variable "gcp_zone" {}
-variable "zone" {}
+variable "gcp_region" {}
