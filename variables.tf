@@ -6,8 +6,6 @@ variable "aws_regions" {
   default = ["us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-west-1", "eu-west-2", "eu-central-1", "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "ap-south-1", "sa-east-1"]
 }
 
-
-
 variable "do_regions" {
   default = ["NYC1"]
 }
@@ -37,3 +35,11 @@ variable "do_count" {
 variable "gcp_count" {
   default = 1
 }
+
+variable "azure_tenant_id" {}
+
+variable "azure_client_id" {}
+
+variable "azure_client_secret" {}
+
+variable "azure_subscription_id" {}
