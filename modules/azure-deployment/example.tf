@@ -50,9 +50,10 @@ resource "azurerm_managed_disk" "test" {
   resource_group_name  = "${var.azure_resource_group_name}"
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
-  disk_size_gb         = "1023"
+  disk_size_gb         = "10"
 }
 
+#azurerm_virtual_machine.test.*.ip_adress
 resource "azurerm_virtual_machine" "test" {
   name                  = "acctvm"
   location              = "${var.azure_location}"
