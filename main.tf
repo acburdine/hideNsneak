@@ -152,6 +152,15 @@ module "do-example-1" {
 }
 
 ##########################################
+################AZURE#####################
+
+module "azure-example-1" {
+  source         = "modules/azure-deployment"
+  azure_usernme  = "${var.azure_username}"
+  azure_password = "${var.azure_password}"
+}
+
+##########################################
 ####################GCP###################
 ##########################################
 
