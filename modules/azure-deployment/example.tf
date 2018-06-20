@@ -7,6 +7,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "test" {
   name     = "acctestrg"
+  count    = 0
   location = "West US"
 }
 
@@ -20,6 +21,7 @@ resource "azurerm_public_ip" "public_ip" {
 
 resource "azurerm_virtual_network" "test" {
   name                = "acctvn"
+  count               = 0
   address_space       = ["10.0.0.0/16"]
   location            = "${var.azure_location}"
   resource_group_name = "${var.azure_resource_group_name}"
@@ -27,6 +29,7 @@ resource "azurerm_virtual_network" "test" {
 
 resource "azurerm_subnet" "test" {
   name                 = "acctsub"
+  count                = 0
   resource_group_name  = "${var.azure_resource_group_name}"
   virtual_network_name = "${azurerm_virtual_network.test.name}"
   address_prefix       = "10.0.2.0/24"
@@ -34,6 +37,7 @@ resource "azurerm_subnet" "test" {
 
 resource "azurerm_network_interface" "test" {
   name                = "acctni"
+  count               = 0
   location            = "${var.azure_location}"
   resource_group_name = "${var.azure_resource_group_name}"
 
@@ -46,6 +50,7 @@ resource "azurerm_network_interface" "test" {
 
 resource "azurerm_managed_disk" "test" {
   name                 = "datadisk_existing"
+  count                = 0
   location             = "${var.azure_location}"
   resource_group_name  = "${var.azure_resource_group_name}"
   storage_account_type = "Standard_LRS"
@@ -56,6 +61,7 @@ resource "azurerm_managed_disk" "test" {
 #azurerm_virtual_machine.test.*.ip_adress
 resource "azurerm_virtual_machine" "test" {
   name                  = "acctvm"
+  count                 = 0
   location              = "${var.azure_location}"
   resource_group_name   = "${var.azure_resource_group_name}"
   network_interface_ids = ["${azurerm_network_interface.test.id}"]

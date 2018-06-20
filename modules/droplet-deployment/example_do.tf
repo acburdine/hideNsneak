@@ -7,7 +7,7 @@ resource "digitalocean_droplet" "default" {
   name   = "example-droplet"
   region = "NYC1"
   size   = "512mb"
-  count  = 0
+  count  = 1
 
   #   ssh_keys = [
   #     "${var.ssh_fingerprint}",
