@@ -133,7 +133,7 @@ module "aws-ap-south-1" {
   aws_region     = "ap-south-1"
   aws_access_key = "${var.aws_access_key}"
   aws_secret_key = "${var.aws_secret_key}"
-  region_count   = 1
+  region_count   = 0
 }
 
 module "aws-sa-east-1" {
@@ -154,10 +154,33 @@ module "do-example-1" {
 ##########################################
 ################AZURE#####################
 
+##FROM TERRAFORM####
+# We recommend using a Service Principal 
+# when running in a shared environment 
+# (such as within a CI server/automation) - 
+# and authenticating via the Azure CLI when 
+# you're running Terraform locally.
+
+provider "azurerm" {
+  subscription_id = "${var.azure_subscription_id}"
+  client_id       = "${var.azure_client_id}"
+  client_secret   = "${var.azure_client_secret}"
+  tenant_id       = "${var.azure_tenant_id}"
+}
+
+resource "azurerm_resource_group" "test" {
+  name     = "tester"
+  location = "West US"
+}
+
 module "azure-example-1" {
-  source         = "modules/azure-deployment"
-  azure_username = "${var.azure_username}"
-  azure_password = "${var.azure_password}"
+  source                    = "modules/azure-deployment"
+  azure_subscription_id     = "${var.azure_subscription_id}"
+  azure_tenant_id           = "${var.azure_tenant_id}"
+  azure_client_id           = "${var.azure_client_id}"
+  azure_client_secret       = "${var.azure_client_secret}"
+  azure_location            = "${azurerm_resource_group.test.location}"
+  azure_resource_group_name = "${azurerm_resource_group.test.name}"
 }
 
 ##########################################

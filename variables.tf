@@ -36,6 +36,10 @@ variable "gcp_count" {
   default = 1
 }
 
-variable "azure_username" {}
+variable "azure_tenant_id" {}
 
-variable "azure_password" {}
+variable "azure_client_id" {}
+
+variable "azure_client_secret" {}
+
+variable "azure_subscription_id" {}
