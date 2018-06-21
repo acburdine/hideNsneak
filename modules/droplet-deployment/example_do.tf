@@ -9,16 +9,16 @@ resource "digitalocean_droplet" "default" {
   size   = "512mb"
   count  = 1
 
-  #   ssh_keys = [
-  #     "${var.ssh_fingerprint}",
-  #   ]
+  ssh_keys = [
+    "${var.ssh_fingerprint}",
+  ]
 
-  #   connection {
-  #     user        = "root"
-  #     type        = "ssh"
-  #     private_key = "${file(var.pvt_key)}"
-  #     timeout     = "2m"
-  #   }
+  connection {
+    user        = "root"
+    type        = "ssh"
+    private_key = "${file(var.pvt_key)}"
+    timeout     = "2m"
+  }
 }
 
 resource "digitalocean_firewall" "default" {
