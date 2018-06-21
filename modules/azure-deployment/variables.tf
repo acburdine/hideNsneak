@@ -6,6 +6,4 @@ variable "azure_client_secret" {}
 
 variable "azure_location" {}
 
-variable "azure_resource_group_name" {}
-
 variable "azure_subscription_id" {}

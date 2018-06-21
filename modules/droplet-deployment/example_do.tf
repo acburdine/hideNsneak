@@ -3,22 +3,22 @@ provider "digitalocean" {
 }
 
 resource "digitalocean_droplet" "default" {
-  image  = "ubuntu-14-04-x64"
+  image  = "${var.do_image}"
   name   = "example-droplet2"
-  region = "NYC1"
-  size   = "512mb"
+  region = "${var.do_region}"
+  size   = "${var.do_size}"
   count  = 1
 
   ssh_keys = [
     "${var.ssh_fingerprint}",
   ]
 
-  connection {
-    user        = "root"
-    type        = "ssh"
-    private_key = "${file(var.pvt_key)}"
-    timeout     = "2m"
-  }
+  # connection {
+  #   user        = "root"
+  #   type        = "ssh"
+  #   private_key = "${file(var.pvt_key)}"
+  #   timeout     = "2m"
+  # }
 }
 
 resource "digitalocean_firewall" "default" {
@@ -31,7 +31,7 @@ resource "digitalocean_firewall" "default" {
     {
       protocol         = "tcp"
       port_range       = "22"
-      source_addresses = ["192.168.1.0/24", "2002:1:2::/48"]
+      source_addresses = ["${var.do_ssh_source_ip}"]
     },
   ]
 

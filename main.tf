@@ -158,8 +158,11 @@ module "aws-us-east-1" {
 module "do-example-1" {
   source          = "modules/droplet-deployment"
   do_token        = "${var.do_token}"
+  do_image        = "ubuntu-14-04-x64"
   pvt_key         = "/Users/mike.hodges/.ssh/do_rsa"
   ssh_fingerprint = "b3:b2:c7:b1:73:9e:28:c6:61:8d:15:e1:0e:61:7e:35"
+  do_region       = "NYC1"
+  do_size         = "512mb"
 }
 
 ##########################################
@@ -172,12 +175,20 @@ module "do-example-1" {
 # and authenticating via the Azure CLI when 
 # you're running Terraform locally.
 
+provider "azurerm" {
+  subscription_id = "${var.azure_subscription_id}"
+  client_id       = "${var.azure_client_id}"
+  client_secret   = "${var.azure_client_secret}"
+  tenant_id       = "${var.azure_tenant_id}"
+}
+
 module "azure-example-1" {
   source                = "modules/azure-deployment"
   azure_subscription_id = "${var.azure_subscription_id}"
   azure_tenant_id       = "${var.azure_tenant_id}"
   azure_client_id       = "${var.azure_client_id}"
   azure_client_secret   = "${var.azure_client_secret}"
+  azure_location        = "West US"
 }
 
 ##########################################

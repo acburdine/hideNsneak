@@ -8,7 +8,7 @@ provider "azurerm" {
 resource "azurerm_resource_group" "test" {
   name     = "acctestrg"
   count    = 0
-  location = "West US"
+  location = "${var.azure_location}"
 }
 
 resource "azurerm_public_ip" "public_ip" {
@@ -30,8 +30,8 @@ resource "azurerm_virtual_network" "test" {
 resource "azurerm_subnet" "test" {
   name                 = "acctsub"
   count                = 0
-  resource_group_name  = "${var.azure_resource_group_name}"
-  virtual_network_name = "${azurerm_resource_group.test.name}"
+  resource_group_name  = "${azurerm_resource_group.test.name}"
+  virtual_network_name = "${azurerm_virtual_network.test.name}"
   address_prefix       = "10.0.2.0/24"
 }
 
