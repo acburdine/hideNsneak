@@ -41,6 +41,13 @@ terraform {
 #   region_count   = 0
 # }
 
+module "cloudfront" {
+  source            = "modules/cloudfront-deployment"
+  cloudfront_origin = "google.com"
+  aws_access_key    = "${var.aws_access_key}"
+  aws_secret_key    = "${var.aws_secret_key}"
+}
+
 module "aws-us-east-1" {
   source          = "modules/ec2-deployment"
   aws_region      = "us-east-1"
@@ -194,6 +201,7 @@ module "azure-example-1" {
   azure_client_id       = "${var.azure_client_id}"
   azure_client_secret   = "${var.azure_client_secret}"
   azure_location        = "West US"
+  azure_instance_count  = 0
 }
 
 ##########################################
@@ -204,7 +212,7 @@ module "gcp-northamerica-northeast1-a" {
   source               = "modules/gcp-deployment"
   gcp_region           = "northamerica-northeast1"
   gcp_project          = "inboxa90"
-  gcp_instance_count   = 1
+  gcp_instance_count   = 0
   gcp_ssh_user         = "mike.hodges"
   gcp_ssh_pub_key_file = "/Users/mike.hodges/.ssh/do_rsa.pub"
 
