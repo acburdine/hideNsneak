@@ -42,11 +42,15 @@ terraform {
 # }
 
 module "aws-us-east-1" {
-  source         = "modules/ec2-deployment"
-  aws_region     = "us-east-1"
-  aws_access_key = "${var.aws_access_key}"
-  aws_secret_key = "${var.aws_secret_key}"
-  region_count   = 0
+  source          = "modules/ec2-deployment"
+  aws_region      = "us-east-1"
+  aws_access_key  = "${var.aws_access_key}"
+  aws_secret_key  = "${var.aws_secret_key}"
+  default_sg_name = "tester-us-east-1"
+  region_count    = 1
+
+  #use_custom_ami = false
+  #custom_ami = "<custom ami>"
 }
 
 # module "aws-us-east-2" {
@@ -163,6 +167,7 @@ module "do-example-1" {
   ssh_fingerprint = "b3:b2:c7:b1:73:9e:28:c6:61:8d:15:e1:0e:61:7e:35"
   do_region       = "NYC1"
   do_size         = "512mb"
+  do_count        = 0
 }
 
 ##########################################

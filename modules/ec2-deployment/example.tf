@@ -29,51 +29,21 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "terraform-play" {
-  ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
-  count         = "${var.region_count}"
-  subnet_id     = "${element(data.aws_subnet_ids.all.ids, 0)}"
+  ami             = "${var.use_custom_ami ? var.custom_ami : data.aws_ami.ubuntu.id}"
+  instance_type   = "${var.aws_instance_type}"
+  count           = "${var.region_count}"
+  subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
+  security_groups = ["${aws_security_group.allow_ssh.name}"]
 
   tags {
-    Name = "test"
+    Name = "${var.aws_tags}"
   }
 
   depends_on = ["aws_security_group.allow_ssh"]
 }
 
-# module "ec2-instance" {
-#   source  = "terraform-aws-modules/ec2-instance/aws"
-#   version = "1.9.0"
-
-#   # insert the 5 required variables here
-#   ami                    = "${data.aws_ami.ubuntu.id}"
-#   instance_type          = "t2.micro"
-#   name                   = "test"
-#   instance_count         = "${var.region_count}"
-#   subnet_id              = "${element(data.aws_subnet_ids.all.ids, 0)}"
-#   vpc_security_group_ids = ["${aws_security_group.allow_ssh.security_group_id}"]
-
-#   depends_on = ["aws_security_group.allow_ssh"]
-# }
-
-# module "security_group" {
-#   source      = "terraform-aws-modules/security-group/aws"
-#   name        = "example"
-#   description = "Security group for example usage with EC2 instance"
-#   vpc_id      = "${data.aws_vpc.default.id}"
-
-#   ingress_with_cidr_blocks = [
-#     {
-#       from_port   = 22
-#       to_port     = 22
-#       protocol    = "tcp"
-#       description = "Default SSH Security Group"
-#       cidr_blocks = "0.0.0.0/0"
-#     },
-#   ]
-# }
 resource "aws_security_group" "allow_ssh" {
-  name        = "SSH_Inbound"
+  name        = "${var.default_sg_name}"
   description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
   count       = "${var.region_count > 0 ? 1 : 0}"

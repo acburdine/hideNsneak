@@ -7,7 +7,7 @@ resource "digitalocean_droplet" "default" {
   name   = "example-droplet2"
   region = "${var.do_region}"
   size   = "${var.do_size}"
-  count  = 1
+  count  = "${var.do_count}"
 
   ssh_keys = [
     "${var.ssh_fingerprint}",
