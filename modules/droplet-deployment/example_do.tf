@@ -4,10 +4,10 @@ provider "digitalocean" {
 
 resource "digitalocean_droplet" "default" {
   image  = "ubuntu-14-04-x64"
-  name   = "example-droplet"
+  name   = "example-droplet2"
   region = "NYC1"
   size   = "512mb"
-  count  = 0
+  count  = 1
 
   #   ssh_keys = [
   #     "${var.ssh_fingerprint}",
@@ -22,7 +22,7 @@ resource "digitalocean_droplet" "default" {
 }
 
 resource "digitalocean_firewall" "default" {
-  name = "only-22"
+  name = "only-22-2"
 
   droplet_ids = ["${digitalocean_droplet.default.*.id}"]
   count       = "${digitalocean_droplet.default.count > 0 ? 1 : 0}"
