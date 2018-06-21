@@ -58,6 +58,7 @@ resource "azurerm_managed_disk" "test" {
   disk_size_gb         = "10"
 }
 
+#azurerm_virtual_machine.test.*.ip_adress
 resource "azurerm_virtual_machine" "test" {
   name                  = "acctvm"
   count                 = 0
