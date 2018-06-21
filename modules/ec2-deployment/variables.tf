@@ -6,10 +6,6 @@ variable "region_count" {
   default = 0
 }
 
-variable "use_custom_ami" {
-  default = false
-}
-
 variable "custom_ami" {
   default = ""
 }

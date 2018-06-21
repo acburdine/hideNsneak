@@ -29,7 +29,7 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "terraform-play" {
-  ami             = "${var.use_custom_ami ? var.custom_ami : data.aws_ami.ubuntu.id}"
+  ami             = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
   instance_type   = "${var.aws_instance_type}"
   count           = "${var.region_count}"
   subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
