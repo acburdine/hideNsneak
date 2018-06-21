@@ -47,7 +47,7 @@ module "aws-us-east-1" {
   aws_access_key  = "${var.aws_access_key}"
   aws_secret_key  = "${var.aws_secret_key}"
   default_sg_name = "tester-us-east-1"
-  region_count    = 1
+  region_count    = 0
 
   #use_custom_ami = false
   #custom_ami = "<custom ami>"
@@ -201,8 +201,14 @@ module "azure-example-1" {
 ##########################################
 
 module "gcp-northamerica-northeast1-a" {
-  source     = "modules/gcp-deployment"
-  gcp_region = "northamerica-northeast1"
+  source               = "modules/gcp-deployment"
+  gcp_region           = "northamerica-northeast1"
+  gcp_project          = "inboxa90"
+  gcp_instance_count   = 1
+  gcp_ssh_user         = "mike.hodges"
+  gcp_ssh_pub_key_file = "/Users/mike.hodges/.ssh/do_rsa.pub"
+
+  #gcp_machine_type
 }
 
 # module "gcp-us-central1-f" {
