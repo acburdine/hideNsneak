@@ -29,6 +29,11 @@ output "do_status" {
 }
 
 ########AWS###########
+
+output "domainfront_url" {
+  value = "${module.cloudfront.domainfront_url}"
+}
+
 output "ec2_instance_id" {
   value = "${module.aws-us-east-1.instance_id}"
 }

@@ -7,7 +7,7 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "test" {
   name     = "acctestrg"
-  count    = 0
+  count    = "${var.azure_instance_count > 0 ? 1 : 0}"
   location = "${var.azure_location}"
 }
 
@@ -21,7 +21,7 @@ resource "azurerm_public_ip" "public_ip" {
 
 resource "azurerm_virtual_network" "test" {
   name                = "acctvn"
-  count               = 0
+  count               = "${var.azure_instance_count > 0 ? 1 : 0}"
   address_space       = ["10.0.0.0/16"]
   location            = "${azurerm_resource_group.test.location}"
   resource_group_name = "${azurerm_resource_group.test.name}"
@@ -37,7 +37,7 @@ resource "azurerm_subnet" "test" {
 
 resource "azurerm_network_interface" "test" {
   name                = "acctni"
-  count               = 0
+  count               = "${var.azure_instance_count > 0 ? 1 : 0}"
   location            = "${azurerm_resource_group.test.location}"
   resource_group_name = "${azurerm_resource_group.test.name}"
 
@@ -50,7 +50,7 @@ resource "azurerm_network_interface" "test" {
 
 resource "azurerm_managed_disk" "test" {
   name                 = "datadisk_existing"
-  count                = 0
+  count                = "${var.azure_instance_count > 0 ? 1 : 0}"
   location             = "${azurerm_resource_group.test.location}"
   resource_group_name  = "${azurerm_resource_group.test.name}"
   storage_account_type = "Standard_LRS"
@@ -61,11 +61,11 @@ resource "azurerm_managed_disk" "test" {
 #azurerm_virtual_machine.test.*.ip_adress
 resource "azurerm_virtual_machine" "test" {
   name                  = "acctvm"
-  count                 = 0
+  count                 = "${var.azure_instance_count}"
   location              = "${azurerm_resource_group.test.location}"
   resource_group_name   = "${azurerm_resource_group.test.name}"
   network_interface_ids = ["${azurerm_network_interface.test.id}"]
-  vm_size               = "Standard_F2"
+  vm_size               = "${var.azure_vm_size}"
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
   # delete_os_disk_on_termination = true

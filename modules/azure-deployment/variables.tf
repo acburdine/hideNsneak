@@ -7,3 +7,11 @@ variable "azure_client_secret" {}
 variable "azure_location" {}
 
 variable "azure_subscription_id" {}
+
+variable "azure_instance_count" {
+  default = 0
+}
+
+variable "azure_vm_size" {
+  default = "Standard_F2"
+}
