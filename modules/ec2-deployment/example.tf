@@ -28,12 +28,20 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+resource "aws_key_pair" "default" {
+  key_name   = "${var.aws_keypair_name}"
+  public_key = "${file(var.aws_keypair_file)}"
+  count      = "${var.aws_new_keypair ? 1 : 0}"
+}
+
 resource "aws_instance" "terraform-play" {
   ami             = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
   instance_type   = "${var.aws_instance_type}"
   count           = "${var.region_count}"
   subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  security_groups = ["${aws_security_group.allow_ssh.name}"]
+  security_groups = ["${aws_security_group.allow_ssh.id}"]
+
+  key_name = "${var.aws_keypair_name}"
 
   tags {
     Name = "${var.aws_tags}"
