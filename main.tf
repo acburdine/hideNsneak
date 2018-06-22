@@ -49,12 +49,15 @@ module "cloudfront" {
 }
 
 module "aws-us-east-1" {
-  source          = "modules/ec2-deployment"
-  aws_region      = "us-east-1"
-  aws_access_key  = "${var.aws_access_key}"
-  aws_secret_key  = "${var.aws_secret_key}"
-  default_sg_name = "tester-us-east-1"
-  region_count    = 0
+  source           = "modules/ec2-deployment"
+  aws_region       = "us-east-1"
+  aws_access_key   = "${var.aws_access_key}"
+  aws_secret_key   = "${var.aws_secret_key}"
+  default_sg_name  = "tester-us-east-1"
+  aws_keypair_file = "/Users/mike.hodges/.ssh/do_rsa.pub"
+  aws_keypair_name = "do_rsa"
+  aws_new_keypair  = false
+  region_count     = 0
 
   #use_custom_ami = false
   #custom_ami = "<custom ami>"
@@ -192,12 +195,6 @@ provider "azurerm" {
   client_id       = "${var.azure_client_id}"
   client_secret   = "${var.azure_client_secret}"
   tenant_id       = "${var.azure_tenant_id}"
-}
-
-resource "azurerm_resource_group" "test" {
-  name     = "acctestrg"
-  count    = 1
-  location = "West US"
 }
 
 module "azure-cdn-example" {
