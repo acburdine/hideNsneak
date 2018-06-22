@@ -6,8 +6,8 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "test" {
-  name     = "acctestrg"
-  count    = "${var.azure_instance_count > 0 ? 1 : 0}"
+  name     = "acctestrg2"
+  count    = 1
   location = "${var.azure_location}"
 }
 

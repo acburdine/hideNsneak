@@ -5,6 +5,7 @@ provider "aws" {
 }
 
 resource "aws_cloudfront_distribution" "domain_front" {
+  count   = 0
   enabled = true
 
   origin {
@@ -54,5 +55,9 @@ resource "aws_cloudfront_distribution" "domain_front" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
