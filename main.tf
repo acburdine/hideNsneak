@@ -194,6 +194,24 @@ provider "azurerm" {
   tenant_id       = "${var.azure_tenant_id}"
 }
 
+resource "azurerm_resource_group" "test" {
+  name     = "acctestrg"
+  count    = 1
+  location = "West US"
+}
+
+module "azure-cdn-example" {
+  source                  = "modules/azure-cdn-deployment"
+  azure_subscription_id   = "${var.azure_subscription_id}"
+  azure_tenant_id         = "${var.azure_tenant_id}"
+  azure_client_id         = "${var.azure_client_id}"
+  azure_client_secret     = "${var.azure_client_secret}"
+  azure_cdn_hostname      = "google.com"
+  azure_cdn_profile_name  = "tester123"
+  azure_cdn_endpoint_name = "whoknows123"
+  azure_location          = "West US"
+}
+
 module "azure-example-1" {
   source                = "modules/azure-deployment"
   azure_subscription_id = "${var.azure_subscription_id}"
