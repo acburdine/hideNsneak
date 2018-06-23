@@ -3,3 +3,4 @@ tfplan
 secrets.go
 terraform/.terraform/
 terraform/terraform.tfvars
+.terraform/
