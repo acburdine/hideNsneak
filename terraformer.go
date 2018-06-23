@@ -6,16 +6,6 @@ import (
 	"os"
 )
 
-type Aws_Deployer struct {
-	Count          int
-	Region         string
-	Security_Group string
-	Custom_Ami     string
-	Keypair_File   string
-	Keypair_Name   string
-	New_Keypair    bool
-}
-
 func main() {
 	//Creating Files
 	mainFile, err := os.Create("main.tf")
@@ -31,42 +21,42 @@ func main() {
 	defer tfvarsFile.Close()
 
 	//Writing Constants
-	mainFile.Write([]byte(constants.Variables))
+	mainFile.Write([]byte(state))
 
 	varFile.Write([]byte(variables))
 
 	tfvarsFile.Write([]byte(tfvars))
 
 	//Creating a test array
-	tester1 := Aws_Deployer{
-		Count:          1,
-		Region:         "us-east-1",
-		Security_Group: "tester1243",
-		Keypair_File:   "/Users/mike.hodges/.ssh/do_rsa.pub",
-		Keypair_Name:   "do_rsa",
-		New_Keypair:    false,
+	tester1 := awsDeployer{
+		Count:         1,
+		Region:        "us-east-1",
+		SecurityGroup: "tester1243",
+		KeypairFile:   "/Users/mike.hodges/.ssh/do_rsa.pub",
+		KeypairName:   "do_rsa",
+		NewKeypair:    false,
 	}
-	tester2 := Aws_Deployer{
-		Count:          1,
-		Region:         "us-west-1",
-		Security_Group: "tester1243",
-		Keypair_File:   "/Users/mike.hodges/.ssh/do_rsa.pub",
-		Keypair_Name:   "do_rsa",
-		New_Keypair:    false,
+	tester2 := awsDeployer{
+		Count:         1,
+		Region:        "us-west-1",
+		SecurityGroup: "tester1243",
+		KeypairFile:   "/Users/mike.hodges/.ssh/do_rsa.pub",
+		KeypairName:   "do_rsa",
+		NewKeypair:    false,
 	}
-	tester3 := Aws_Deployer{
-		Count:          1,
-		Region:         "eu-west-1",
-		Security_Group: "tester1243",
-		Keypair_File:   "/Users/mike.hodges/.ssh/do_rsa.pub",
-		Keypair_Name:   "do_rsa",
-		New_Keypair:    false,
+	tester3 := awsDeployer{
+		Count:         1,
+		Region:        "eu-west-1",
+		SecurityGroup: "tester1243",
+		KeypairFile:   "/Users/mike.hodges/.ssh/do_rsa.pub",
+		KeypairName:   "do_rsa",
+		NewKeypair:    false,
 	}
-	testers := [...]Aws_Deployer{tester1, tester2, tester3}
+	testers := [...]awsDeployer{tester1, tester2, tester3}
 
 	var totalFile string
 	for _, test := range testers {
-		tmpl, err := template.New("test").Parse(aws_module)
+		tmpl, err := template.New("test").Parse(ec2Module)
 
 		checkErr(err)
 

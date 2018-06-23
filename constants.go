@@ -1,6 +1,6 @@
-package constants
+package main
 
-const Ec2Module = `
+const ec2Module = `
 module "aws-{{.Region}}" {
 	source         = "modules/ec2-deployment"
 	aws_region     = "{{.Region}}"
@@ -26,7 +26,7 @@ module "aws-{{.Region}}" {
 // 	region_count     = 0
 //   }
 
-const Variables = `
+const variables = `
 	variable "do_token" {}
 	variable "aws_access_key" {}
 	variable "aws_secret_key" {}
@@ -36,7 +36,7 @@ const Variables = `
 	variable "azure_subscription_id" {}
 `
 
-const State = `
+const state = `
 	terraform {
 		backend "s3" {
 		  bucket         = "hidensneak-terraform"
@@ -48,7 +48,7 @@ const State = `
 	  }
 `
 
-const Tfvars = `
+const tfvars = `
 	aws_access_key = "AKIAIPNLFMEFDYNGBSLA"
 	aws_secret_key = "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"
 	do_token = "0f7e05467852e4d668b20df1cd6e5574747af7eda4dda0f72021a0e0fa4b4ffd"
