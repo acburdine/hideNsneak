@@ -116,7 +116,7 @@ const googleCloudModule = `
 	}
 `
 
-const apiGateway = `
+const apiGatewayModule = `
 	module "apigateway-{{.TargetUri}}" {
 		source 				 = "modules/api-gateway"
 		aws_access_key    	 = "${var.aws_access_key}"
