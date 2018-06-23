@@ -38,15 +38,15 @@ func terraformApply() {
 
 	//Initializing Terraform
 	fmt.Println("init")
-	args := []string{"init", "-input=false"}
+	args := []string{"init", "-input=false", "terraform"}
 	execCmd(binary, args)
 
 	//Planning Terraform changes and saving plan to file tfplan
-	args = []string{"plan", "-out=tfplan", "-input=false"}
+	args = []string{"plan", "-out=terraform/tfplan", "-input=false", "-var-file=terraform/terraform.tfvars", "terraform"}
 	execCmd(binary, args)
 
 	//Applying Changes Identified in tfplan
-	args = []string{"apply", "-input=false", "tfplan"}
+	args = []string{"apply", "-input=false", "terraform/tfplan"}
 	execCmd(binary, args)
 
 }
