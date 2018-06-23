@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	//Creating Files
+	//Create files for terraform
 	mainFile, err := os.Create("main.tf")
 	checkErr(err)
 	defer mainFile.Close()
@@ -18,12 +18,19 @@ func main() {
 	checkErr(err)
 	defer tfvarsFile.Close()
 
-	//Writing Constants
+	//Writing constants for terraform
 	mainFile.Write([]byte(state))
 	varFile.Write([]byte(variables))
 	tfvarsFile.Write([]byte(tfvars))
 
-	//TODO: creater master list (string) by createMasterList(input the master struct here)
+	//TODO make user input
+	//create an emoty struct from readList
+	//assign each user input to values from struct
+	//ass in that struct as userInput variable in createMasterList
+
+	parseUserInputIntoReadList()
+
+	createMasterList(userInput) //TODO: userInput is whatever masterStruct they want to pass in
 
 	//Opening Main.tf to append parsed template
 	file, err := os.OpenFile("main.tf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
