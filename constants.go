@@ -157,26 +157,28 @@ const welcomeMessage = `
 	- firewall : create a firewall
 	- firewall-list : list existing firewalls
 	- quit : exit program
+	- exit : exit program
 `
 const help = `
-	deploy - deploy new servers
-	destroy - destroy servers
-	start - start stopped servers
-	stop - stop running servers
-	list - list servers
-	shell - start and interact with a command shell on a server
-	socks-add - create a SOCKS proxy with a live server
-	socks-kill - kill an existing SOCKS proxy
-	domainfront - create a new domain front
-	domainfront-list - list existing domain fronts
-	nmap - initiate an nmapn scan and distriute it among hosts
-	proxyconf - print proxychains and SOCKSd configurations for SOCKS proxies
-	send - send a file or directory
-	get - retrieve a file or directory
-	firewall - create a firewall
-	firewall-list - list existing firewalls
-	quit - exit program
-	exit - exit program
+	- help : get list of commands to run
+	- deploy : deploy new servers
+	- destroy : destroy servers
+	- start : start stopped servers
+	- stop : stop running servers
+	- list : list servers
+	- shell : start and interact with a command shell on a server
+	- socks-add : create a SOCKS proxy with a live server
+	- socks-kill : kill an existing SOCKS proxy
+	- domainfront : create a new domain front
+	- domainfront-list : list existing domain fronts
+	- nmap : initiate an nmapn scan and distriute it among hosts
+	- proxyconf : print proxychains and SOCKSd configurations for SOCKS proxies
+	- send : send a file or directory
+	- get : retrieve a file or directory
+	- firewall : create a firewall
+	- firewall-list : list existing firewalls
+	- quit : exit program
+	- exit : exit program
 `
 const ascii = ` __     __     __         _______                              __    
 |  |--.|__|.--|  |.-----.|    |  |.-----..-----..-----..---.-.|  |--.
