@@ -12,14 +12,19 @@ const state = `
 	  }
 `
 
-const variables = `
-	variable "do_token" {}
-	variable "aws_access_key" {}
-	variable "aws_secret_key" {}
-	variable "azure_tenant_id" {}
-	variable "azure_client_id" {}
-	variable "azure_cosntsclient_secret" {}
-	variable "azure_subscription_id" {}
+const variables = `variable "do_token" {}
+
+variable "aws_access_key" {}
+
+variable "aws_secret_key" {}
+
+variable "azure_tenant_id" {}
+
+variable "azure_client_id" {}
+
+variable "azure_client_secret" {}
+
+variable "azure_subscription_id" {}
 `
 
 ///////////////////// MODULES /////////////////////
@@ -36,11 +41,9 @@ const ec2Module = `
 		aws_secret_key 		 = "${var.aws_secret_key}"
 		aws_region    		 = "{{.Region}}"
 		aws_new_keypair      = "{{.NewKeypair}}"
-		aws_keypair_file     = "{{.KeypairFile}}"
 		aws_keypair_name     = "{{.KeypairName}}"
 		aws_private_key_file = "{{.PrivateKeyFile}}"
 		aws_public_key_file  = "{{.PublicKeyFile}}"
-		aws_tags			 = "{{.Tags}}"
 	}
 `
 
@@ -116,7 +119,7 @@ const googleCloudModule = `
 	}
 `
 
-const apiGateway = `
+const apiGatewayModule = `
 	module "apigateway-{{.TargetUri}}" {
 		source 				 = "modules/api-gateway"
 		aws_access_key    	 = "${var.aws_access_key}"

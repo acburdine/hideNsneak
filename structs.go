@@ -8,7 +8,6 @@ type ec2Deployer struct {
 	DefaultUser    string
 	Region         string
 	NewKeypair     bool
-	KeypairFile    string
 	KeypairName    string
 	PrivateKeyFile string
 	PublicKeyFile  string
