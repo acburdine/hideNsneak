@@ -57,3 +57,18 @@ func removeSpaces(input string) (newString string) {
 
 	return
 }
+
+func providerCheck(providerArray []string) bool {
+	for _, p := range providerArray {
+		if strings.ToUpper(p) != "EC2" &&
+			strings.ToUpper(p) != "DO" &&
+			strings.ToUpper(p) != "GOOGLE" &&
+			strings.ToUpper(p) != "AZURE" &&
+			strings.ToUpper(p) != "AZURECDN" &&
+			strings.ToUpper(p) != "APIGATEWAY" {
+			fmt.Println(unknownProvider)
+			return false
+		}
+	}
+	return true
+}
