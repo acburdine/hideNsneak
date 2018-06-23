@@ -15,3 +15,7 @@ variable "azure_instance_count" {
 variable "azure_vm_size" {
   default = "Standard_F2"
 }
+
+variale "azure_environment" {
+  default = "hideNsneak"
+}

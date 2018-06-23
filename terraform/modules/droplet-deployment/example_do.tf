@@ -2,9 +2,14 @@ provider "digitalocean" {
   token = "${var.do_token}"
 }
 
+resource "random_string" "droplet_name" {
+  length  = 8
+  special = false
+}
+
 resource "digitalocean_droplet" "default" {
   image  = "${var.do_image}"
-  name   = "example-droplet2"
+  name   = "${var.do_name}${random_string.droplet_name.result}"
   region = "${var.do_region}"
   size   = "${var.do_size}"
   count  = "${var.do_count}"
@@ -13,16 +18,13 @@ resource "digitalocean_droplet" "default" {
     "${var.ssh_fingerprint}",
   ]
 
-  # connection {
-  #   user        = "root"
-  #   type        = "ssh"
-  #   private_key = "${file(var.pvt_key)}"
-  #   timeout     = "2m"
-  # }
+  provisioner "local-exec" {
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.do_default_user} --private-key ${var.pvt_key} -i '${digitalocean_droplet.default.ipv4_address},' master.yml"
+  }
 }
 
 resource "digitalocean_firewall" "default" {
-  name = "only-22-2"
+  name = "${var.do_firewall_name}${random_string.droplet_name.result}"
 
   droplet_ids = ["${digitalocean_droplet.default.*.id}"]
   count       = "${digitalocean_droplet.default.count > 0 ? 1 : 0}"

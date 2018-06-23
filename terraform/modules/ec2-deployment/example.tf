@@ -4,6 +4,11 @@ provider "aws" {
   region     = "${var.aws_region}"
 }
 
+resource "random_string" "ec2_name" {
+  length  = 8
+  special = false
+}
+
 data "aws_subnet_ids" "all" {
   vpc_id = "${data.aws_vpc.default.id}"
 }
@@ -28,13 +33,13 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_key_pair" "default" {
+resource "aws_key_pair" "hideNsneak" {
   key_name   = "${var.aws_keypair_name}"
-  public_key = "${file(var.aws_keypair_file)}"
+  public_key = "${file(var.aws_public_key_file)}"
   count      = "${var.aws_new_keypair ? 1 : 0}"
 }
 
-resource "aws_instance" "terraform-play" {
+resource "aws_instance" "hideNsneak" {
   ami             = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
   instance_type   = "${var.aws_instance_type}"
   count           = "${var.region_count}"
@@ -44,14 +49,18 @@ resource "aws_instance" "terraform-play" {
   key_name = "${var.aws_keypair_name}"
 
   tags {
-    Name = "${var.aws_tags}"
+    Name = "hideNsneak${random_string.ec2_name.result}"
   }
 
   depends_on = ["aws_security_group.allow_ssh"]
+
+  provisioner "local-exec" {
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${aws_instance.hideNsneak.public_ip},' master.yml"
+  }
 }
 
 resource "aws_security_group" "allow_ssh" {
-  name        = "${var.default_sg_name}"
+  name        = "${var.default_sg_name}${random_string.ec2_name.result}"
   description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
   count       = "${var.region_count > 0 ? 1 : 0}"
