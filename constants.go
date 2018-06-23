@@ -1,42 +1,6 @@
-package constants
+package main
 
-const Ec2Module = `
-module "aws-{{.Region}}" {
-	source         = "modules/ec2-deployment"
-	aws_region     = "{{.Region}}"
-	aws_access_key = "${var.aws_access_key}"
-	aws_secret_key = "${var.aws_secret_key}"
-	default_sg_name = "{{.Security_Group}}"
-	aws_keypair_file     = "{{.Keypair_File}}"
-	aws_keypair_name     = "{{.Keypair_Name}}"
-	aws_new_keypair      = "{{.New_Keypair}}"
-	region_count   = {{.Count}}
-  }cosnts
-`
-
-// module "aws-us-east-1" {
-// 	source           = "modules/ec2-deployment"
-// 	aws_region       = "us-east-1"
-// 	aws_access_key   = "${var.aws_access_key}"
-// 	aws_secret_key   = "${var.aws_secret_key}"
-// 	default_sg_name  = "tester-us-east-1"
-// 	aws_keypair_file = "/Users/mike.hodges/.ssh/do_rsa.pub"
-// 	aws_keypair_name = "do_rsa"
-// 	aws_new_keypair  = false
-// 	region_count     = 0
-//   }
-
-const Variables = `
-	variable "do_token" {}
-	variable "aws_access_key" {}
-	variable "aws_secret_key" {}
-	variable "azure_tenant_id" {}
-	variable "azure_client_id" {}
-	variable "azure_cosntsclient_secret" {}
-	variable "azure_subscription_id" {}
-`
-
-const State = `
+const state = `
 	terraform {
 		backend "s3" {
 		  bucket         = "hidensneak-terraform"
@@ -48,12 +12,116 @@ const State = `
 	  }
 `
 
-const Tfvars = `
-	aws_access_key = "AKIAIPNLFMEFDYNGBSLA"
-	aws_secret_key = "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"
-	do_token = "0f7e05467852e4d668b20df1cd6e5574747af7eda4dda0f72021a0e0fa4b4ffd"
-	azure_tenant_id = "a8b80a08-1034-4a3b-b61f-72328ffbf63f"
-	azure_client_id = "4c76ff10-7f72-4a6b-a226-b4bf0bd7b789"
-	azure_client_secret = "x/V72EjrHtl0jFq3z+2euyXzu5lnWgw7KcrVDQy2wic="
-	azure_subscription_id = "7704ddcf-943b-4039-a051-9e3bd167afae"
+const variables = `
+	variable "do_token" {}
+	variable "aws_access_key" {}
+	variable "aws_secret_key" {}
+	variable "azure_tenant_id" {}
+	variable "azure_client_id" {}
+	variable "azure_cosntsclient_secret" {}
+	variable "azure_subscription_id" {}
+`
+
+///////////////////// MODULES /////////////////////
+
+const ec2Module = `
+	module "aws-{{.Region}}" {
+		source         		 = "modules/ec2-deployment"
+		default_sg_name 	 = "{{.SecurityGroup}}"
+		region_count   		 = {{.Count}}
+		custom_ami 			 = "{{.CustomAmi}}"
+		aws_instance_type	 = "{{.InstanceType}}"
+		ec2_default_user	 = "{{.DefaultUser}}"
+		aws_access_key 		 = "${var.aws_access_key}"
+		aws_secret_key 		 = "${var.aws_secret_key}"
+		aws_region    		 = "{{.Region}}"
+		aws_new_keypair      = "{{.NewKeypair}}"
+		aws_keypair_file     = "{{.KeypairFile}}"
+		aws_keypair_name     = "{{.KeypairName}}"
+		aws_private_key_file = "{{.PrivateKeyFile}}"
+		aws_public_key_file  = "{{.PublicKeyFile}}"
+		aws_tags			 = "{{.Tags}}"
+	}
+`
+
+const azureCdnModule = `
+	module "azure-cdn-{{.Endpoint}}" {
+		source                  = "modules/azure-cdn-deployment"
+		azure_subscription_id   = "${var.azure_subscription_id}"
+		azure_tenant_id         = "${var.azure_tenant_id}"
+		azure_client_id         = "${var.azure_client_id}"
+		azure_client_secret     = "${var.azure_client_secret}"
+		azure_cdn_hostname      = "{{.HostName}}"
+		azure_cdn_profile_name  = "{{.ProfileName}}"
+		azure_cdn_endpoint_name = "{{.EndpointName}}"
+		azure_location          = "{{.Location}}"
+		
+	}
+`
+
+//TODO: need to run removeSpaces() on region when this is set
+const azureModule = `
+	module "azure-{{.Location}}" {
+		source                = "modules/azure-deployment"
+		azure_subscription_id = "${var.azure_subscription_id}"
+		azure_tenant_id       = "${var.azure_tenant_id}"
+		azure_client_id       = "${var.azure_client_id}"
+		azure_client_secret   = "${var.azure_client_secret}"
+		azure_location        = "{{.Location}}"
+		azure_instance_count  = {{.InstanceCount}}
+		azure_vm_size 		  = "{{.VMSize}}"
+		azure_environment 	  = "{{.Environment}}"
+
+	}
+`
+
+const cloudfrontModule = `
+	module "cloudfront-{{.Region}}" {
+		source            = "modules/cloudfront-deployment"
+		cloudfront_origin = "{{.Origin}}"
+		aws_access_key    = "${var.aws_access_key}"
+		aws_secret_key    = "${var.aws_secret_key}"
+		aws_region 		  = "{{.Region}}"
+	}
+`
+
+const digitalOceanModule = `
+	module "digital-ocean-{{.Region}}" {
+		source           = "modules/droplet-deployment"
+		do_token         = "${var.do_token}"
+		do_image         = "{{.Image}}"
+		pvt_key          = "{{.PrivateKey}}"
+		ssh_fingerprint  = "{{.SSHFingerprint}}"
+		do_region        = "{{.Region}}"
+		do_size          = "{{.Size}}"
+		do_count         = {{.Count}}
+		do_default_user  = "{{.DefaultUser}}"
+		do_name 		 = "{{.Name}}"
+		do_firewall_name = "{{.FirewallName}}"
+		do_ssh_source_ip = "{{.SSHSourceIP}}"
+	}
+`
+
+const googleCloudModule = `
+	module "google-cloud-{{.Region}}" {
+		source               	 = "modules/gcp-deployment"
+		gcp_region          	 = "{{.Region}}"
+		gcp_project          	 = "{{.Project}}"
+		gcp_instance_count   	 = {{.InstanceCount}}
+		gcp_ssh_user         	 = "{{.SSHUser}}"
+		gcp_ssh_pub_key_file 	 = "{{.SSHPubKeyFile}}"
+		gcp_ssh_private_key_file = "{{.SSHPrivateKeyFile}}"
+		gcp_machine_type	 	 = "{{.MachineType}}"
+		gcp_image			 	 = "{{.Image}}"
+	}
+`
+
+const apiGateway = `
+	module "apigateway-{{.TargetUri}}" {
+		source 				 = "modules/api-gateway"
+		aws_access_key    	 = "${var.aws_access_key}"
+		aws_secret_key    	 = "${var.aws_secret_key}"
+		aws_api_target_uri 	 = "{{.TargetURI}"
+		aws_api_stage_name	 = "{{.StageName}}"
+  	}
 `
