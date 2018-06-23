@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strings"
 )
 
 func checkErr(err error) {
@@ -48,4 +49,11 @@ func terraformApply() {
 	args = []string{"apply", "-input=false", "tfplan"}
 	execCmd(binary, args)
 
+}
+
+func removeSpaces(input string) (newString string) {
+	newString = strings.ToLower(input)
+	newString = strings.Replace(newString, " ", "_", -1)
+
+	return
 }

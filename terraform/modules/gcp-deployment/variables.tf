@@ -14,4 +14,4 @@ variable "gcp_project" {}
 variable "gcp_ssh_user" {}
 variable "gcp_ssh_pub_key_file" {}
 
-variable "gcp_ssh_prviate_key_file" {}
+variable "gcp_ssh_private_key_file" {}
