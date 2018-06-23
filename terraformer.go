@@ -53,13 +53,13 @@ func main() {
 	testers := [...]ec2Deployer{tester1, tester2, tester3}
 
 	var totalFile string
-	for _, test := range testers {
+	for _, ourStruct := range testers {
 		tmpl, err := template.New("test").Parse(ec2Module)
 
 		checkErr(err)
 
 		var tpl bytes.Buffer
-		err = tmpl.Execute(&tpl, test)
+		err = tmpl.Execute(&tpl, ourStruct)
 		totalFile = totalFile + tpl.String()
 	}
 
