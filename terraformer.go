@@ -149,9 +149,30 @@ func main() {
 	tfvarsFile.Write([]byte(tfvars))
 
 	//Creating a test array
-	tester1 := Aws_Deployer{Count: 1, Region: "us-east-1", Security_Group: "tester1243", Keypair_File: "/Users/mike.hodges/.ssh/do_rsa.pub", Keypair_Name: "do_rsa", New_Keypair: false}
-	tester2 := Aws_Deployer{Count: 1, Region: "us-west-1", Security_Group: "tester1243", Keypair_File: "/Users/mike.hodges/.ssh/do_rsa.pub", Keypair_Name: "do_rsa", New_Keypair: false}
-	tester3 := Aws_Deployer{Count: 1, Region: "eu-west-1", Security_Group: "tester1243", Keypair_File: "/Users/mike.hodges/.ssh/do_rsa.pub", Keypair_Name: "do_rsa", New_Keypair: false}
+	tester1 := Aws_Deployer{
+		Count:          1,
+		Region:         "us-east-1",
+		Security_Group: "tester1243",
+		Keypair_File:   "/Users/mike.hodges/.ssh/do_rsa.pub",
+		Keypair_Name:   "do_rsa",
+		New_Keypair:    false,
+	}
+	tester2 := Aws_Deployer{
+		Count:          1,
+		Region:         "us-west-1",
+		Security_Group: "tester1243",
+		Keypair_File:   "/Users/mike.hodges/.ssh/do_rsa.pub",
+		Keypair_Name:   "do_rsa",
+		New_Keypair:    false,
+	}
+	tester3 := Aws_Deployer{
+		Count:          1,
+		Region:         "eu-west-1",
+		Security_Group: "tester1243",
+		Keypair_File:   "/Users/mike.hodges/.ssh/do_rsa.pub",
+		Keypair_Name:   "do_rsa",
+		New_Keypair:    false,
+	}
 	testers := [...]Aws_Deployer{tester1, tester2, tester3}
 
 	var totalFile string
