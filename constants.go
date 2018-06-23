@@ -22,7 +22,7 @@ const variables = `
 	variable "azure_subscription_id" {}
 `
 
-////////////////////////////////////// MODULES //////////////////////////////////////
+///////////////////// MODULES /////////////////////
 
 const ec2Module = `
 	module "aws-{{.Region}}" {
@@ -52,8 +52,7 @@ const azureCdnModule = `
 	}
 `
 
-//TODO: for the azure title, need to parse the region, add underscore to spaces
-//ie West US should be west_us
+//TODO: need to run removeSpaces() on region
 const azureModule = `
 	module "azure-{{.LOOKATTODO}}" {
 		source                = "modules/azure-deployment"

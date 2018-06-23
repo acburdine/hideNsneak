@@ -29,7 +29,7 @@ type cloudFrontDeployer struct {
 type digitalOceanDeployer struct {
 	Image          string
 	Fingerprint    string
-	PrivateKey     string // TODO : i think this should be accessed elsewhere
+	PrivateKey     string
 	SSHFingerprint string
 	Size           string
 	Count          int

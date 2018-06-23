@@ -22,9 +22,7 @@ func main() {
 
 	//Writing Constants
 	mainFile.Write([]byte(state))
-
 	varFile.Write([]byte(variables))
-
 	tfvarsFile.Write([]byte(tfvars))
 
 	//Creating a test array
