@@ -19,7 +19,7 @@ resource "digitalocean_droplet" "default" {
   ]
 
   provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.do_default_user} --private-key ${var.pvt_key} -i '${digitalocean_droplet.default.ipv4_address},' master.yml"
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.do_default_user} --private-key ${var.pvt_key} -i '${self.ipv4_address},' master.yml"
   }
 }
 

@@ -22,6 +22,7 @@ resource "" resource "azurerm_resource_group" "hideNsneak" {
   location = "${var.azure_location}"
 }
 
+//TODO: Figure how to map multiple IPs to instances
 resource "azurerm_public_ip" "public_ip" {
   count                        = "${var.azure_instance_count}"
   name                         = "hideNsneak"

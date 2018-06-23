@@ -44,7 +44,7 @@ resource "aws_instance" "hideNsneak" {
   instance_type   = "${var.aws_instance_type}"
   count           = "${var.region_count}"
   subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  security_groups = ["${aws_security_group.allow_ssh.id}"]
+  security_groups = ["${var.default_sg_name}"]
 
   key_name = "${var.aws_keypair_name}"
 
@@ -55,12 +55,12 @@ resource "aws_instance" "hideNsneak" {
   depends_on = ["aws_security_group.allow_ssh"]
 
   provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${aws_instance.hideNsneak.public_ip},' master.yml"
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' master.yml"
   }
 }
 
 resource "aws_security_group" "allow_ssh" {
-  name        = "${var.default_sg_name}${random_string.ec2_name.result}"
+  name        = "${var.default_sg_name}"
   description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
   count       = "${var.region_count > 0 ? 1 : 0}"
