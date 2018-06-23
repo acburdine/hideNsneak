@@ -5,66 +5,76 @@ provider "azurerm" {
   tenant_id       = "${var.azure_tenant_id}"
 }
 
-resource "azurerm_resource_group" "test" {
-  name     = "acctestrg2"
+resource "random_string" "resource_group_name" {
+  length  = 8
+  special = false
+}
+
+resource "random_string" "net_name" {
+  length  = 8
+  special = false
+}
+
+//TODO: Resource group may not need to be created with each module
+resource "" resource "azurerm_resource_group" "hideNsneak" {
+  name     = "hideNsneak${random_string.resource_group_name.result}"
   count    = 1
   location = "${var.azure_location}"
 }
 
 resource "azurerm_public_ip" "public_ip" {
-  count                        = "${azurerm_virtual_machine.test.count}"
-  name                         = "tester"
-  location                     = "${azurerm_resource_group.test.location}"
-  resource_group_name          = "${azurerm_resource_group.test.name}"
+  count                        = "${var.azure_instance_count}"
+  name                         = "hideNsneak"
+  location                     = "${azurerm_resource_group.hideNsneak.location}"
+  resource_group_name          = "${azurerm_resource_group.hideNsneak.name}"
   public_ip_address_allocation = "static"
 }
 
-resource "azurerm_virtual_network" "test" {
-  name                = "acctvn"
+resource "azurerm_virtual_network" "hideNsneak" {
+  name                = "hideNsneakNet${random_string.net_name.result}"
   count               = "${var.azure_instance_count > 0 ? 1 : 0}"
   address_space       = ["10.0.0.0/16"]
-  location            = "${azurerm_resource_group.test.location}"
-  resource_group_name = "${azurerm_resource_group.test.name}"
+  location            = "${azurerm_resource_group.hideNsneak.location}"
+  resource_group_name = "${azurerm_resource_group.hideNsneak.name}"
 }
 
-resource "azurerm_subnet" "test" {
-  name                 = "acctsub"
+resource "azurerm_subnet" "hideNsneak" {
+  name                 = "hideNsneak${random_string.net_name.result}"
   count                = 0
-  resource_group_name  = "${azurerm_resource_group.test.name}"
-  virtual_network_name = "${azurerm_virtual_network.test.name}"
+  resource_group_name  = "${azurerm_resource_group.hideNsneak.name}"
+  virtual_network_name = "${azurerm_virtual_network.hideNsneak.name}"
   address_prefix       = "10.0.2.0/24"
 }
 
-resource "azurerm_network_interface" "test" {
-  name                = "acctni"
+resource "azurerm_network_interface" "hideNsneak" {
   count               = "${var.azure_instance_count > 0 ? 1 : 0}"
-  location            = "${azurerm_resource_group.test.location}"
-  resource_group_name = "${azurerm_resource_group.test.name}"
+  location            = "${azurerm_resource_group.hideNsneak.location}"
+  resource_group_name = "${azurerm_resource_group.hideNsneak.name}"
 
   ip_configuration {
-    name                          = "testconfiguration1"
-    subnet_id                     = "${azurerm_subnet.test.id}"
+    name                          = "hideNsneakSubnet${random_string.net_name.result}"
+    subnet_id                     = "${azurerm_subnet.hideNsneak.id}"
     private_ip_address_allocation = "dynamic"
   }
 }
 
-resource "azurerm_managed_disk" "test" {
+resource "azurerm_managed_disk" "hideNsneak" {
   name                 = "datadisk_existing"
   count                = "${var.azure_instance_count > 0 ? 1 : 0}"
-  location             = "${azurerm_resource_group.test.location}"
-  resource_group_name  = "${azurerm_resource_group.test.name}"
+  location             = "${azurerm_resource_group.hideNsneak.location}"
+  resource_group_name  = "${azurerm_resource_group.hideNsneak.name}"
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = "10"
 }
 
-#azurerm_virtual_machine.test.*.ip_adress
-resource "azurerm_virtual_machine" "test" {
-  name                  = "acctvm"
+#azurerm_virtual_machine.hideNsneak.*.ip_adress
+resource "azurerm_virtual_machine" "hideNsneak" {
+  name                  = "hideNsneak"
   count                 = "${var.azure_instance_count}"
-  location              = "${azurerm_resource_group.test.location}"
-  resource_group_name   = "${azurerm_resource_group.test.name}"
-  network_interface_ids = ["${azurerm_network_interface.test.id}"]
+  location              = "${azurerm_resource_group.hideNsneak.location}"
+  resource_group_name   = "${azurerm_resource_group.hideNsneak.name}"
+  network_interface_ids = ["${azurerm_network_interface.hideNsneak.id}"]
   vm_size               = "${var.azure_vm_size}"
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
@@ -74,6 +84,7 @@ resource "azurerm_virtual_machine" "test" {
   # Uncomment this line to delete the data disks automatically when deleting the VM
   # delete_data_disks_on_termination = true
 
+  //TODO: Make dynamic referece to storage image so use can specify
   storage_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
@@ -87,19 +98,21 @@ resource "azurerm_virtual_machine" "test" {
     managed_disk_type = "Standard_LRS"
   }
   os_profile {
-    computer_name  = "hostname"
-    admin_username = "testadmin"
-    admin_password = "Password1234!"
+    computer_name  = "${var.azure_admin_hostname}${azurerm_virtual_machine.hideNsneak.count}"
+    admin_username = "${var.azure_admin_username}"
   }
   os_profile_linux_config {
     disable_password_authentication = true
 
     ssh_keys {
-      path     = "/home/testadmin/.ssh/authorized_keys"
-      key_data = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDI38w64qILMmXfcZHyDc6h0ApN+XMSbRH69dHY9JeDKpsJeIsaI0L1GdWEXJl0stetQ3wjjnKQF5D9nNrZ4H9nusTtE2D65Zek/W2JlUFLo2ayji2MBQ0uh4Rn6MR9/TnD/PdcB6z52a5SvCv7ngytab7Lhnx416kya6zRwiBkJYbHarDAer6i5edA7XO7nHfqWFjzgWS3scQdmxhHTdQ+Keg4BM7VHa2xTLB7BaH2POwlBbM9UdFxhQbnj9ErQokAPI1mVlE1CkYP4d6SPU+UEzf0rVujhGdSek9H2EnoqKHMN2yDyHgk13NiBVux9pM3pjkhCVlZ+Wn3su0JhscN"
+      path     = "/home/${var.azure_admin_username}/.ssh/authorized_keys"
+      key_data = "${file(var.azure_public_key_file)}"
     }
   }
   tags {
-    environment = "test"
+    environment = "${var.azure_environment}"
+  }
+  provisioner "local-exec" {
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.azure_admin_username} --private-key ${var.azure_private_key} -i '${azurerm_public_ip.public_ip.ip_address},' master.yml"
   }
 }

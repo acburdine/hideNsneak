@@ -3,7 +3,7 @@ output "instance_id" {
 }
 
 output "region" {
-  value = "${digitalocean_droplet.default.*.region}"
+  value = "${var.do_region}"
 }
 
 output "ipv4_address" {

@@ -12,4 +12,6 @@ variable "azure_cdn_endpoint_name" {}
 
 variable "azure_cdn_hostname" {}
 
-variable "azure_cdn_profile_name" {}
+variable "azure_cdn_profile_name" {
+  default = "hideNsneak"
+}

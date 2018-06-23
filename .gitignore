@@ -1,5 +1,4 @@
-.terraform/
-.terraform
 terraform.tfvars
 tfplan
 secrets.go
+terraform/.terraform/
