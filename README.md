@@ -1,5 +1,6 @@
-Hey you. Welcome to hideNsneak.
+Welcome to hideNsneak.
 ===============================
+(logo here, centered)
 (What is hideNsneak?)
 
 
@@ -37,12 +38,20 @@ Organization
 _terraform --> has all the terraform related stuff
 
 _test.go --> test file that is ignored by go code (underscores do that)
+
 secrets.go --> ignored in gitignore. where you keep your secret keys
+
 constants.go --> where you can find all the constants for deploying modules
+
 lib.go --> utility functions
+
 structs.go --> basic structs for all modules
-terraformer.go --> wrapper for terraform functionality. This is where the good stuff happens.
+
+terraformer.go --> wrapper for terraform functionality. This is where the good stuff happens
 
 Developing locally & contributions
 ----------------------------------
 
+We would love to have you contribute to hideNsneak. Feel free to fork the repo and start contributing, we will review pull requests as we receive them. If you feel like some things need improvement or some features need adding, feel free to open up an issue and hopefully -- someone will pick it up. 
+
+For those who decide to contribute regularly... We've got some real comfy t-shirts for you.
