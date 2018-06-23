@@ -39,6 +39,7 @@ resource "aws_key_pair" "hideNsneak" {
   count      = "${var.aws_new_keypair ? 1 : 0}"
 }
 
+//TODO: 
 resource "aws_instance" "hideNsneak" {
   ami             = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
   instance_type   = "${var.aws_instance_type}"
