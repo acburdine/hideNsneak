@@ -4,6 +4,18 @@ provider "aws" {
   region     = "${var.aws_region}"
 }
 
+resource "ansible_host" "example" {
+  count = "${aws_instance.hideNsneak.count}"
+
+  //Element
+  inventory_hostname = "${aws_instance.hideNsneak[count].public_ip}"
+  groups             = ["web"]
+
+  vars {
+    ansible_user = "ubuntu"
+  }
+}
+
 resource "random_string" "ec2_name" {
   length  = 8
   special = false
