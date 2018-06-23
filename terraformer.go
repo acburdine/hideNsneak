@@ -28,7 +28,7 @@ func main() {
 	tfvarsFile.Write([]byte(tfvars))
 
 	//Creating a test array
-	tester1 := awsDeployer{
+	tester1 := ec2Deployer{
 		Count:         1,
 		Region:        "us-east-1",
 		SecurityGroup: "tester1243",
@@ -36,7 +36,7 @@ func main() {
 		KeypairName:   "do_rsa",
 		NewKeypair:    false,
 	}
-	tester2 := awsDeployer{
+	tester2 := ec2Deployer{
 		Count:         1,
 		Region:        "us-west-1",
 		SecurityGroup: "tester1243",
@@ -44,7 +44,7 @@ func main() {
 		KeypairName:   "do_rsa",
 		NewKeypair:    false,
 	}
-	tester3 := awsDeployer{
+	tester3 := ec2Deployer{
 		Count:         1,
 		Region:        "eu-west-1",
 		SecurityGroup: "tester1243",
@@ -52,7 +52,7 @@ func main() {
 		KeypairName:   "do_rsa",
 		NewKeypair:    false,
 	}
-	testers := [...]awsDeployer{tester1, tester2, tester3}
+	testers := [...]ec2Deployer{tester1, tester2, tester3}
 
 	var totalFile string
 	for _, test := range testers {
