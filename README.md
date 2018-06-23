@@ -16,6 +16,7 @@ Running locally
 4. download docker
 5. clone git repo
 6. Need to create a file under package main titled `secrets.go`
+
 	```const tfvars = 
 		aws_access_key = "YOUR_SECRET_KEY"
 		aws_secret_key = "YOUR_SECRET_KEY"
@@ -34,6 +35,7 @@ Commands & functionality
 Organization
 ------------
 _terraform --> has all the terraform related stuff
+
 _test.go --> test file that is ignored by go code (underscores do that)
 secrets.go --> ignored in gitignore. where you keep your secret keys
 constants.go --> where you can find all the constants for deploying modules
