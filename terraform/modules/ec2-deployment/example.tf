@@ -54,9 +54,9 @@ resource "aws_instance" "hideNsneak" {
 
   depends_on = ["aws_security_group.allow_ssh"]
 
-  provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' master.yml"
-  }
+  # provisioner "local-exec" {
+  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' master.yml"
+  # }
 }
 
 //TODO: Pop security groups out into their own module in order to

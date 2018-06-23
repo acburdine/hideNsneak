@@ -62,3 +62,13 @@ type apiGatewayDeployer struct {
 	TargetURI string
 	StageName string
 }
+
+type readList struct {
+	ec2DeployerList          []ec2Deployer
+	azureCdnDeployerList     []azureCdnDeployer
+	azureDeployerList        []azureDeployer
+	cloudFrontDeployerList   []cloudFrontDeployer
+	digitalOceanDeployerList []digitalOceanDeployer
+	googleCloudDeployerList  []googleCloudDeployer
+	apiGatewayDeployerList   []apiGatewayDeployer
+}

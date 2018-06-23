@@ -113,7 +113,8 @@ resource "azurerm_virtual_machine" "hideNsneak" {
   tags {
     environment = "${var.azure_environment}"
   }
-  provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.azure_admin_username} --private-key ${var.azure_private_key} -i '${azurerm_public_ip.public_ip.ip_address},' master.yml"
-  }
+
+  # provisioner "local-exec" {
+  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.azure_admin_username} --private-key ${var.azure_private_key} -i '${azurerm_public_ip.public_ip.ip_address},' master.yml"
+  # }
 }

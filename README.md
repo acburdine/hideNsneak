@@ -1,7 +1,7 @@
 Welcome to hideNsneak.
 ===============================
-(logo here, centered)
-(What is hideNsneak?)
+![Alt text](logo.png "hideNsneak")
+This application assists in managing attack infrastructure by providing an interface to rapidly deploy, manage, and take down various cloud services. These include VMs, domain fronting, Cobalt Strike servers, API gateways, and firewalls.
 
 
 How to use the tool & use cases
@@ -15,8 +15,21 @@ Running locally
 2. download terraform
 3. download ansible
 4. download docker
+<<<<<<< Updated upstream
+5. `git clone https://github.com/rmikehodges/hideNsneak.git`
+6. `cd hideNsneak/main`
+7. `go get github.com/rmikehodges/hideNsneak/cloud`
+8. `go get github.com/rmikehodges/hideNsneak/misc`
+9. `go get github.com/rmikehodges/hideNsneak/sshext`
+10. `go run main.go`
+11. fill in the values in config.yaml with API keys, file paths, etc
+12. set up your ssh key in your config.yaml file with all cloud provider you'd like to use (AWS, Google, Digital Ocean)
+13. Need to create a file under package main titled `secrets.go`
+=======
 5. clone git repo
 6. Need to create a file under package main titled `secrets.go`
+7. Need to create ~/.terraform.d/plugins and add https://github.com/nbering/terraform-provider-ansible/ to it
+>>>>>>> Stashed changes
 
 	```const tfvars = 
 		aws_access_key = "YOUR_SECRET_KEY"
@@ -26,7 +39,7 @@ Running locally
 		azure_client_id = "YOUR_SECRET_KEY"
 		azure_client_secret = "YOUR_SECRET_KEY"
 		azure_subscription_id = "YOUR_SECRET_KEY"```
-	
+
 
 Commands & functionality
 ------------------------
