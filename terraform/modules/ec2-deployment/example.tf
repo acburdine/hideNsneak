@@ -39,13 +39,12 @@ resource "aws_key_pair" "hideNsneak" {
   count      = "${var.aws_new_keypair ? 1 : 0}"
 }
 
-//TODO: 
 resource "aws_instance" "hideNsneak" {
   ami             = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
   instance_type   = "${var.aws_instance_type}"
   count           = "${var.region_count}"
   subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  security_groups = ["${var.default_sg_name}"]
+  security_groups = ["${aws_security_group.allow_ssh.id}"]
 
   key_name = "${var.aws_keypair_name}"
 
@@ -60,6 +59,8 @@ resource "aws_instance" "hideNsneak" {
   }
 }
 
+//TODO: Pop security groups out into their own module in order to
+//keep configurations upon the creation of new instances
 resource "aws_security_group" "allow_ssh" {
   name        = "${var.default_sg_name}"
   description = "Allow SSH Traffic"

@@ -25,6 +25,12 @@ func main() {
 	varFile.Write([]byte(variables))
 	tfvarsFile.Write([]byte(tfvars))
 
+	type BIGFUCKING struct {
+		EC2JANKS []ec2Deployer,
+		AZUREJANKS []azure,
+
+	}
+
 	//Creating a test array
 	tester1 := ec2Deployer{
 		Count:         1,
@@ -52,6 +58,8 @@ func main() {
 	}
 	testers := [...]ec2Deployer{tester1, tester2, tester3}
 
+	//Mapping all structs to a template and adding the result
+	//to the totalFile string
 	var totalFile string
 	for _, ourStruct := range testers {
 		tmpl, err := template.New("test").Parse(ec2Module)
