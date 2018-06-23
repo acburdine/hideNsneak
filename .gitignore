@@ -2,3 +2,4 @@
 .terraform
 terraform.tfvars
 tfplan
+terraform/.terraform/
