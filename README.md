@@ -1,6 +1,7 @@
 Welcome to hideNsneak.
 ===============================
-(logo here, centered)
+![Alt text](logo.png "hideNsneak")
+
 (What is hideNsneak?)
 
 
