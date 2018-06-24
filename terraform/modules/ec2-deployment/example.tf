@@ -5,15 +5,19 @@ provider "aws" {
 }
 
 resource "ansible_host" "example" {
-  count = "${aws_instance.hideNsneak.count}"
+  count = "${var.region_count}"
 
   //Element
-  inventory_hostname = "${aws_instance.hideNsneak[count].public_ip}"
+  inventory_hostname = "${aws_instance.hideNsneak.*.public_ip[count.index]}"
   groups             = ["web"]
 
   vars {
-    ansible_user = "ubuntu"
+    ansible_user                 = "ubuntu"
+    ansible_connection           = "ssh"
+    ansible_ssh_private_key_file = "${var.aws_private_key_file}"
   }
+
+  #   depends_on = ["aws_instance.hideNsneak"]
 }
 
 resource "random_string" "ec2_name" {
