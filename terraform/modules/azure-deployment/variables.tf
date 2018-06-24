@@ -12,7 +12,7 @@ variable "azure_instance_count" {
   default = 0
 }
 
-variable "azure_admin_username" {
+variable "azure_default_username" {
   default = "hidensneak"
 }
 

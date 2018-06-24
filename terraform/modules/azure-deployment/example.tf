@@ -24,7 +24,7 @@ resource "ansible_host" "hideNsneak" {
 
   vars {
     #TODO Add ssh user
-    ansible_user       = "${var.azure_admin_username}"
+    ansible_user       = "${var.azure_default_username}"
     ansible_connection = "ssh"
 
     #TODO: Add private key
@@ -98,11 +98,10 @@ resource "azurerm_virtual_machine" "hideNsneak" {
   vm_size               = "${var.azure_vm_size}"
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
-  # delete_os_disk_on_termination = true
-
+  delete_os_disk_on_termination = true
 
   # Uncomment this line to delete the data disks automatically when deleting the VM
-  # delete_data_disks_on_termination = true
+  delete_data_disks_on_termination = true
 
   //TODO: Make dynamic referece to storage image so use can specify
   storage_image_reference {
@@ -111,24 +110,28 @@ resource "azurerm_virtual_machine" "hideNsneak" {
     sku       = "16.04-LTS"
     version   = "latest"
   }
+
   storage_os_disk {
     name              = "myosdisk1"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
+
   os_profile {
     computer_name  = "${var.azure_admin_hostname}${azurerm_virtual_machine.hideNsneak.count}"
-    admin_username = "${var.azure_admin_username}"
+    admin_username = "${var.azure_default_username}"
   }
+
   os_profile_linux_config {
     disable_password_authentication = true
 
     ssh_keys {
-      path     = "/home/${var.azure_admin_username}/.ssh/authorized_keys"
+      path     = "/home/${var.azure_default_username}/.ssh/authorized_keys"
       key_data = "${file(var.azure_public_key_file)}"
     }
   }
+
   tags {
     environment = "${var.azure_environment}"
   }

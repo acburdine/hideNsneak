@@ -25,6 +25,8 @@ type azureDeployer struct {
 	InstanceCount string
 	VMSize        string
 	Environment   string
+	PrivateKey    string
+	PublicKey     string
 }
 
 type cloudFrontDeployer struct {

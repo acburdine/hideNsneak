@@ -59,7 +59,6 @@ const azureCdnModule = `
 		azure_cdn_profile_name  = "{{.ProfileName}}"
 		azure_cdn_endpoint_name = "{{.EndpointName}}"
 		azure_location          = "{{.Location}}"
-		ansible_groups       = "[]"
 	}
 `
 
@@ -75,6 +74,8 @@ const azureModule = `
 		azure_instance_count  = {{.InstanceCount}}
 		azure_vm_size 		  = "{{.VMSize}}"
 		azure_environment 	  = "{{.Environment}}"
+		azure_public_key_file = "{{.PublicKey}}
+		azure_private_key_file = "{{.PrivateKey}}
 		ansible_groups       = "[]"
 	}
 `
