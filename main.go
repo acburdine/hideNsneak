@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -75,7 +74,7 @@ func main() {
 					providers, _ = reader.ReadString('\n')
 					providers = strings.TrimSpace(providers)
 					if providers == "" {
-						providerArray = []string{"AWS", "DO", "Google"}
+						providerArray = []string{"EC2", "DO", "Google"}
 						break
 					} else if providers == "quit" || providers == "exit" {
 						stillInLoop1 = false
@@ -91,43 +90,66 @@ func main() {
 				}
 			}
 
-			// if there is EC2 in provider array, set up AWS
-			// if there is API Gateway in provider array, set up AWS
+			if stringInSlice("EC2", providerArray) {
+				fmt.Print(setupEC2)
 
-			// if there is Google in provider array, set up AWS
+				//check if secret key is setup, if not ask for secret key
+				//check if access key is setup, if not ask for access key
 
-			// if there is Azure in provider array, set up AWS
-			// if there is AzureCDN in provider array, set up AWS
-			// if there is Digital Ocean in provider array, set up AWS
-
-			for (stillInLoop2 == true) && (continueDeploy == true) {
-				fmt.Print(numServersToDeploy)
-				countString, _ := reader.ReadString('\n')
-				countString = strings.TrimSpace(countString)
-				count, err = strconv.Atoi(countString)
-				if err != nil {
-					fmt.Println("<hideNSneak/deploy> Error: Not an Integer.  ")
-					continue
-				}
-				break
-			}
-			providerMap := make(map[string]int)
-			division := count / len(providerArray)
-			remainder := count % len(providerArray)
-
-			for _, p := range providerArray {
-				providerMap[p] = division
 			}
 
-			if remainder != 0 {
-				for p := range providerMap {
-					providerMap[p] = providerMap[p] + 1
-					remainder = remainder - 1
-					if remainder == 0 {
-						break
-					}
-				}
+			if stringInSlice("DO", providerArray) {
+				fmt.Print(setupDO)
 			}
+			if stringInSlice("GOOGLE", providerArray) {
+				fmt.Print(setupGCP)
+			}
+			if stringInSlice("AZURE", providerArray) {
+				fmt.Print(setupAzure)
+			}
+			if stringInSlice("AZURECDN", providerArray) {
+				fmt.Print(setupCDN)
+			}
+			if stringInSlice("APIGATEWAY", providerArray) {
+				fmt.Print(setupAPI)
+			}
+
+			// if there is API Gateway in provider array, set up AG
+
+			// if there is Google in provider array, set up GCP
+
+			// if there is Azure in provider array, set up Azure
+			// if there is AzureCDN in provider array, set up AzureCDN
+			// if there is Digital Ocean in provider array, set up DO
+
+			// for (stillInLoop2 == true) && (continueDeploy == true) {
+			// 	fmt.Print(numServersToDeploy)
+			// 	countString, _ := reader.ReadString('\n')
+			// 	countString = strings.TrimSpace(countString)
+			// 	count, err = strconv.Atoi(countString)
+			// 	if err != nil {
+			// 		fmt.Println("<hideNSneak/deploy> Error: Not an Integer.  ")
+			// 		continue
+			// 	}
+			// 	break
+			// }
+			// providerMap := make(map[string]int)
+			// division := count / len(providerArray)
+			// remainder := count % len(providerArray)
+
+			// for _, p := range providerArray {
+			// 	providerMap[p] = division
+			// }
+
+			// if remainder != 0 {
+			// 	for p := range providerMap {
+			// 		providerMap[p] = providerMap[p] + 1
+			// 		remainder = remainder - 1
+			// 		if remainder == 0 {
+			// 			break
+			// 		}
+			// 	}
+			// }
 
 			// instanceArray := cloud.DeployInstances(config, providerMap)
 			// allInstances = append(allInstances, instanceArray...)
