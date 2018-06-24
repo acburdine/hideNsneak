@@ -33,3 +33,7 @@ variable "aws_private_key_file" {}
 variable "aws_tags" {
   default = ""
 }
+
+variable "ansible_groups" {
+  default = []
+}

@@ -15,6 +15,7 @@ Running locally
 2. download terraform
 3. download ansible
 4. download docker
+<<<<<<< Updated upstream
 5. `git clone https://github.com/rmikehodges/hideNsneak.git`
 6. `cd hideNsneak/main`
 7. `go get github.com/rmikehodges/hideNsneak/cloud`
@@ -24,6 +25,11 @@ Running locally
 11. fill in the values in config.yaml with API keys, file paths, etc
 12. set up your ssh key in your config.yaml file with all cloud provider you'd like to use (AWS, Google, Digital Ocean)
 13. Need to create a file under package main titled `secrets.go`
+=======
+5. clone git repo
+6. Need to create a file under package main titled `secrets.go`
+7. Need to create ~/.terraform.d/plugins and add https://github.com/nbering/terraform-provider-ansible/ to it
+>>>>>>> Stashed changes
 
 	```const tfvars = 
 		aws_access_key = "YOUR_SECRET_KEY"
