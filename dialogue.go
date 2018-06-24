@@ -83,12 +83,13 @@ const defaultSecurityGroupNameEC2 = "<hideNSneak/deploy/setup/EC2> Enter name fo
 
 // optional
 const wantInstanceTypeEC2 = "<hideNSneak/deploy/setup/EC2> Would you like to specify instance types? [yes/no]: "
-const instanceTypeEC2 = "<hideNSneak/deploy/setup/EC2> "
+const instanceTypeEC2 = "<hideNSneak/deploy/setup/EC2> Enter instance type: "
 const wantDefaultUserEC2 = "<hideNSneak/deploy/setup/EC2> Would you like to specify instance types? [yes/no]: "
-const defaultUserEC2 = "<hideNSneak/deploy/setup/EC2> "
+const defaultUserEC2 = "<hideNSneak/deploy/setup/EC2> Enter default user: "
 const wantCustomAmiEC2 = "<hideNSneak/deploy/setup/EC2> Would you like to specify instance types? [yes/no]: "
-const customAmiEC2 = "<hideNSneak/deploy/setup/EC2> "
+const customAmiEC2 = "<hideNSneak/deploy/setup/EC2> Enter custom AMI: "
 
+const invalidResponseEC2 = "<hideNSneak/deploy/setup/EC2> Invalid response. Enter appropriate response or refer to EC2 deployment specifications for guidance on naming conventions."
 const confirmPreferencesEC2 = "<hideNSneak/deploy/setup/EC2> Please confirm your setup below. Choose a number to edit. [yes/int]"
 const confirmSaveEC2 = "<hideNSneak/deploy/setup/EC2> Preferences saved. Moving on..."
 

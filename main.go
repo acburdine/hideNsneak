@@ -91,7 +91,44 @@ func main() {
 				}
 			}
 
-			// if there is EC2 in provider array, set up EC2
+			if stringInSlice("EC2", providerArray) {
+				fmt.Print(setupEC2)
+				//check if secret key is setup, if not ask for secret key
+				//check if access key is setup, if not ask for access key
+
+			}
+
+			if stringInSlice("DO", providerArray) {
+				fmt.Print(setupEC2)
+				//check if secret key is setup, if not ask for secret key
+				//check if access key is setup, if not ask for access key
+
+			}
+			if stringInSlice("GOOGLE", providerArray) {
+				fmt.Print(setupEC2)
+				//check if secret key is setup, if not ask for secret key
+				//check if access key is setup, if not ask for access key
+
+			}
+			if stringInSlice("AZURE", providerArray) {
+				fmt.Print(setupEC2)
+				//check if secret key is setup, if not ask for secret key
+				//check if access key is setup, if not ask for access key
+
+			}
+			if stringInSlice("AZURECDN", providerArray) {
+				fmt.Print(setupEC2)
+				//check if secret key is setup, if not ask for secret key
+				//check if access key is setup, if not ask for access key
+
+			}
+			if stringInSlice("APIGATEWAY", providerArray) {
+				fmt.Print(setupEC2)
+				//check if secret key is setup, if not ask for secret key
+				//check if access key is setup, if not ask for access key
+
+			}
+
 			// if there is API Gateway in provider array, set up AG
 
 			// if there is Google in provider array, set up GCP
