@@ -19,3 +19,7 @@ variable "azure_vm_size" {
 variale "azure_environment" {
   default = "hideNsneak"
 }
+
+variable "ansible_groups" {
+  default = []
+}

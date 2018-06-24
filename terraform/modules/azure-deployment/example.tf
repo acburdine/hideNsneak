@@ -15,8 +15,27 @@ resource "random_string" "net_name" {
   special = false
 }
 
+resource "ansible_host" "hideNsneak" {
+  count = "${var.azure_instance_count}"
+
+  //Element
+  inventory_hostname = "${azurerm_public_ip.public_ip.*.ip_address[count.index]}"
+  groups             = "${var.ansible_groups}"
+
+  vars {
+    #TODO Add ssh user
+    ansible_user       = "${var.azure}"
+    ansible_connection = "ssh"
+
+    #TODO: Add private key
+    ansible_ssh_private_key_file = "${var.azure}"
+  }
+
+  depends_on = ["azure_virtual_machine.hideNsneak"]
+}
+
 //TODO: Resource group may not need to be created with each module
-resource "" resource "azurerm_resource_group" "hideNsneak" {
+resource "azurerm_resource_group" "hideNsneak" {
   name     = "hideNsneak${random_string.resource_group_name.result}"
   count    = 1
   location = "${var.azure_location}"
@@ -113,8 +132,4 @@ resource "azurerm_virtual_machine" "hideNsneak" {
   tags {
     environment = "${var.azure_environment}"
   }
-
-  # provisioner "local-exec" {
-  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.azure_admin_username} --private-key ${var.azure_private_key} -i '${azurerm_public_ip.public_ip.ip_address},' master.yml"
-  # }
 }

@@ -24,3 +24,7 @@ variable "do_firewall_name" {
 variable "do_ssh_source_ip" {
   default = "0.0.0.0/0"
 }
+
+variable "ansible_groups" {
+  default = []
+}

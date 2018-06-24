@@ -1,5 +1,5 @@
 output "instance_id" {
-  value = "${digitalocean_droplet.default.*.id}"
+  value = "${digitalocean_droplet.hideNsneak.*.id}"
 }
 
 output "region" {
@@ -7,9 +7,9 @@ output "region" {
 }
 
 output "ipv4_address" {
-  value = "${digitalocean_droplet.default.*.ipv4_address}"
+  value = "${digitalocean_droplet.hideNsneak.*.ipv4_address}"
 }
 
 output "status" {
-  value = "${digitalocean_droplet.default.*.status}"
+  value = "${digitalocean_droplet.hideNsneak.*.status}"
 }

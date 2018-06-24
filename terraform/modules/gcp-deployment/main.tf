@@ -14,6 +14,21 @@ data "google_compute_image" "ubuntu_image" {
   project = "ubuntu-os-cloud"
 }
 
+resource "ansible_host" "hideNsneak" {
+  count = "${var.gcp_instance_count}"
+
+  inventory_hostname = "${google_compute_instance.hideNsneak.*.network_interface.0.access_config.0.assigned_nat_ip[count.index]}"
+  groups             = "${var.ansible_groups}"
+
+  vars {
+    ansible_user                 = "${var.gcp_ssh_user}"
+    ansible_connection           = "ssh"
+    ansible_ssh_private_key_file = "${var.gcp_ssh_private_key_file}"
+  }
+
+  depends_on = ["google_compute_instance.hideNsneak"]
+}
+
 resource "google_compute_instance" "hideNsneak" {
   name         = "hideNsneak-${google_compute_instance.hideNsneak.count}"
   machine_type = "${var.gcp_machine_type}"
