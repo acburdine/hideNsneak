@@ -7,7 +7,6 @@ provider "aws" {
 resource "ansible_host" "hideNsneak" {
   count = "${var.region_count}"
 
-  //Element
   inventory_hostname = "${aws_instance.hideNsneak.*.public_ip[count.index]}"
   groups             = "${var.ansible_groups}"
 
