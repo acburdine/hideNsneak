@@ -1,5 +1,8 @@
 package main
 
+const tfMainFile = "terraform/main.tf"
+const tfVariablesFile = "terraform/variables.tf"
+const tfVarsFile = "terraform/terraform.tfvars"
 const state = `
 	terraform {
 		backend "s3" {
@@ -28,7 +31,6 @@ variable "azure_subscription_id" {}
 `
 
 ///////////////////// MODULES /////////////////////
-
 const ec2Module = `
 	module "aws-{{.Region}}" {
 		source         		 = "modules/ec2-deployment"
