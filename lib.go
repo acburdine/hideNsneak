@@ -6,6 +6,11 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
 func checkErr(err error) {
@@ -71,4 +76,21 @@ func providerCheck(providerArray []string) bool {
 		}
 	}
 	return true
+}
+
+func checkEC2KeyExistence(secret string, accessID string, region string, keyName string) (keyExists bool) {
+	svc := ec2.New(session.New(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
+	}))
+	keyPairOutput, _ := svc.DescribeKeyPairs(&ec2.DescribeKeyPairsInput{
+		KeyNames: aws.StringSlice([]string{keyName}),
+	})
+
+	if len(keyPairOutput.KeyPairs) == 0 {
+		keyExists = false
+	} else {
+		keyExists = true
+	}
+	return
 }
