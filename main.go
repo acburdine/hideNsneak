@@ -75,7 +75,7 @@ func main() {
 					providers, _ = reader.ReadString('\n')
 					providers = strings.TrimSpace(providers)
 					if providers == "" {
-						providerArray = []string{"AWS", "DO", "Google"}
+						providerArray = []string{"EC2", "DO", "Google"}
 						break
 					} else if providers == "quit" || providers == "exit" {
 						stillInLoop1 = false
@@ -91,14 +91,14 @@ func main() {
 				}
 			}
 
-			// if there is EC2 in provider array, set up AWS
-			// if there is API Gateway in provider array, set up AWS
+			// if there is EC2 in provider array, set up EC2
+			// if there is API Gateway in provider array, set up AG
 
-			// if there is Google in provider array, set up AWS
+			// if there is Google in provider array, set up GCP
 
-			// if there is Azure in provider array, set up AWS
-			// if there is AzureCDN in provider array, set up AWS
-			// if there is Digital Ocean in provider array, set up AWS
+			// if there is Azure in provider array, set up Azure
+			// if there is AzureCDN in provider array, set up AzureCDN
+			// if there is Digital Ocean in provider array, set up DO
 
 			for (stillInLoop2 == true) && (continueDeploy == true) {
 				fmt.Print(numServersToDeploy)

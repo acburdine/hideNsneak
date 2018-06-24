@@ -67,10 +67,32 @@ const doesntExist = "<hideNsneak> Looks like that command doesn't exist. Try run
 const chooseProviders = "<hideNsneak/deploy> Enter the cloud providers you would like to use, separated by commas. [Default: EC2,DO, Google]: "
 const unknownProvider = "<hideNsneak/deploy> Unknown Cloud Provider, please check your input. Choices: EC2, DO, Google, Azure, AzureCDN, ApiGateway"
 
+// EC2
 const setupEC2 = "<hideNSneak/deploy/setup/EC2> Please enter your EC2 deploy setup preferences..."
-const numServersToDeployEC2 = "<hideNSneak/deploy/setup/EC2> Enter the number of servers to deploy: "
-const confirmSetupEC2 = "<hideNSneak/deploy/setup/EC2> Preferences saved."
+const secretKeyEC2 = "<hideNSneak/deploy/setup/EC2> Secret key is not set up. Enter your AWS secret key: "
+const accessKeyEC2 = "<hideNSneak/deploy/setup/EC2> Access key is not set up. Enter your AWS access key: "
+const regionsEC2 = "<hideNSneak/deploy/setup/EC2> Enter regions to deploy in, separated by commas: "
+const numServersToDeployEC2 = "<hideNSneak/deploy/setup/EC2> Enter the number of servers to deploy [this will be distributed across desired regions]: "
+const privateKeyFileEC2 = "<hideNSneak/deploy/setup/EC2> Enter filepath to private key file: "
 
+const keyPairNameEC2 = "<hideNSneak/deploy/setup/EC2> Enter keypair name: "
+
+// if keypair name not found, then ask for publickeyfile
+const publicKeyFileEC2 = "<hideNSneak/deploy/setup/EC2> Enter filepath to public key file: "
+const defaultSecurityGroupNameEC2 = "<hideNSneak/deploy/setup/EC2> Enter name for default security group: "
+
+// optional
+const wantInstanceTypeEC2 = "<hideNSneak/deploy/setup/EC2> Would you like to specify instance types? [yes/no]: "
+const instanceTypeEC2 = "<hideNSneak/deploy/setup/EC2> "
+const wantDefaultUserEC2 = "<hideNSneak/deploy/setup/EC2> Would you like to specify instance types? [yes/no]: "
+const defaultUserEC2 = "<hideNSneak/deploy/setup/EC2> "
+const wantCustomAmiEC2 = "<hideNSneak/deploy/setup/EC2> Would you like to specify instance types? [yes/no]: "
+const customAmiEC2 = "<hideNSneak/deploy/setup/EC2> "
+
+const confirmPreferencesEC2 = "<hideNSneak/deploy/setup/EC2> Please confirm your setup below. Choose a number to edit. [yes/int]"
+const confirmSaveEC2 = "<hideNSneak/deploy/setup/EC2> Preferences saved. Moving on..."
+
+// Digital Ocean
 const setupDO = "<hideNSneak/deploy/setup/DO> Please enter your Digital Ocean deploy setup preferences..."
 const numServersToDeployDO = "<hideNSneak/deploy/setup/DO> Enter the number of servers to deploy: "
 const confirmSetupDO = "<hideNSneak/deploy/setup/DO> Preferences saved."

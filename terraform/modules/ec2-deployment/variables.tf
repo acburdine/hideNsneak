@@ -2,9 +2,7 @@ variable "aws_access_key" {}
 variable "aws_secret_key" {}
 variable "aws_region" {}
 
-variable "region_count" {
-  default = 0
-}
+variable "region_count" {}
 
 variable "custom_ami" {
   default = ""
