@@ -98,7 +98,7 @@ const setupDO = "<hideNSneak/deploy/setup/DO> Please enter your Digital Ocean de
 const numServersToDeployDO = "<hideNSneak/deploy/setup/DO> Enter the number of servers to deploy: "
 const confirmSetupDO = "<hideNSneak/deploy/setup/DO> Preferences saved."
 
-const setupGoogle = "<hideNSneak/deploy/setup/GCP> Please enter your Google deploy setup preferences..."
+const setupGCP = "<hideNSneak/deploy/setup/GCP> Please enter your Google deploy setup preferences..."
 const numServersToDeployGoogle = "<hideNSneak/deploy/setup/GCP> Enter the number of servers to deploy: "
 const confirmSetupGoogle = "<hideNSneak/deploy/setup/GCP> Preferences saved."
 
@@ -106,11 +106,11 @@ const setupAzure = "<hideNSneak/deploy/setup/azure> Please enter your Azure depl
 const numServersToDeployAzure = "<hideNSneak/deploy/setup/azure> Enter the number of servers to deploy: "
 const confirmSetupAzure = "<hideNSneak/deploy/setup/azure> Preferences saved."
 
-const setupAzureCDN = "<hideNSneak/deploy/setup/azure-cdn> Please enter your Azure-CDN deploy setup preferences..."
+const setupCDN = "<hideNSneak/deploy/setup/azure-cdn> Please enter your Azure-CDN deploy setup preferences..."
 const numServersToDeployAzureCDN = "<hideNSneak/deploy/setup/azure-cdn> Enter the number of servers to deploy: "
 const confirmSetupAzureCDN = "<hideNSneak/deploy/setup/azure-cdn> Preferences saved."
 
-const setupAPIGateway = "<hideNSneak/deploy/setup/api-gateway> Please enter your API Gateway deploy setup preferences..."
+const setupAPI = "<hideNSneak/deploy/setup/api-gateway> Please enter your API Gateway deploy setup preferences..."
 const numServersToDeployAPIGateway = "<hideNSneak/deploy/setup/api-gateway> Enter the number of servers to deploy: "
 const confirmSetupAPIGateway = "<hideNSneak/deploy/setup/api-gateway> Preferences saved."
 

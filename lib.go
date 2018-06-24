@@ -4,8 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
 func checkErr(err error) {
@@ -80,4 +87,51 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+//checkEc2KeyExistence queries the Amazon EC2 API for the keypairs with the specified keyname
+//Returns true if the resulting array is > 0, false otherwise
+func checkEC2KeyExistence(secret string, accessID string, region string, keyName string) bool {
+	svc := ec2.New(session.New(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
+	}))
+	keyPairOutput, _ := svc.DescribeKeyPairs(&ec2.DescribeKeyPairsInput{
+		KeyNames: aws.StringSlice([]string{keyName}),
+	})
+
+	if len(keyPairOutput.KeyPairs) == 0 {
+		return false
+	}
+	return true
+}
+
+//checkEc2KeyExistence queries the Amazon EC2 API for the security groups
+//with the specified name
+//Returns true if the resulting array is > 0, false otherwise
+func checkEC2SecurityGroupExistence(secret string, accessID string, region string, securityGroupName string) bool {
+	svc := ec2.New(session.New(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
+	}))
+	securityGroupOutput, _ := svc.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{
+		GroupNames: aws.StringSlice([]string{securityGroupName}),
+	})
+
+	if len(securityGroupOutput.SecurityGroups) == 0 {
+		return false
+	}
+	return true
+}
+
+//createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
+//returns a pointer to the specified OS process so that we can kill it effictively
+func createSingleSOCKS(privateKey string, username string, ipv4 string, port int) *os.Process {
+	portString := strconv.Itoa(port)
+	cmd := exec.Command("ssh", "-N", "-D", portString, "-o", "StrictHostKeyChecking=no", "-i", privateKey, fmt.Sprintf(username+"@%s", ipv4))
+	if err := cmd.Start(); err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	return cmd.Process
 }

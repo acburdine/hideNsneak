@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -93,40 +92,26 @@ func main() {
 
 			if stringInSlice("EC2", providerArray) {
 				fmt.Print(setupEC2)
+
 				//check if secret key is setup, if not ask for secret key
 				//check if access key is setup, if not ask for access key
 
 			}
 
 			if stringInSlice("DO", providerArray) {
-				fmt.Print(setupEC2)
-				//check if secret key is setup, if not ask for secret key
-				//check if access key is setup, if not ask for access key
-
+				fmt.Print(setupDO)
 			}
 			if stringInSlice("GOOGLE", providerArray) {
-				fmt.Print(setupEC2)
-				//check if secret key is setup, if not ask for secret key
-				//check if access key is setup, if not ask for access key
-
+				fmt.Print(setupGCP)
 			}
 			if stringInSlice("AZURE", providerArray) {
-				fmt.Print(setupEC2)
-				//check if secret key is setup, if not ask for secret key
-				//check if access key is setup, if not ask for access key
-
+				fmt.Print(setupAzure)
 			}
 			if stringInSlice("AZURECDN", providerArray) {
-				fmt.Print(setupEC2)
-				//check if secret key is setup, if not ask for secret key
-				//check if access key is setup, if not ask for access key
-
+				fmt.Print(setupCDN)
 			}
 			if stringInSlice("APIGATEWAY", providerArray) {
-				fmt.Print(setupEC2)
-				//check if secret key is setup, if not ask for secret key
-				//check if access key is setup, if not ask for access key
-
+				fmt.Print(setupAPI)
 			}
 
 			// if there is API Gateway in provider array, set up AG
@@ -137,34 +122,34 @@ func main() {
 			// if there is AzureCDN in provider array, set up AzureCDN
 			// if there is Digital Ocean in provider array, set up DO
 
-			for (stillInLoop2 == true) && (continueDeploy == true) {
-				fmt.Print(numServersToDeploy)
-				countString, _ := reader.ReadString('\n')
-				countString = strings.TrimSpace(countString)
-				count, err = strconv.Atoi(countString)
-				if err != nil {
-					fmt.Println("<hideNSneak/deploy> Error: Not an Integer.  ")
-					continue
-				}
-				break
-			}
-			providerMap := make(map[string]int)
-			division := count / len(providerArray)
-			remainder := count % len(providerArray)
+			// for (stillInLoop2 == true) && (continueDeploy == true) {
+			// 	fmt.Print(numServersToDeploy)
+			// 	countString, _ := reader.ReadString('\n')
+			// 	countString = strings.TrimSpace(countString)
+			// 	count, err = strconv.Atoi(countString)
+			// 	if err != nil {
+			// 		fmt.Println("<hideNSneak/deploy> Error: Not an Integer.  ")
+			// 		continue
+			// 	}
+			// 	break
+			// }
+			// providerMap := make(map[string]int)
+			// division := count / len(providerArray)
+			// remainder := count % len(providerArray)
 
-			for _, p := range providerArray {
-				providerMap[p] = division
-			}
+			// for _, p := range providerArray {
+			// 	providerMap[p] = division
+			// }
 
-			if remainder != 0 {
-				for p := range providerMap {
-					providerMap[p] = providerMap[p] + 1
-					remainder = remainder - 1
-					if remainder == 0 {
-						break
-					}
-				}
-			}
+			// if remainder != 0 {
+			// 	for p := range providerMap {
+			// 		providerMap[p] = providerMap[p] + 1
+			// 		remainder = remainder - 1
+			// 		if remainder == 0 {
+			// 			break
+			// 		}
+			// 	}
+			// }
 
 			// instanceArray := cloud.DeployInstances(config, providerMap)
 			// allInstances = append(allInstances, instanceArray...)
