@@ -24,11 +24,11 @@ resource "ansible_host" "hideNsneak" {
 
   vars {
     #TODO Add ssh user
-    ansible_user       = "${var.azure}"
+    ansible_user       = "${var.azure_admin_username}"
     ansible_connection = "ssh"
 
     #TODO: Add private key
-    ansible_ssh_private_key_file = "${var.azure}"
+    ansible_ssh_private_key_file = "${var.azure_private_key_file}"
   }
 
   depends_on = ["azure_virtual_machine.hideNsneak"]

@@ -12,13 +12,21 @@ variable "azure_instance_count" {
   default = 0
 }
 
+variable "azure_admin_username" {
+  default = "hidensneak"
+}
+
 variable "azure_vm_size" {
   default = "Standard_F2"
 }
 
-variale "azure_environment" {
+variable "azure_environment" {
   default = "hideNsneak"
 }
+
+variable "azure_public_key_file" {}
+
+variable "azure_private_key_file" {}
 
 variable "ansible_groups" {
   default = []
