@@ -18,6 +18,10 @@ variable "aws_new_keypair" {
 
 variable "default_sg_name" {}
 
+variable "aws_sg_id" {
+  default = ""
+}
+
 variable "aws_instance_type" {
   default = "t2.micro"
 }

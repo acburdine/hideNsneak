@@ -60,9 +60,8 @@ resource "aws_instance" "hideNsneak" {
   instance_type   = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
   count           = "${var.region_count}"
   subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  security_groups = ["${aws_security_group.allow_ssh.id}"]
-
-  key_name = "${var.aws_keypair_name}"
+  security_groups = ["${var.aws_sg_id == "" ? aws_security_group.allow_ssh.id : var.aws_sg_id }"]
+  key_name        = "${var.aws_keypair_name}"
 
   tags {
     Name = "hideNsneak${random_string.ec2_name.result}"
@@ -77,7 +76,7 @@ resource "aws_security_group" "allow_ssh" {
   name        = "${var.default_sg_name}"
   description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
-  count       = "${var.region_count > 0 ? 1 : 0}"
+  count       = "${var.aws_sg_id == "" ? 1 : 0}"
 
   ingress {
     from_port   = 22
