@@ -15,13 +15,33 @@ resource "random_string" "net_name" {
   special = false
 }
 
+resource "ansible_host" "hideNsneak" {
+  count = "${var.azure_instance_count}"
+
+  //Element
+  inventory_hostname = "${azurerm_public_ip.public_ip.*.ip_address[count.index]}"
+  groups             = "${var.ansible_groups}"
+
+  vars {
+    #TODO Add ssh user
+    ansible_user       = "${var.azure_default_username}"
+    ansible_connection = "ssh"
+
+    #TODO: Add private key
+    ansible_ssh_private_key_file = "${var.azure_private_key_file}"
+  }
+
+  depends_on = ["azure_virtual_machine.hideNsneak"]
+}
+
 //TODO: Resource group may not need to be created with each module
-resource "" resource "azurerm_resource_group" "hideNsneak" {
+resource "azurerm_resource_group" "hideNsneak" {
   name     = "hideNsneak${random_string.resource_group_name.result}"
   count    = 1
   location = "${var.azure_location}"
 }
 
+//TODO: Figure how to map multiple IPs to instances
 resource "azurerm_public_ip" "public_ip" {
   count                        = "${var.azure_instance_count}"
   name                         = "hideNsneak"
@@ -78,11 +98,10 @@ resource "azurerm_virtual_machine" "hideNsneak" {
   vm_size               = "${var.azure_vm_size}"
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
-  # delete_os_disk_on_termination = true
-
+  delete_os_disk_on_termination = true
 
   # Uncomment this line to delete the data disks automatically when deleting the VM
-  # delete_data_disks_on_termination = true
+  delete_data_disks_on_termination = true
 
   //TODO: Make dynamic referece to storage image so use can specify
   storage_image_reference {
@@ -91,28 +110,29 @@ resource "azurerm_virtual_machine" "hideNsneak" {
     sku       = "16.04-LTS"
     version   = "latest"
   }
+
   storage_os_disk {
     name              = "myosdisk1"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
+
   os_profile {
     computer_name  = "${var.azure_admin_hostname}${azurerm_virtual_machine.hideNsneak.count}"
-    admin_username = "${var.azure_admin_username}"
+    admin_username = "${var.azure_default_username}"
   }
+
   os_profile_linux_config {
     disable_password_authentication = true
 
     ssh_keys {
-      path     = "/home/${var.azure_admin_username}/.ssh/authorized_keys"
+      path     = "/home/${var.azure_default_username}/.ssh/authorized_keys"
       key_data = "${file(var.azure_public_key_file)}"
     }
   }
+
   tags {
     environment = "${var.azure_environment}"
-  }
-  provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.azure_admin_username} --private-key ${var.azure_private_key} -i '${azurerm_public_ip.public_ip.ip_address},' master.yml"
   }
 }

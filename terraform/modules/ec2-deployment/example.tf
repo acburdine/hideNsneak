@@ -4,6 +4,22 @@ provider "aws" {
   region     = "${var.aws_region}"
 }
 
+resource "ansible_host" "hideNsneak" {
+  count = "${var.region_count}"
+
+  //Element
+  inventory_hostname = "${aws_instance.hideNsneak.*.public_ip[count.index]}"
+  groups             = "${var.ansible_groups}"
+
+  vars {
+    ansible_user                 = "${var.ec2_default_user}"
+    ansible_connection           = "ssh"
+    ansible_ssh_private_key_file = "${var.aws_private_key_file}"
+  }
+
+  depends_on = ["aws_instance.hideNsneak"]
+}
+
 resource "random_string" "ec2_name" {
   length  = 8
   special = false
@@ -53,14 +69,12 @@ resource "aws_instance" "hideNsneak" {
   }
 
   depends_on = ["aws_security_group.allow_ssh"]
-
-  provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${aws_instance.hideNsneak.public_ip},' master.yml"
-  }
 }
 
+//TODO: Pop security groups out into their own module in order to
+//keep configurations upon the creation of new instances
 resource "aws_security_group" "allow_ssh" {
-  name        = "${var.default_sg_name}${random_string.ec2_name.result}"
+  name        = "${var.default_sg_name}"
   description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
   count       = "${var.region_count > 0 ? 1 : 0}"

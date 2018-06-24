@@ -33,6 +33,8 @@ terraform {
 
 ###AWS####
 
+
+
 # module "{.GOTEMPLATE}" {
 #   source         = "modules/ec2-deployment"
 #   aws_region     = "us-east-1"
@@ -40,6 +42,13 @@ terraform {
 #   aws_secret_key = "${var.aws_secret_key}"
 #   region_count   = 0
 # }
+
+module "apigateway" {
+  source = "modules/api-gateway"
+  aws_access_key    = "${var.aws_access_key}"
+  aws_secret_key    = "${var.aws_secret_key}"
+  aws_api_target_uri = "https://exampleuserinput.com"
+}
 
 module "cloudfront" {
   source            = "modules/cloudfront-deployment"
@@ -54,9 +63,10 @@ module "aws-us-east-1" {
   aws_access_key   = "${var.aws_access_key}"
   aws_secret_key   = "${var.aws_secret_key}"
   default_sg_name  = "tester-us-east-1"
-  aws_keypair_file = "/Users/mike.hodges/.ssh/do_rsa.pub"
+  aws_public_key_file = "/Users/mike.hodges/.ssh/do_rsa.pub"
   aws_keypair_name = "do_rsa"
   aws_new_keypair  = false
+  aws_private_key_file = ""/Users/mike.hodges/.ssh/do_rsa"
   region_count     = 0
 
   #use_custom_ami = false
@@ -171,6 +181,7 @@ module "aws-us-east-1" {
 ################DO########################
 module "do-example-1" {
   source          = "modules/droplet-deployment"
+  do_name         = "example"
   do_token        = "${var.do_token}"
   do_image        = "ubuntu-14-04-x64"
   pvt_key         = "/Users/mike.hodges/.ssh/do_rsa"
@@ -230,7 +241,7 @@ module "gcp-northamerica-northeast1-a" {
   gcp_instance_count   = 0
   gcp_ssh_user         = "mike.hodges"
   gcp_ssh_pub_key_file = "/Users/mike.hodges/.ssh/do_rsa.pub"
-
+  gcp_ssh_private_key_file = "/Users/mike.hodges/.ssh/do_rsa"
   #gcp_machine_type
 }
 

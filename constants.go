@@ -44,6 +44,7 @@ const ec2Module = `
 		aws_keypair_name     = "{{.KeypairName}}"
 		aws_private_key_file = "{{.PrivateKeyFile}}"
 		aws_public_key_file  = "{{.PublicKeyFile}}"
+		ansible_groups       = "[]"
 	}
 `
 
@@ -58,7 +59,6 @@ const azureCdnModule = `
 		azure_cdn_profile_name  = "{{.ProfileName}}"
 		azure_cdn_endpoint_name = "{{.EndpointName}}"
 		azure_location          = "{{.Location}}"
-		
 	}
 `
 
@@ -74,7 +74,9 @@ const azureModule = `
 		azure_instance_count  = {{.InstanceCount}}
 		azure_vm_size 		  = "{{.VMSize}}"
 		azure_environment 	  = "{{.Environment}}"
-
+		azure_public_key_file = "{{.PublicKey}}
+		azure_private_key_file = "{{.PrivateKey}}
+		ansible_groups       = "[]"
 	}
 `
 
@@ -102,6 +104,7 @@ const digitalOceanModule = `
 		do_name 		 = "{{.Name}}"
 		do_firewall_name = "{{.FirewallName}}"
 		do_ssh_source_ip = "{{.SSHSourceIP}}"
+		ansible_groups       = "[]"
 	}
 `
 
@@ -116,6 +119,7 @@ const googleCloudModule = `
 		gcp_ssh_private_key_file = "{{.SSHPrivateKeyFile}}"
 		gcp_machine_type	 	 = "{{.MachineType}}"
 		gcp_image			 	 = "{{.Image}}"
+		ansible_groups       = "[]"
 	}
 `
 
