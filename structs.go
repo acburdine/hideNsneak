@@ -1,16 +1,17 @@
 package main
 
 type ec2Deployer struct {
-	SecurityGroup  string
-	Count          int
-	CustomAmi      string
-	InstanceType   string
-	DefaultUser    string
-	Region         string
-	NewKeypair     bool
-	KeypairName    string
-	PrivateKeyFile string
-	PublicKeyFile  string
+	SecurityGroup   string
+	SecurityGroupID string
+	Count           int
+	CustomAmi       string
+	InstanceType    string
+	DefaultUser     string
+	Region          string
+	NewKeypair      bool
+	KeypairName     string
+	PrivateKeyFile  string
+	PublicKeyFile   string
 }
 
 type azureCdnDeployer struct {

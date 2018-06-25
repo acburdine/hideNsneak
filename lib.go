@@ -109,7 +109,7 @@ func checkEC2KeyExistence(secret string, accessID string, region string, keyName
 //checkEc2KeyExistence queries the Amazon EC2 API for the security groups
 //with the specified name
 //Returns true if the resulting array is > 0, false otherwise
-func checkEC2SecurityGroupExistence(secret string, accessID string, region string, securityGroupName string) bool {
+func checkEC2SecurityGroupExistence(secret string, accessID string, region string, securityGroupName string) (bool, string) {
 	svc := ec2.New(session.New(&aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
@@ -119,9 +119,10 @@ func checkEC2SecurityGroupExistence(secret string, accessID string, region strin
 	})
 
 	if len(securityGroupOutput.SecurityGroups) == 0 {
-		return false
+		return false, ""
 	}
-	return true
+
+	return true, *securityGroupOutput.SecurityGroups[0].GroupId
 }
 
 //createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address

@@ -18,6 +18,8 @@ resource "ansible_host" "hideNsneak" {
     ansible_user                 = "${var.do_default_user}"
     ansible_connection           = "ssh"
     ansible_ssh_private_key_file = "${var.pvt_key}"
+    ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
+    ansible_shell_type           = "bash"
   }
 
   depends_on = ["digitalocean_droplet.hideNsneak"]

@@ -24,6 +24,8 @@ resource "ansible_host" "hideNsneak" {
     ansible_user                 = "${var.gcp_ssh_user}"
     ansible_connection           = "ssh"
     ansible_ssh_private_key_file = "${var.gcp_ssh_private_key_file}"
+    ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
+    ansible_shell_type           = "bash"
   }
 
   depends_on = ["google_compute_instance.hideNsneak"]
