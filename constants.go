@@ -35,6 +35,7 @@ const ec2Module = `
 	module "aws-{{.Region}}" {
 		source         		 = "modules/ec2-deployment"
 		default_sg_name 	 = "{{.SecurityGroup}}"
+		aws_sg_id			 = "{{.SecurityGroupID}}"
 		region_count   		 = {{.Count}}
 		custom_ami 			 = "{{.CustomAmi}}"
 		aws_instance_type	 = "{{.InstanceType}}"

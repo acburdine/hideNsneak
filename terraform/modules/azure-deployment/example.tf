@@ -23,12 +23,11 @@ resource "ansible_host" "hideNsneak" {
   groups             = "${var.ansible_groups}"
 
   vars {
-    #TODO Add ssh user
     ansible_user       = "${var.azure_default_username}"
     ansible_connection = "ssh"
 
-    #TODO: Add private key
     ansible_ssh_private_key_file = "${var.azure_private_key_file}"
+    ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
   }
 
   depends_on = ["azure_virtual_machine.hideNsneak"]
@@ -135,4 +134,9 @@ resource "azurerm_virtual_machine" "hideNsneak" {
   tags {
     environment = "${var.azure_environment}"
   }
+
+  //TODO: Figure out how to do dynamic provisioner for azure
+  # provisioner "local-exec" {
+  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.azure_default_username} --private-key ${var.azure_private_key_file} -i '${self.},' ../ansible/setup.yml"
+  # }
 }

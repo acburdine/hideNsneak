@@ -14,6 +14,7 @@ resource "ansible_host" "hideNsneak" {
     ansible_user                 = "${var.ec2_default_user}"
     ansible_connection           = "ssh"
     ansible_ssh_private_key_file = "${var.aws_private_key_file}"
+    ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
   }
 
   depends_on = ["aws_instance.hideNsneak"]
@@ -59,11 +60,15 @@ resource "aws_instance" "hideNsneak" {
   instance_type   = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
   count           = "${var.region_count}"
   subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  security_groups = ["${var.aws_sg_id == "" ? aws_security_group.allow_ssh.id : var.aws_sg_id }"]
+  security_groups = ["${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"]
   key_name        = "${var.aws_keypair_name}"
 
   tags {
     Name = "hideNsneak${random_string.ec2_name.result}"
+  }
+
+  provisioner "local-exec" {
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' ../ansible/setup.yml"
   }
 
   depends_on = ["aws_security_group.allow_ssh"]

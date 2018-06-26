@@ -18,6 +18,7 @@ resource "ansible_host" "hideNsneak" {
     ansible_user                 = "${var.do_default_user}"
     ansible_connection           = "ssh"
     ansible_ssh_private_key_file = "${var.pvt_key}"
+    ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
   }
 
   depends_on = ["digitalocean_droplet.hideNsneak"]
@@ -33,6 +34,10 @@ resource "digitalocean_droplet" "hideNsneak" {
   ssh_keys = [
     "${var.ssh_fingerprint}",
   ]
+
+  provisioner "local-exec" {
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.do_default_user} --private-key ${var.pvt_key} -i '${self.ipv4_address},' ../ansible/setup.yml"
+  }
 }
 
 resource "digitalocean_firewall" "hideNsneak" {

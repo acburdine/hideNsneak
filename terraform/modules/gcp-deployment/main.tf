@@ -24,6 +24,7 @@ resource "ansible_host" "hideNsneak" {
     ansible_user                 = "${var.gcp_ssh_user}"
     ansible_connection           = "ssh"
     ansible_ssh_private_key_file = "${var.gcp_ssh_private_key_file}"
+    ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
   }
 
   depends_on = ["google_compute_instance.hideNsneak"]
@@ -54,9 +55,9 @@ resource "google_compute_instance" "hideNsneak" {
     sshKeys = "${var.gcp_ssh_user}:${file(var.gcp_ssh_pub_key_file)}"
   }
 
-  # provisioner "local-exec" {
-  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.gcp_ssh_user} --private-key ${var.gcp_ssh_prviate_key_file} -i '${self.network_interface.0.access_config.0.assigned_nat_ip},' master.yml"
-  # }
+  provisioner "local-exec" {
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.gcp_ssh_user} --private-key ${var.gcp_ssh_prviate_key_file} -i '${self.network_interface.0.access_config.0.assigned_nat_ip},' setup.yml"
+  }
 }
 
 ##This may need to be broken out into its own module
