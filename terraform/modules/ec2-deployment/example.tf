@@ -15,7 +15,6 @@ resource "ansible_host" "hideNsneak" {
     ansible_connection           = "ssh"
     ansible_ssh_private_key_file = "${var.aws_private_key_file}"
     ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
-    ansible_shell_type           = "bash"
   }
 
   depends_on = ["aws_instance.hideNsneak"]
@@ -66,6 +65,10 @@ resource "aws_instance" "hideNsneak" {
 
   tags {
     Name = "hideNsneak${random_string.ec2_name.result}"
+  }
+
+  provisioner "local-exec" {
+    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' ../ansible/setup.yml"
   }
 
   depends_on = ["aws_security_group.allow_ssh"]

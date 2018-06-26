@@ -28,7 +28,6 @@ resource "ansible_host" "hideNsneak" {
 
     ansible_ssh_private_key_file = "${var.azure_private_key_file}"
     ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
-    ansible_shell_type           = "bash"
   }
 
   depends_on = ["azure_virtual_machine.hideNsneak"]
