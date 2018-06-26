@@ -90,7 +90,7 @@ func removeSpaces(input string) (newString string) {
 //providers and validates they are supported
 func ProviderCheck(providerArray []string) bool {
 	for _, p := range providerArray {
-		if strings.ToUpper(p) != "EC2" &&
+		if strings.ToUpper(p) != "AWS" &&
 			strings.ToUpper(p) != "DO" &&
 			strings.ToUpper(p) != "GOOGLE" &&
 			strings.ToUpper(p) != "AZURE" {

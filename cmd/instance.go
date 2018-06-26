@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 
 	"terraform-playground/deployer"
@@ -27,35 +26,34 @@ var instanceProviders []string
 var instancePrivateKey string
 var instancePublicKey string
 var instanceCount int
+var regionAws []string
+var regionDo []string
+var regionAzure []string
+var regionGoogle []string
 
-// helloCmd represents the hello command
 var instance = &cobra.Command{
 	Use:   "instance",
 	Short: "instance parent command",
 	Long:  `Domain Front Command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Instance Called")
+		fmt.Println("Run 'instance --help' for usage.")
 	},
 }
 
 var instanceDeploy = &cobra.Command{
+	//TODO: need to trim spaces
 	Use:   "deploy",
 	Short: "deploys an instance",
 	Long:  `deploys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Deploy Called")
-		fmt.Println(instanceProviders)
 		deployer.InitializeTerraformFiles()
 		if deployer.ProviderCheck(instanceProviders) {
 			return nil
 		}
-		if len(instanceProviders) < 1 {
-			return errors.New("you need to enter at least one provider")
-		}
-		return fmt.Errorf("invalid providers specified: &s", instanceProviders)
+		return fmt.Errorf("invalid providers specified: %s", instanceProviders)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("got in!")
+		fmt.Println("TODO: Need to write deployment logic")
 	},
 }
 
@@ -90,26 +88,21 @@ func init() {
 	rootCmd.AddCommand(instance)
 	instance.AddCommand(instanceDeploy, instanceDestroy, instanceInfo, instanceList)
 
-	// rootCmd.PersistentFlags().StringSliceVarP(&region, "region", "r", "", "")
-	instanceDeploy.PersistentFlags().StringSliceVarP(&instanceProviders, "providers", "p", []string{}, "List of providers to enter")
-	instanceDeploy.MarkFlagRequired("providers")
+	instanceDeploy.PersistentFlags().StringSliceVarP(&instanceProviders, "providers", "p", nil, "list of providers to enter")
+	instanceDeploy.MarkPersistentFlagRequired("providers")
 
-	instanceDeploy.PersistentFlags().IntVarP(&instanceCount, "count", "c", 0, "Number of Instances to Deploy")
-	instanceDeploy.MarkFlagRequired("count")
+	instanceDeploy.PersistentFlags().IntVarP(&instanceCount, "count", "c", 0, "number of instances to deploy")
+	instanceDeploy.MarkPersistentFlagRequired("count")
 
-	// instanceDeploy.PersistentFlags().StringVarP(&instancePrivateKey, "privateKey", "priv", "Full Path to Private Key to Connect to Instances")
-	// instanceDeploy.MarkFlagRequired("count")
+	instanceDeploy.PersistentFlags().StringVarP(&instancePrivateKey, "privatekey", "priv", "", "full path to private key to connect to instances")
+	instanceDeploy.MarkPersistentFlagRequired("privatekey")
 
-	// instanceDeploy.PersistentFlags().StringVarP(&instanceCount, "publicKey", "pub", 0, "Full Path to Public Key Corresponding to the Private Key")
-	// instanceDeploy.MarkFlagRequired("count")
+	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "pub", "", "full path to public key corresponding to the private key")
+	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// helloCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// helloCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//TODO: default all regions
+	rootCmd.PersistentFlags().StringSliceVarP(&regionAws, "region-aws", "r-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
+	rootCmd.PersistentFlags().StringSliceVarP(&regionDo, "region-do", "r-do", []string{"AMS2", "SFO2"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
+	rootCmd.PersistentFlags().StringSliceVarP(&regionAzure, "region-azure", "r-az", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
+	rootCmd.PersistentFlags().StringSliceVarP(&regionGoogle, "region-google", "r-goo", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
 }
