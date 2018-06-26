@@ -134,4 +134,9 @@ resource "azurerm_virtual_machine" "hideNsneak" {
   tags {
     environment = "${var.azure_environment}"
   }
+
+  //TODO: Figure out how to do dynamic provisioner for azure
+  # provisioner "local-exec" {
+  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.azure_default_username} --private-key ${var.azure_private_key_file} -i '${self.},' ../ansible/setup.yml"
+  # }
 }
