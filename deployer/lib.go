@@ -1,4 +1,4 @@
-package main
+package deployer
 
 import (
 	"bytes"
@@ -20,6 +20,27 @@ func checkErr(err error) {
 		fmt.Println(err)
 		log.Fatal()
 	}
+}
+
+//InitializeTerraformFiles Creates the base templates for
+//the terraform infrastructure
+func InitializeTerraformFiles() {
+	mainFile, err := os.Create(tfMainFile)
+	checkErr(err)
+	defer mainFile.Close()
+
+	varFile, err := os.Create(tfVariablesFile)
+	checkErr(err)
+	defer varFile.Close()
+
+	tfvarsFile, err := os.Create(tfVarsFile)
+	checkErr(err)
+	defer tfvarsFile.Close()
+
+	mainFile.Write([]byte(state))
+	varFile.Write([]byte(variables))
+	//TODO: Get secrets file
+	tfvarsFile.Write([]byte("test"))
 }
 
 func execCmd(binary string, args []string) {
@@ -65,15 +86,14 @@ func removeSpaces(input string) (newString string) {
 	return
 }
 
-func providerCheck(providerArray []string) bool {
+//ProviderCheck takes in a user-defined array of
+//providers and validates they are supported
+func ProviderCheck(providerArray []string) bool {
 	for _, p := range providerArray {
 		if strings.ToUpper(p) != "EC2" &&
 			strings.ToUpper(p) != "DO" &&
 			strings.ToUpper(p) != "GOOGLE" &&
-			strings.ToUpper(p) != "AZURE" &&
-			strings.ToUpper(p) != "AZURECDN" &&
-			strings.ToUpper(p) != "APIGATEWAY" {
-			fmt.Println(unknownProvider)
+			strings.ToUpper(p) != "AZURE" {
 			return false
 		}
 	}

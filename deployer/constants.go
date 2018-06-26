@@ -1,4 +1,4 @@
-package main
+package deployer
 
 const tfMainFile = "terraform/main.tf"
 const tfVariablesFile = "terraform/variables.tf"

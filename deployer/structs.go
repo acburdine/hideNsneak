@@ -1,4 +1,4 @@
-package main
+package deployer
 
 type ec2Deployer struct {
 	SecurityGroup   string
