@@ -43,8 +43,8 @@ resource "digitalocean_droplet" "hideNsneak" {
 resource "digitalocean_firewall" "hideNsneak" {
   name = "${var.do_firewall_name}${random_string.droplet_name.result}"
 
-  droplet_ids = ["${digitalocean_droplet.default.*.id}"]
-  count       = "${digitalocean_droplet.default.count > 0 ? 1 : 0}"
+  droplet_ids = ["${digitalocean_droplet.hideNsneak.*.id}"]
+  count       = "${digitalocean_droplet.hideNsneak.count > 0 ? 1 : 0}"
 
   inbound_rule = [
     {

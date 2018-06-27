@@ -62,7 +62,9 @@ func execCmd(binary string, args []string) {
 	fmt.Println(stdout.String())
 }
 
-func terraformApply() {
+//TerraformApply runs the init, plan, and apply commands for our
+//generated terraform templates
+func TerraformApply() {
 	binary, err := exec.LookPath("terraform")
 
 	checkErr(err)
@@ -80,6 +82,21 @@ func terraformApply() {
 	args = []string{"apply", "-input=false", "terraform/tfplan"}
 	execCmd(binary, args)
 
+}
+
+//CreateTerraformMain takes in a string containing all the necessary calls
+//for the main.tf file
+func CreateTerraformMain(masterString string) {
+	//Opening Main.tf to append parsed template
+	mainFile, err := os.OpenFile("terraform/main.tf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	checkErr(err)
+
+	//Writing the masterString to file. masterString was instantiated in master_list.go
+	_, err = mainFile.WriteString(masterString)
+	checkErr(err)
+
+	err = mainFile.Close()
+	checkErr(err)
 }
 
 func removeSpaces(input string) (newString string) {
