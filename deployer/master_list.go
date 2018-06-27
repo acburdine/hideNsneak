@@ -7,7 +7,7 @@ import (
 
 var masterString string
 
-func createMasterList(inputList readList) (err error) {
+func createMasterList(inputList ReadList) (err error) {
 	ec2List := inputList.ec2DeployerList
 	azureCdnList := inputList.azureCdnDeployerList
 	azureList := inputList.azureDeployerList

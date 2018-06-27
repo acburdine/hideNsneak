@@ -53,7 +53,7 @@ var instanceDeploy = &cobra.Command{
 		return fmt.Errorf("invalid providers specified: %s", instanceProviders)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: Need to write deployment logic")
+		fmt.Println(deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey))
 	},
 }
 
