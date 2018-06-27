@@ -60,9 +60,16 @@ var instanceDeploy = &cobra.Command{
 var instanceDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroy",
-	Long:  `Destroys an instance`,
+	Long:  `destroys an instance`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		//TODO:
+		//get the number of instances that they want to delete
+		//parse that number based on comma (1-49 for 1 through 49, comma separated)
+		//delete those based on array nums
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Destroy Called")
+		fmt.Println("TODO: Write destruction logic")
 	},
 }
 
@@ -94,15 +101,16 @@ func init() {
 	instanceDeploy.PersistentFlags().IntVarP(&instanceCount, "count", "c", 0, "number of instances to deploy")
 	instanceDeploy.MarkPersistentFlagRequired("count")
 
-	instanceDeploy.PersistentFlags().StringVarP(&instancePrivateKey, "privatekey", "priv", "", "full path to private key to connect to instances")
+	instanceDeploy.PersistentFlags().StringVarP(&instancePrivateKey, "privatekey", "v", "", "full path to private key to connect to instances")
 	instanceDeploy.MarkPersistentFlagRequired("privatekey")
 
-	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "pub", "", "full path to public key corresponding to the private key")
+	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
 	//TODO: default all regions
-	rootCmd.PersistentFlags().StringSliceVarP(&regionAws, "region-aws", "r-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	rootCmd.PersistentFlags().StringSliceVarP(&regionDo, "region-do", "r-do", []string{"AMS2", "SFO2"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
-	rootCmd.PersistentFlags().StringSliceVarP(&regionAzure, "region-azure", "r-az", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
-	rootCmd.PersistentFlags().StringSliceVarP(&regionGoogle, "region-google", "r-goo", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"AMS2", "SFO2"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
+	rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
+
 }
