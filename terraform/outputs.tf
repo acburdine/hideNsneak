@@ -37,7 +37,7 @@
 output "providers" {
   value = "${map(
     "AWS", map(
-      "instances", list(module.ec2All.allRegions),
+      "instances", concat(module.ec2All.allRegions, module.ec2All2.allRegions),
       "security_group", list(map()), 
       "api", list(map()),
       "domain_front", list(map())),

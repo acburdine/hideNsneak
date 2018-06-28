@@ -35,7 +35,7 @@ variable "aws_secret_key" {}
 const outputs = `output "providers" {
 	value = "${map(
 	  "AWS", map(
-		"instances", list({{.AWSInstanceModules}}),
+		"instances", concat({{.ModuleNames}}),
 		"security_group", list(map()), 
 		"api", list(map()),
 		"domain_front", list(map())),
@@ -52,22 +52,24 @@ const outputs = `output "providers" {
 ///////////////////// MODULES /////////////////////
 
 const mainEc2Module = `
-	module "ec2All-{{.ModuleName}}" {
+	module "{{.ModuleName}}" {
 	source          = "modules/ec2-deployment"
-	default_sg_name = "test"
-	aws_sg_id       = ""
+	default_sg_name = "{{.SecurityGroup}}"
+	aws_sg_id       = "{{.SecurityGroupID}}"
   
 	#Example of region_count
-	region_count         = "${map("us-east-1", 1)}"
-	custom_ami           = ""
-	aws_instance_type    = ""
-	ec2_default_user     = "ubuntu"
+	region_count         = "${map({{.RegionMapString}})}"
+	custom_ami           = "{{.CustomAmi}}"
+	aws_instance_type    = "{{.InstanceType}}"
+	ec2_default_user     = "{{.DefaultUser}}"
 	aws_access_key       = "${var.aws_access_key}"
 	aws_secret_key       = "${var.aws_secret_key}"
-	aws_keypair_name     = "do_rsa"
-	aws_private_key_file = "/Users/mike.hodges/.ssh/do_rsa"
-	aws_public_key_file  = "/Users/mike.hodges/.ssh/do_rsa.pub"
-  }`
+	aws_keypair_name     = "ssh_inbound"
+	aws_private_key_file = "{{.PrivateKeyFile}}"
+	aws_public_key_file  = "{{.PublicKeyFile}}"
+  }
+
+`
 
 const ec2Module = `
 	module "aws-{{.Region}}" {

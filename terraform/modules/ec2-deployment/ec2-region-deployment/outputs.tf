@@ -9,7 +9,7 @@ output "security_group_id" {
 output "region_info" {
   value = "${map(
     "config", map(
-    "region_count", var.instance_count,
+    "region_count", aws_instance.hideNsneak.count,
     "custom_ami", var.custom_ami,
     "public_key_file", var.aws_public_key_file,
     "private_key_file", var.aws_private_key_file,
