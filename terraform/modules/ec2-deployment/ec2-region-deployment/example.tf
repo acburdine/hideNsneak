@@ -1,7 +1,7 @@
 provider "aws" {}
 
 resource "ansible_host" "hideNsneak" {
-  count = "${var.region_count}"
+  count = "${var.instance_count}"
 
   inventory_hostname = "${aws_instance.hideNsneak.*.public_ip[count.index]}"
   groups             = "${var.ansible_groups}"
@@ -16,20 +16,18 @@ resource "ansible_host" "hideNsneak" {
   depends_on = ["aws_instance.hideNsneak"]
 }
 
-resource "random_string" "ec2_name" {
-  length  = 8
-  special = false
-}
-
 data "aws_subnet_ids" "all" {
+  count  = "${var.instance_count > 0 ? 1 : 0}"
   vpc_id = "${data.aws_vpc.default.id}"
 }
 
 data "aws_vpc" "default" {
+  count   = "${var.instance_count > 0 ? 1 : 0}"
   default = true
 }
 
 data "aws_ami" "ubuntu" {
+  count       = "${var.instance_count > 0 ? 1 : 0}"
   most_recent = true
 
   filter {
@@ -48,19 +46,19 @@ data "aws_ami" "ubuntu" {
 resource "aws_key_pair" "hideNsneak" {
   key_name   = "${var.aws_keypair_name}"
   public_key = "${file(var.aws_public_key_file)}"
-  count      = "${var.aws_new_keypair ? 1 : 0}"
+  count      = "${var.aws_keypair_name == "ssh_inbound" ? 1 : 0}"
 }
 
 resource "aws_instance" "hideNsneak" {
   ami                    = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
   instance_type          = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
-  count                  = "${var.region_count}"
+  count                  = "${var.instance_count}"
   subnet_id              = "${element(data.aws_subnet_ids.all.ids, 0)}"
   vpc_security_group_ids = ["${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"]
   key_name               = "${var.aws_keypair_name}"
 
   tags {
-    Name = "hideNsneak${random_string.ec2_name.result}"
+    Name = "hideNsneak"
   }
 
   # provisioner "local-exec" {
@@ -76,7 +74,7 @@ resource "aws_security_group" "allow_ssh" {
   name        = "${var.default_sg_name}"
   description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
-  count       = "${var.aws_sg_id == "" ? 1 : 0}"
+  count       = "${var.instance_count > 0 ? 1 : 0}"
 
   ingress {
     from_port   = 22

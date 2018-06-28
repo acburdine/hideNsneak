@@ -20,17 +20,55 @@ const variables = `variable "do_token" {}
 variable "aws_access_key" {}
 
 variable "aws_secret_key" {}
-
-variable "azure_tenant_id" {}
-
-variable "azure_client_id" {}
-
-variable "azure_client_secret" {}
-
-variable "azure_subscription_id" {}
 `
 
+//Removed for testing
+
+// variable "azure_tenant_id" {}
+
+// variable "azure_client_id" {}
+
+// variable "azure_client_secret" {}
+
+// variable "azure_subscription_id" {}
+
+const outputs = `output "providers" {
+	value = "${map(
+	  "AWS", map(
+		"instances", list({{.AWSInstanceModules}}),
+		"security_group", list(map()), 
+		"api", list(map()),
+		"domain_front", list(map())),
+	  "DO", map(
+		"instances", list(map()),
+		"firewalls", list(map())),
+	  "GOOGLE", map(
+		"instances", list(map())),
+	  "AZURE", map(
+		"instances", list(map())))
+	  }"
+  }`
+
 ///////////////////// MODULES /////////////////////
+
+const mainEc2Module = `
+	module "ec2All-{{.ModuleName}}" {
+	source          = "modules/ec2-deployment"
+	default_sg_name = "test"
+	aws_sg_id       = ""
+  
+	#Example of region_count
+	region_count         = "${map("us-east-1", 1)}"
+	custom_ami           = ""
+	aws_instance_type    = ""
+	ec2_default_user     = "ubuntu"
+	aws_access_key       = "${var.aws_access_key}"
+	aws_secret_key       = "${var.aws_secret_key}"
+	aws_keypair_name     = "do_rsa"
+	aws_private_key_file = "/Users/mike.hodges/.ssh/do_rsa"
+	aws_public_key_file  = "/Users/mike.hodges/.ssh/do_rsa.pub"
+  }`
+
 const ec2Module = `
 	module "aws-{{.Region}}" {
 		source         		 = "modules/ec2-deployment"

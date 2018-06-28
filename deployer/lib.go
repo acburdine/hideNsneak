@@ -239,7 +239,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	for _, provider := range providers {
 		switch strings.ToUpper(provider) {
 		case "AWS":
-			var ec2DeployerList []ec2Deployer
+			var ec2DeployerList []AWSRegionConfig
 
 			countPerAWSRegion := countPerProvider / len(awsRegions)
 
@@ -268,11 +268,12 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				}
 
 				if regionCount > 0 {
-					newEc2Deployer := ec2Deployer{
+
+					newEc2Deployer := AWSRegionConfig{
 						//TODO: Figure the security group thing out
 						SecurityGroup:   "test",
 						SecurityGroupID: "",
-						Count:           regionCount,
+						Count:           strconv.Itoa(regionCount),
 						CustomAmi:       "",
 						InstanceType:    "",
 						DefaultUser:     "ubuntu",
