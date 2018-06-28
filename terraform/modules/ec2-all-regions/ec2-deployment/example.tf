@@ -1,8 +1,4 @@
-provider "aws" {
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
-  region     = "${var.aws_region}"
-}
+provider "aws" {}
 
 resource "ansible_host" "hideNsneak" {
   count = "${var.region_count}"
@@ -67,9 +63,9 @@ resource "aws_instance" "hideNsneak" {
     Name = "hideNsneak${random_string.ec2_name.result}"
   }
 
-  provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' ../ansible/setup.yml"
-  }
+  # provisioner "local-exec" {
+  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' ../ansible/setup.yml"
+  # }
 
   depends_on = ["aws_security_group.allow_ssh"]
 }

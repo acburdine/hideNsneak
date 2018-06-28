@@ -29,3 +29,17 @@ output "security_group" {
 output "security_group_id" {
   value = "${aws_security_group.allow_ssh.*.id}"
 }
+
+output "region-map" {
+  value = "${map(
+    "region", var.aws_region,
+    "region_count", var.region_count,
+    "custom_ami", var.custom_ami,
+    "public_key_file", var.aws_public_key_file,
+    "private_key_file", var.aws_private_key_file,
+    "default_sg_name", var.default_sg_name,
+    "aws_sg_id", var.aws_sg_id,
+    "aws_instance_type", var.aws_instance_type,
+    "ec2_default_user", var.ec2_default_user,
+    )}"
+}
