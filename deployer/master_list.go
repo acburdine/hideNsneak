@@ -5,9 +5,11 @@ import (
 	"html/template"
 )
 
-var masterString string
-
-func createMasterList(inputList readList) (err error) {
+//CreateMasterList takes a MasterList object as input
+//and maps it to the corresponding templates, executes them,
+//then adds the resulting string to a complete string
+//containing the main.tf file for terraform
+func CreateMasterList(inputList ReadList) (masterString string, err error) {
 	ec2List := inputList.ec2DeployerList
 	azureCdnList := inputList.azureCdnDeployerList
 	azureList := inputList.azureDeployerList

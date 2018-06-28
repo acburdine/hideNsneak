@@ -25,10 +25,10 @@ resource "ansible_host" "hideNsneak" {
 }
 
 resource "digitalocean_droplet" "hideNsneak" {
-  image  = "${var.do_image}"
+  image  = "${var.do_image == "" ? "ubuntu-16-04-x64" : var.do_image}"
   name   = "${var.do_name}${random_string.droplet_name.result}"
   region = "${var.do_region}"
-  size   = "${var.do_size}"
+  size   = "${var.do_size == "" ? "512mb" : var.do_size}"
   count  = "${var.do_count}"
 
   ssh_keys = [
@@ -43,8 +43,8 @@ resource "digitalocean_droplet" "hideNsneak" {
 resource "digitalocean_firewall" "hideNsneak" {
   name = "${var.do_firewall_name}${random_string.droplet_name.result}"
 
-  droplet_ids = ["${digitalocean_droplet.default.*.id}"]
-  count       = "${digitalocean_droplet.default.count > 0 ? 1 : 0}"
+  droplet_ids = ["${digitalocean_droplet.hideNsneak.*.id}"]
+  count       = "${digitalocean_droplet.hideNsneak.count > 0 ? 1 : 0}"
 
   inbound_rule = [
     {

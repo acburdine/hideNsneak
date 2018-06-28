@@ -56,12 +56,12 @@ resource "aws_key_pair" "hideNsneak" {
 }
 
 resource "aws_instance" "hideNsneak" {
-  ami             = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
-  instance_type   = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
-  count           = "${var.region_count}"
-  subnet_id       = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  security_groups = ["${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"]
-  key_name        = "${var.aws_keypair_name}"
+  ami                    = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
+  instance_type          = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
+  count                  = "${var.region_count}"
+  subnet_id              = "${element(data.aws_subnet_ids.all.ids, 0)}"
+  vpc_security_group_ids = ["${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"]
+  key_name               = "${var.aws_keypair_name}"
 
   tags {
     Name = "hideNsneak${random_string.ec2_name.result}"

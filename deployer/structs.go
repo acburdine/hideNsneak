@@ -22,12 +22,12 @@ type azureCdnDeployer struct {
 }
 
 type azureDeployer struct {
-	Location      string
-	InstanceCount string
-	VMSize        string
-	Environment   string
-	PrivateKey    string
-	PublicKey     string
+	Location    string
+	Count       int
+	VMSize      string
+	Environment string
+	PrivateKey  string
+	PublicKey   string
 }
 
 type cloudFrontDeployer struct {
@@ -36,23 +36,22 @@ type cloudFrontDeployer struct {
 }
 
 type digitalOceanDeployer struct {
-	Image          string
-	Fingerprint    string
-	PrivateKey     string
-	SSHFingerprint string
-	Size           string
-	Count          int
-	Region         string
-	DefaultUser    string
-	Name           string
-	FirewallName   string
-	SSHSourceIP    string
+	Image        string
+	Fingerprint  string
+	PrivateKey   string
+	PublicKey    string
+	Size         string
+	Count        int
+	Region       string
+	DefaultUser  string
+	Name         string
+	FirewallName string
 }
 
 type googleCloudDeployer struct {
 	Region            string
 	Project           string
-	InstanceCount     int
+	Count             int
 	SSHUser           string
 	SSHPubKeyFile     string
 	SSHPrivateKeyFile string
@@ -65,7 +64,9 @@ type apiGatewayDeployer struct {
 	StageName string
 }
 
-type readList struct {
+//ReadList contains a list of all of the resources
+//across different providers per region
+type ReadList struct {
 	ec2DeployerList          []ec2Deployer
 	azureCdnDeployerList     []azureCdnDeployer
 	azureDeployerList        []azureDeployer
