@@ -62,6 +62,15 @@ output "aws_security_group_id" {
   value = "${module.aws-us-east-1.security_group_id}"
 }
 
+output "instanceMap" {
+  value = "${module.aws-us-east-1.ipInstanceId}"
+}
+
+# output "ipInstanceId" {
+#   value = "${module.aws-us-east-1.ipInstanceId}"
+# }
+
+
 # #########GCP###########
 # output "gcp_instance_id" {
 #   value = "${module.gcp-northamerica-northeast1-a.instance_id}"

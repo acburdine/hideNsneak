@@ -30,7 +30,7 @@ module "aws-us-west-2" {
   source               = "modules/ec2-deployment"
   default_sg_name      = "test"
   aws_sg_id            = ""
-  region_count         = 1
+  region_count         = 0
   custom_ami           = ""
   aws_instance_type    = ""
   ec2_default_user     = "ubuntu"
@@ -52,7 +52,7 @@ module "digital-ocean-AMS2" {
   ssh_fingerprint  = "b3:b2:c7:b1:73:9e:28:c6:61:8d:15:e1:0e:61:7e:35"
   do_region        = "AMS2"
   do_size          = ""
-  do_count         = 1
+  do_count         = 0
   do_default_user  = ""
   do_name          = "tester"
   do_firewall_name = ""

@@ -269,6 +269,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 
 				if regionCount > 0 {
 					newEc2Deployer := ec2Deployer{
+						//TODO: Figure the security group thing out
 						SecurityGroup:   "test",
 						SecurityGroupID: "",
 						Count:           regionCount,

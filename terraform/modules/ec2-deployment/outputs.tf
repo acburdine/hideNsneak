@@ -2,6 +2,10 @@ output "instance_id" {
   value = "${aws_instance.hideNsneak.*.id}"
 }
 
+output "ipInstanceId" {
+  value = "${zipmap(aws_instance.hideNsneak.*.public_ip, aws_instance.hideNsneak.*.id)}"
+}
+
 output "availability_zone" {
   value = "${aws_instance.hideNsneak.*.availability_zone}"
 }
