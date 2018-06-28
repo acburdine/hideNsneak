@@ -12,7 +12,7 @@ module "aws-us-east-1" {
   source               = "modules/ec2-deployment"
   default_sg_name      = "test"
   aws_sg_id            = ""
-  region_count         = 1
+  region_count         = 2
   custom_ami           = ""
   aws_instance_type    = ""
   ec2_default_user     = "ubuntu"
