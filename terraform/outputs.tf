@@ -34,56 +34,19 @@
 #   value = "${module.cloudfront.domainfront_url}"
 # }
 
-output "ec2_instance_id" {
-  value = "${module.aws-us-east-1.instance_id}"
+output "providers" {
+  value = "${map(
+    "AWS", map(
+      "instances", concat(module.ec2All.allRegions, module.ec2All2.allRegions),
+      "security_group", list(map()), 
+      "api", list(map()),
+      "domain_front", list(map())),
+    "DO", map(
+      "instances", list(map()),
+      "firewalls", list(map())),
+    "GOOGLE", map(
+      "instances", list(map())),
+    "AZURE", map(
+      "instances", list(map())))
+    }"
 }
-
-output "ec2_availability_zone" {
-  value = "${module.aws-us-east-1.availability_zone}"
-}
-
-output "ec2_key_name" {
-  value = "${module.aws-us-east-1.key_name}"
-}
-
-output "ec2_public_ip" {
-  value = "${module.aws-us-east-1.public_ip}"
-}
-
-output "ec2_private_ip" {
-  value = "${module.aws-us-east-1.private_ip}"
-}
-
-output "ec2_security_group" {
-  value = "${module.aws-us-east-1.security_group}"
-}
-
-output "aws_security_group_id" {
-  value = "${module.aws-us-east-1.security_group_id}"
-}
-
-# #########GCP###########
-# output "gcp_instance_id" {
-#   value = "${module.gcp-northamerica-northeast1-a.instance_id}"
-# }
-
-
-# output "gcp_public_ip" {
-#   value = "${module.gcp-northamerica-northeast1-a.public_ip}"
-# }
-
-
-# output "gcp_private_ip" {
-#   value = "${module.gcp-northamerica-northeast1-a.private_ip}"
-# }
-
-
-# output "gcp_tags_fingerprint" {
-#   value = "${module.gcp-northamerica-northeast1-a.tags_fingerprint}"
-# }
-
-
-# output "gcp_metadata" {
-#   value = "${module.gcp-northamerica-northeast1-a.metadata}"
-# }
-

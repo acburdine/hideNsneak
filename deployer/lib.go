@@ -2,6 +2,7 @@ package deployer
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -46,12 +47,13 @@ func InitializeTerraformFiles() {
 	tfvarsFile.Write([]byte("test"))
 }
 
-func execCmd(binary string, args []string) {
+func execCmd(binary string, args []string, filepath string) string {
 	var stdout, stderr bytes.Buffer
 
 	cmd := exec.Command(binary, args...)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	cmd.Dir = filepath
 
 	err := cmd.Run()
 	if err != nil {
@@ -59,7 +61,7 @@ func execCmd(binary string, args []string) {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
 	}
 
-	fmt.Println(stdout.String())
+	return stdout.String()
 }
 
 //TerraformApply runs the init, plan, and apply commands for our
@@ -72,15 +74,35 @@ func TerraformApply() {
 	//Initializing Terraform
 	fmt.Println("init")
 	args := []string{"init", "-input=false", "terraform"}
-	execCmd(binary, args)
+	execCmd(binary, args, "terraform")
 
 	//Planning Terraform changes and saving plan to file tfplan
-	args = []string{"plan", "-out=terraform/tfplan", "-input=false", "-var-file=terraform/terraform.tfvars", "terraform"}
-	execCmd(binary, args)
+	args = []string{"plan", "-out=tfplan", "-input=false", "-var-file=terraform.tfvars"}
+	execCmd(binary, args, "terraform")
 
 	//Applying Changes Identified in tfplan
-	args = []string{"apply", "-input=false", "terraform/tfplan"}
-	execCmd(binary, args)
+	args = []string{"apply", "-input=false", "tfplan"}
+	execCmd(binary, args, "terraform")
+
+}
+
+//TerraforrmOutputMarshaller runs the terraform output command
+//and marshalls the resulting JSON into a TerraformOutput struct
+func TerraformOutputMarshaller() (outputStruct TerraformOutput) {
+
+	binary, err := exec.LookPath("terraform")
+
+	checkErr(err)
+
+	//Initializing Terraform
+	args := []string{"output", "--json"}
+	output := execCmd(binary, args, "terraform")
+
+	bytes := []byte(output)
+
+	json.Unmarshal(bytes, &outputStruct)
+
+	return
 
 }
 
@@ -225,11 +247,26 @@ func createSingleSOCKS(privateKey string, username string, ipv4 string, port int
 	return cmd.Process
 }
 
+func compareRegionConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig) bool {
+	if initialRegion.CustomAmi == testRegion.CustomAmi &&
+		initialRegion.DefaultUser == testRegion.DefaultUser &&
+		initialRegion.InstanceType == testRegion.InstanceType &&
+		initialRegion.KeypairName == testRegion.KeypairName &&
+		initialRegion.PrivateKeyFile == testRegion.PrivateKeyFile &&
+		initialRegion.PublicKeyFile == testRegion.PrivateKeyFile &&
+		initialRegion.Region == testRegion.Region &&
+		initialRegion.SecurityGroup == testRegion.SecurityGroup &&
+		initialRegion.SecurityGroupID == testRegion.SecurityGroupID {
+		return true
+	}
+	return false
+}
+
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
 func InstanceDeploy(providers []string, awsRegions []string, doRegions []string, azureRegions []string,
-	googleRegions []string, count int, privKey string, pubKey string) ReadList {
+	googleRegions []string, count int, privKey string, pubKey string, output TerraformOutput) TerraformOutput {
 
-	var masterList ReadList
+	var newRegionConfig AWSRegionConfig
 
 	//Gather the count per provider and the remainder
 	countPerProvider := count / len(providers)
@@ -239,7 +276,8 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	for _, provider := range providers {
 		switch strings.ToUpper(provider) {
 		case "AWS":
-			var ec2DeployerList []ec2Deployer
+			//Existing AWS Instances
+			awsInstances := output.Master.ProviderValues.AWSProvider.Instances
 
 			countPerAWSRegion := countPerProvider / len(awsRegions)
 
@@ -255,6 +293,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 			}
 
 			for _, region := range awsRegions {
+
 				regionCount := countPerAWSRegion
 
 				keyCheckResult, keyName := checkEC2KeyExistance(awsSecretKey, awsAccessKey, region, privKey)
@@ -268,10 +307,12 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				}
 
 				if regionCount > 0 {
-					newEc2Deployer := ec2Deployer{
+
+					newRegionConfig = AWSRegionConfig{
+						//TODO: Figure the security group thing out
 						SecurityGroup:   "test",
 						SecurityGroupID: "",
-						Count:           regionCount,
+						Count:           strconv.Itoa(regionCount),
 						CustomAmi:       "",
 						InstanceType:    "",
 						DefaultUser:     "ubuntu",
@@ -280,118 +321,129 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 						PrivateKeyFile:  privKey,
 						KeypairName:     keyName,
 					}
-					ec2DeployerList = append(ec2DeployerList, newEc2Deployer)
+
 				}
-
-			}
-			masterList.ec2DeployerList = ec2DeployerList
-		case "DO":
-			var doDeployerList []digitalOceanDeployer
-
-			countPerDORegion := countPerProvider / len(doRegions)
-			remainderForDORegion := countPerProvider % len(doRegions)
-			if remainderForProviders != 0 {
-				remainderForDORegion = remainderForDORegion + 1
-				remainderForProviders = remainderForProviders - 1
-			}
-			for _, region := range doRegions {
-				regionCount := countPerDORegion
-				if remainderForDORegion > 0 {
-					regionCount = regionCount + 1
-					remainderForDORegion = remainderForDORegion - 1
-				}
-
-				if regionCount > 0 {
-					newDODeployer := digitalOceanDeployer{
-						Image:       "",
-						Fingerprint: genDOKeyFingerprint(pubKey),
-						PrivateKey:  privKey,
-						PublicKey:   pubKey,
-						Size:        "",
-						Count:       regionCount,
-						Region:      region,
-						DefaultUser: "",
-						Name:        "tester",
+				for index := range awsInstances {
+					if compareRegionConfig(awsInstances[index].Config, newRegionConfig) {
+						awsInstances[index].Config.Count = awsInstances[index].Config.Count + newRegionConfig.Count
+						break
 					}
-					doDeployerList = append(doDeployerList, newDODeployer)
+					if index == len(awsInstances)-1 {
+						awsInstances = append(awsInstances, AWSInstance{
+							Config:  newRegionConfig,
+							IPIDMap: make(map[string]string)})
+					}
 				}
 
 			}
-			masterList.digitalOceanDeployerList = doDeployerList
+			output.Master.ProviderValues.AWSProvider.Instances = awsInstances
+		case "DO":
+			// var doDeployerList []digitalOceanDeployer
+
+			// countPerDORegion := countPerProvider / len(doRegions)
+			// remainderForDORegion := countPerProvider % len(doRegions)
+			// if remainderForProviders != 0 {
+			// 	remainderForDORegion = remainderForDORegion + 1
+			// 	remainderForProviders = remainderForProviders - 1
+			// }
+			// for _, region := range doRegions {
+			// 	regionCount := countPerDORegion
+			// 	if remainderForDORegion > 0 {
+			// 		regionCount = regionCount + 1
+			// 		remainderForDORegion = remainderForDORegion - 1
+			// 	}
+
+			// 	if regionCount > 0 {
+			// 		newDODeployer := digitalOceanDeployer{
+			// 			Image:       "",
+			// 			Fingerprint: genDOKeyFingerprint(pubKey),
+			// 			PrivateKey:  privKey,
+			// 			PublicKey:   pubKey,
+			// 			Size:        "",
+			// 			Count:       regionCount,
+			// 			Region:      region,
+			// 			DefaultUser: "",
+			// 			Name:        "tester",
+			// 		}
+			// 		doDeployerList = append(doDeployerList, newDODeployer)
+			// 	}
+
+			// }
+			// masterList.digitalOceanDeployerList = doDeployerList
 
 		case "AZURE":
-			var azureDeployerList []azureDeployer
-			countPerAzureRegion := countPerProvider / len(azureRegions)
-			remainderForAzureRegion := countPerProvider % len(azureRegions)
-			if remainderForProviders != 0 {
-				remainderForAzureRegion = remainderForAzureRegion + 1
-				remainderForProviders = remainderForProviders - 1
-			}
+			// var azureDeployerList []azureDeployer
+			// countPerAzureRegion := countPerProvider / len(azureRegions)
+			// remainderForAzureRegion := countPerProvider % len(azureRegions)
+			// if remainderForProviders != 0 {
+			// 	remainderForAzureRegion = remainderForAzureRegion + 1
+			// 	remainderForProviders = remainderForProviders - 1
+			// }
 
-			for _, region := range awsRegions {
-				regionCount := countPerAzureRegion
-				//TODO check for existing keyname
+			// for _, region := range awsRegions {
+			// 	regionCount := countPerAzureRegion
+			// 	//TODO check for existing keyname
 
-				if remainderForAzureRegion > 0 {
-					regionCount = regionCount + 1
-					remainderForAzureRegion = remainderForAzureRegion - 1
-				}
+			// 	if remainderForAzureRegion > 0 {
+			// 		regionCount = regionCount + 1
+			// 		remainderForAzureRegion = remainderForAzureRegion - 1
+			// 	}
 
-				if regionCount > 0 {
-					newAzureDeployer := azureDeployer{
-						Location:    region,
-						Count:       regionCount,
-						VMSize:      "",
-						Environment: "",
-						PublicKey:   pubKey,
-						PrivateKey:  privKey,
-					}
-					azureDeployerList = append(azureDeployerList, newAzureDeployer)
-				}
+			// 	if regionCount > 0 {
+			// 		newAzureDeployer := azureDeployer{
+			// 			Location:    region,
+			// 			Count:       regionCount,
+			// 			VMSize:      "",
+			// 			Environment: "",
+			// 			PublicKey:   pubKey,
+			// 			PrivateKey:  privKey,
+			// 		}
+			// 		azureDeployerList = append(azureDeployerList, newAzureDeployer)
+			// 	}
 
-			}
-			masterList.azureDeployerList = azureDeployerList
+			// }
+			// masterList.azureDeployerList = azureDeployerList
 
 		case "GOOGLE":
 
-			var googleDeployerList []googleCloudDeployer
+		// var googleDeployerList []googleCloudDeployer
 
-			countPerGoogleRegion := countPerProvider / len(googleRegions)
-			remainderForGoogleRegion := countPerProvider % len(googleRegions)
-			if remainderForProviders != 0 {
-				remainderForGoogleRegion = remainderForGoogleRegion + 1
-				remainderForProviders = remainderForProviders - 1
-			}
+		// countPerGoogleRegion := countPerProvider / len(googleRegions)
+		// remainderForGoogleRegion := countPerProvider % len(googleRegions)
+		// if remainderForProviders != 0 {
+		// 	remainderForGoogleRegion = remainderForGoogleRegion + 1
+		// 	remainderForProviders = remainderForProviders - 1
+		// }
 
-			for _, region := range googleRegions {
+		// for _, region := range googleRegions {
 
-				regionCount := countPerGoogleRegion
-				if remainderForGoogleRegion > 0 {
-					regionCount = regionCount + 1
-					remainderForGoogleRegion = remainderForGoogleRegion - 1
+		// 	regionCount := countPerGoogleRegion
+		// 	if remainderForGoogleRegion > 0 {
+		// 		regionCount = regionCount + 1
+		// 		remainderForGoogleRegion = remainderForGoogleRegion - 1
 
-				}
+		// 	}
 
-				if regionCount > 0 {
-					newGoogleDeployer := googleCloudDeployer{
-						Region:            region,
-						Project:           "inboxa90",
-						Count:             regionCount,
-						SSHUser:           "tester",
-						SSHPubKeyFile:     pubKey,
-						SSHPrivateKeyFile: privKey,
-						MachineType:       "",
-						Image:             "",
-					}
-					googleDeployerList = append(googleDeployerList, newGoogleDeployer)
-				}
+		// 	if regionCount > 0 {
+		// 		newGoogleDeployer := googleCloudDeployer{
+		// 			Region:            region,
+		// 			Project:           "inboxa90",
+		// 			Count:             regionCount,
+		// 			SSHUser:           "tester",
+		// 			SSHPubKeyFile:     pubKey,
+		// 			SSHPrivateKeyFile: privKey,
+		// 			MachineType:       "",
+		// 			Image:             "",
+		// 		}
+		// 		googleDeployerList = append(googleDeployerList, newGoogleDeployer)
+		// 	}
 
-			}
-			masterList.googleCloudDeployerList = googleDeployerList
+		// }
+		// masterList.googleCloudDeployerList = googleDeployerList
 
 		default:
 			continue
 		}
 	}
-	return masterList
+	return output
 }

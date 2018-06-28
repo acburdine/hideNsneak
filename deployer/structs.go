@@ -1,19 +1,5 @@
 package deployer
 
-type ec2Deployer struct {
-	SecurityGroup   string
-	SecurityGroupID string
-	Count           int
-	CustomAmi       string
-	InstanceType    string
-	DefaultUser     string
-	Region          string
-	NewKeypair      bool
-	KeypairName     string
-	PrivateKeyFile  string
-	PublicKeyFile   string
-}
-
 type azureCdnDeployer struct {
 	HostName     string
 	ProfileName  string
@@ -64,10 +50,63 @@ type apiGatewayDeployer struct {
 	StageName string
 }
 
+//Output Parsing Structs
+type TerraformOutput struct {
+	Master OuterLevel `json:"providers"`
+}
+
+type OuterLevel struct {
+	ProviderValues Providers `json:"value"`
+}
+
+type Providers struct {
+	AWSProvider    AWSProvider    `json:"AWS"`
+	DoProvider     DOProvider     `json:"DO"`
+	GoogleProvider GoogleProvider `json:"GOOGLE"`
+	AzureProvider  AzureProvider  `json:"AZURE"`
+}
+
+type AWSProvider struct {
+	Instances      []AWSInstance      `json:"instances"`
+	API            []AWSApi           `json:"api"`
+	DomainFront    []AWSDomainFront   `json:"domain_front"`
+	SecurityGroups []AWSSecurityGroup `json:"security_group"`
+}
+
+type AWSInstance struct {
+	Config  AWSRegionConfig   `json:"config"`
+	IPIDMap map[string]string `json:"ip_id"`
+}
+
+type AWSRegionConfig struct {
+	SecurityGroup   string `json:"hidensneak"`
+	SecurityGroupID string `json:"aws_sg_id"`
+	Count           string `json:"region_count"`
+	CustomAmi       string `json:"custom_ami"`
+	InstanceType    string `json:"aws_instance_type"`
+	DefaultUser     string `json:"ec2_default_user"`
+	KeypairName     string
+	Region          string `json:"region"`
+	PrivateKeyFile  string `json:"private_key_file"`
+	PublicKeyFile   string `json:"public_key_file"`
+}
+
+type AWSApi struct {
+}
+
+type AWSDomainFront struct{}
+
+type AWSSecurityGroup struct{}
+
+type DOProvider struct{}
+
+type GoogleProvider struct{}
+
+type AzureProvider struct{}
+
 //ReadList contains a list of all of the resources
 //across different providers per region
 type ReadList struct {
-	ec2DeployerList          []ec2Deployer
 	azureCdnDeployerList     []azureCdnDeployer
 	azureDeployerList        []azureDeployer
 	cloudFrontDeployerList   []cloudFrontDeployer
