@@ -1,0 +1,3 @@
+output allRegions {
+  value = "${list()}"
+}
