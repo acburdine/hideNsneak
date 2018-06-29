@@ -31,10 +31,7 @@ var regionDo []string
 var regionAzure []string
 var regionGoogle []string
 var numberInput string
-var awsCount int
-var azureCount int
-var googleCount int
-var doCount int
+var destroyList int
 
 var instance = &cobra.Command{
 	Use:   "instance",
@@ -91,16 +88,16 @@ var instanceDestroy = &cobra.Command{
 		//get the number of instances actually available in state
 		marshalledOutput := deployer.TerraformOutputMarshaller()
 		for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-			awsCount = awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
+			awsCount := awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
 		}
 		for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
-			doCount = doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
+			doCount := doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
 		}
 		for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-			googleCount = googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
+			googleCount := googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
 		}
 		for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-			azureCount = azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
+			azureCount := azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
 		}
 
 		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
@@ -112,6 +109,8 @@ var instanceDestroy = &cobra.Command{
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		marshalledOutput := deployer.TerraformOutputMarshaller()
+
 		//TODO:
 		//get the number of instances that they want to delete
 		//parse that number based on comma (1-49 for 1 through 49, comma separated)
