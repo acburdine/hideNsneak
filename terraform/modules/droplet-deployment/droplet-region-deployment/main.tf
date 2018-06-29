@@ -1,48 +1,40 @@
-provider "digitalocean" {
-  token = "${var.do_token}"
-}
-
-resource "random_string" "droplet_name" {
-  length  = 8
-  special = false
-}
-
 resource "ansible_host" "hideNsneak" {
   count = "${var.do_count}"
 
   //Element
   inventory_hostname = "${digitalocean_droplet.hideNsneak.*.ipv4_address[count.index]}"
-  groups             = "${var.ansible_groups}"
+
+  //Possibly add groups in the future
+  # groups             = "${var.ansible_groups}"
 
   vars {
     ansible_user                 = "${var.do_default_user}"
     ansible_connection           = "ssh"
-    ansible_ssh_private_key_file = "${var.pvt_key}"
+    ansible_ssh_private_key_file = "${var.do_private_key}"
     ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
   }
-
   depends_on = ["digitalocean_droplet.hideNsneak"]
 }
 
 resource "digitalocean_droplet" "hideNsneak" {
   image  = "${var.do_image == "" ? "ubuntu-16-04-x64" : var.do_image}"
-  name   = "${var.do_name}${random_string.droplet_name.result}"
+  name   = "hidensneak-test"
   region = "${var.do_region}"
   size   = "${var.do_size == "" ? "512mb" : var.do_size}"
   count  = "${var.do_count}"
 
   ssh_keys = [
-    "${var.ssh_fingerprint}",
+    "${var.do_ssh_fingerprint}",
   ]
 
-  provisioner "local-exec" {
-    command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.do_default_user} --private-key ${var.pvt_key} -i '${self.ipv4_address},' ../ansible/setup.yml"
-  }
+  //Uncomment this for ansible
+  # provisioner "local-exec" {
+  #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.do_default_user} --private-key ${var.do_private_key} -i '${self.ipv4_address},' ../ansible/setup.yml"
+  # }
 }
 
 resource "digitalocean_firewall" "hideNsneak" {
-  name = "${var.do_firewall_name}${random_string.droplet_name.result}"
-
+  name        = "hidensneak-test"
   droplet_ids = ["${digitalocean_droplet.hideNsneak.*.id}"]
   count       = "${digitalocean_droplet.hideNsneak.count > 0 ? 1 : 0}"
 
@@ -50,7 +42,7 @@ resource "digitalocean_firewall" "hideNsneak" {
     {
       protocol         = "tcp"
       port_range       = "22"
-      source_addresses = ["${var.do_ssh_source_ip}"]
+      source_addresses = ["0.0.0.0/0"]
     },
   ]
 
