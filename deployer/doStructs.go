@@ -10,6 +10,8 @@ type DOInstance struct {
 }
 
 type DORegionConfig struct {
+	Image string
+	PublicKey
 }
 
 //Deprecated

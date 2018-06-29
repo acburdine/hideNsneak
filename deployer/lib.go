@@ -275,6 +275,10 @@ func compareAWSConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig)
 	return false
 }
 
+func compareDOConfig(initialRegion DORegionConfig, testRegion DORegionConfig) bool {
+	if initialRegion.
+}
+
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
 //it takes in a TerraformOutput struct, makes the appropriate edits, and returns that same struct
 func InstanceDeploy(providers []string, awsRegions []string, doRegions []string, azureRegions []string,
