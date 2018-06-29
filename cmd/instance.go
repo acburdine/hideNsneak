@@ -30,6 +30,8 @@ var regionAws []string
 var regionDo []string
 var regionAzure []string
 var regionGoogle []string
+var numberInput string
+var destroyList int
 
 var instance = &cobra.Command{
 	Use:   "instance",
@@ -68,14 +70,51 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
+		//check if input is valid, either 1-49 or 1,2,3 format
+		if !deployer.IsValidNumberInput(numberInput) {
+			return fmt.Errorf("invalid formatting specified: %s", numberInput)
+		}
+
+		//expand the input into an array of ints todo
+		numsToDestroy := deployer.ExpandNumberInput(numberInput)
+
+		//get largest number in that array
+		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
+
+		//get the number of instances actually available in state
+		marshalledOutput := deployer.TerraformOutputMarshaller()
+		for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
+			awsCount := awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
+		}
+		for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
+			doCount := doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
+		}
+		for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
+			googleCount := googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
+		}
+		for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
+			azureCount := azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
+		}
+
+		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
+		if awsCount < largestInstanceNumToDestroy {
+			return error("The number you entered is too big. Try running `list` to see the number of instances you have.")
+		}
+
+		return nil
+
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		marshalledOutput := deployer.TerraformOutputMarshaller()
+
 		//TODO:
 		//get the number of instances that they want to delete
 		//parse that number based on comma (1-49 for 1 through 49, comma separated)
+		//convert numbers into ip addresses
+		//put ip addresses in list
+		//loop through the ip list and get id for each corresponding ip address
+		//get the ip address for each host and then do a terraform state list id = '', and then do terraform destroy target 'name from list' target 'another name'
 		//delete those based on array nums
-		return nil
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: Write destruction logic")
 	},
 }
 

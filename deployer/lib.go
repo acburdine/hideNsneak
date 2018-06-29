@@ -159,6 +159,57 @@ func ProviderCheck(providerArray []string) bool {
 	return true
 }
 
+func IsValidNumberInput(input string) bool {
+	sliceToParse := strings.Split(input, ",")
+
+	for _, num := range sliceToParse {
+		_, err := strconv.Atoi(num)
+		if err != nil {
+			dashSlice := strings.Split(num, "-")
+			if len(dashSlice) != 2 {
+				return false
+			} else {
+				_, err := strconv.Atoi(dashSlice[0])
+				if err != nil {
+					return false
+				}
+				_, err = strconv.Atoi(dashSlice[1])
+				if err != nil {
+					return false
+				}
+			}
+			continue
+		}
+	}
+	return true
+}
+
+func ExpandNumberInput(input string) []int {
+	var result []int
+	sliceToParse := strings.Split(input, ",")
+
+	for _, num := range sliceToParse {
+		getInt, err := strconv.Atoi(num)
+		if err != nil {
+			sliceToSplit := strings.Split(num, "-")
+			firstNum, err := strconv.Atoi(sliceToSplit[0])
+			if err != nil {
+				continue
+			}
+			secondNum, err := strconv.Atoi(sliceToSplit[1])
+			if err != nil {
+				continue
+			}
+			for i := firstNum; i <= secondNum; i++ {
+				result = append(result, i)
+			}
+		} else {
+			result = append(result, getInt)
+		}
+	}
+	return result
+}
+
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -166,6 +217,17 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func FindLargestNumber(nums []int) int {
+	var n, largest int
+	for _, i := range nums {
+		if i > n {
+			n = i
+			largest = n
+		}
+	}
+	return largest
 }
 
 //checkEc2KeyExistence queries the Amazon EC2 API for the keypairs with the specified keyname
