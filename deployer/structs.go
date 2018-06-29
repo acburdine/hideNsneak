@@ -51,6 +51,8 @@ type apiGatewayDeployer struct {
 }
 
 //Output Parsing Structs
+//MarshalledOutput.Master.ProviderValues.AWSProvider.Instances[0].Config.Count
+
 type TerraformOutput struct {
 	Master OuterLevel `json:"providers"`
 }
