@@ -10,8 +10,13 @@ type DOInstance struct {
 }
 
 type DORegionConfig struct {
-	Image string
-	PublicKey
+	Image       string
+	PublicKey   string
+	PrivateKey  string
+	Size        string
+	Count       int
+	Region      string
+	DefaultUser string
 }
 
 //Deprecated

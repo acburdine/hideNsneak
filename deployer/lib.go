@@ -338,7 +338,16 @@ func compareAWSConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig)
 }
 
 func compareDOConfig(initialRegion DORegionConfig, testRegion DORegionConfig) bool {
-	if initialRegion.
+	if initialRegion.Image == testRegion.Image &&
+		initialRegion.PublicKey == testRegion.PublicKey &&
+		initialRegion.PrivateKey == testRegion.PrivateKey &&
+		initialRegion.Size == testRegion.Size &&
+		initialRegion.Count == testRegion.Count &&
+		initialRegion.Region == initialRegion.Region &&
+		initialRegion.DefaultUser == initialRegion.DefaultUser {
+		return true
+	}
+	return false
 }
 
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
