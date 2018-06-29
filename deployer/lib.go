@@ -25,6 +25,13 @@ func checkErr(err error) {
 		log.Fatal()
 	}
 }
+func templateCounter() func() int {
+	i := -1
+	return func() int {
+		i++
+		return i
+	}
+}
 
 //InitializeTerraformFiles Creates the base templates for
 //the terraform infrastructure
@@ -43,8 +50,7 @@ func InitializeTerraformFiles() {
 
 	mainFile.Write([]byte(state))
 	varFile.Write([]byte(variables))
-	//TODO: Get secrets file
-	tfvarsFile.Write([]byte("test"))
+	tfvarsFile.Write([]byte(templateSecrets))
 }
 
 func execCmd(binary string, args []string, filepath string) string {
@@ -96,9 +102,20 @@ func TerraformOutputMarshaller() (outputStruct TerraformOutput) {
 
 	//Initializing Terraform
 	args := []string{"output", "--json"}
-	output := execCmd(binary, args, "terraform")
 
-	bytes := []byte(output)
+	var stdout, stderr bytes.Buffer
+
+	cmd := exec.Command(binary, args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = "terraform"
+
+	err = cmd.Run()
+	if err != nil {
+		return
+	}
+
+	bytes := stdout.Bytes()
 
 	json.Unmarshal(bytes, &outputStruct)
 
@@ -309,22 +326,19 @@ func createSingleSOCKS(privateKey string, username string, ipv4 string, port int
 	return cmd.Process
 }
 
-func compareRegionConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig) bool {
+func compareAWSConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig) bool {
 	if initialRegion.CustomAmi == testRegion.CustomAmi &&
 		initialRegion.DefaultUser == testRegion.DefaultUser &&
 		initialRegion.InstanceType == testRegion.InstanceType &&
-		initialRegion.KeypairName == testRegion.KeypairName &&
 		initialRegion.PrivateKeyFile == testRegion.PrivateKeyFile &&
-		initialRegion.PublicKeyFile == testRegion.PrivateKeyFile &&
-		initialRegion.Region == testRegion.Region &&
-		initialRegion.SecurityGroup == testRegion.SecurityGroup &&
-		initialRegion.SecurityGroupID == testRegion.SecurityGroupID {
+		initialRegion.PublicKeyFile == testRegion.PublicKeyFile {
 		return true
 	}
 	return false
 }
 
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
+//it takes in a TerraformOutput struct, makes the appropriate edits, and returns that same struct
 func InstanceDeploy(providers []string, awsRegions []string, doRegions []string, azureRegions []string,
 	googleRegions []string, count int, privKey string, pubKey string, output TerraformOutput) TerraformOutput {
 
@@ -354,16 +368,15 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				remainderForProviders = remainderForProviders - 1
 			}
 
+			//Looping through the provided regions
 			for _, region := range awsRegions {
-
 				regionCount := countPerAWSRegion
 
-				//TODO: Uncomment when these variable problems are resolved
+				//TODO: Implement this, commented out due to broken functionality
 				// keyCheckResult, keyName := checkEC2KeyExistance(awsSecretKey, awsAccessKey, region, privKey)
 				// if !keyCheckResult {
 				// 	keyName = "hideNsneak"
 				// }
-				keyName := "hideNsneak"
 
 				if remainderForAWSRegion > 0 {
 					regionCount = regionCount + 1
@@ -371,35 +384,45 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				}
 
 				if regionCount > 0 {
-
 					newRegionConfig = AWSRegionConfig{
 						//TODO: Figure the security group thing out
-						SecurityGroup:   "test",
-						SecurityGroupID: "",
-						Count:           strconv.Itoa(regionCount),
-						CustomAmi:       "",
-						InstanceType:    "",
-						DefaultUser:     "ubuntu",
-						Region:          region,
-						PublicKeyFile:   pubKey,
-						PrivateKeyFile:  privKey,
-						KeypairName:     keyName,
+						Count:          strconv.Itoa(regionCount),
+						CustomAmi:      "",
+						InstanceType:   "t2.micro",
+						DefaultUser:    "ubuntu",
+						Region:         region,
+						PublicKeyFile:  pubKey,
+						PrivateKeyFile: privKey,
+					}
+
+					if len(awsInstances) == 0 {
+						awsInstances = append(awsInstances, AWSInstance{
+							Config:  newRegionConfig,
+							IPIDMap: make(map[string]string)})
+						continue
 					}
 
 				}
 				for index := range awsInstances {
-					if compareRegionConfig(awsInstances[index].Config, newRegionConfig) {
-						awsInstances[index].Config.Count = awsInstances[index].Config.Count + newRegionConfig.Count
+					if compareAWSConfig(awsInstances[index].Config, newRegionConfig) && awsInstances[index].Config.Region == newRegionConfig.Region {
+
+						//String conversion madness
+						count1, _ := strconv.Atoi(awsInstances[index].Config.Count)
+						count2, _ := strconv.Atoi(newRegionConfig.Count)
+
+						awsInstances[index].Config.Count = strconv.Itoa(count1 + count2)
 						break
-					}
-					if index == len(awsInstances)-1 {
+
+					} else {
 						awsInstances = append(awsInstances, AWSInstance{
 							Config:  newRegionConfig,
 							IPIDMap: make(map[string]string)})
 					}
+
 				}
 
 			}
+			fmt.Println(awsInstances)
 			output.Master.ProviderValues.AWSProvider.Instances = awsInstances
 		case "DO":
 			// var doDeployerList []digitalOceanDeployer

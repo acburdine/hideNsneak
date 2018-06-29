@@ -48,8 +48,7 @@ var instanceDeploy = &cobra.Command{
 	Short: "deploys an instance",
 	Long:  `deploys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		//TODO: Uncomment this for initization
-		// deployer.InitializeTerraformFiles()
+		deployer.InitializeTerraformFiles()
 		if deployer.ProviderCheck(instanceProviders) {
 			return nil
 		}
@@ -60,12 +59,9 @@ var instanceDeploy = &cobra.Command{
 		marshalledOutput := deployer.TerraformOutputMarshaller()
 		masterList := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, marshalledOutput)
 
-		for i := range masterList.Master.ProviderValues.AWSProvider.Instances {
-			fmt.Println(masterList.Master.ProviderValues.AWSProvider.Instances[i].IPIDMap)
-		}
+		mainFile := deployer.CreateMasterFile(masterList)
 
-		//TODO: Parse masterList into terraform templatez
-
+		deployer.CreateTerraformMain(mainFile)
 	},
 }
 

@@ -52,44 +52,45 @@ const outputs = `output "providers" {
 ///////////////////// MODULES /////////////////////
 
 const mainEc2Module = `
-	module "{{.ModuleName}}" {
+	module "{{.Config.ModuleName}}" {
 	source          = "modules/ec2-deployment"
-	default_sg_name = "{{.SecurityGroup}}"
-	aws_sg_id       = "{{.SecurityGroupID}}"
+	default_sg_name = "{{.Config.SecurityGroup}}"
+	aws_sg_id       = "{{.Config.SecurityGroupID}}"
   
 	#Example of region_count
-	region_count         = "${map({{.RegionMapString}})}"
-	custom_ami           = "{{.CustomAmi}}"
-	aws_instance_type    = "{{.InstanceType}}"
-	ec2_default_user     = "{{.DefaultUser}}"
+	region_count         = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}","{{$value}}"{{end}})}"
+	custom_ami           = "{{.Config.CustomAmi}}"
+	aws_instance_type    = "{{.Config.InstanceType}}"
+	ec2_default_user     = "{{.Config.DefaultUser}}"
 	aws_access_key       = "${var.aws_access_key}"
 	aws_secret_key       = "${var.aws_secret_key}"
-	aws_keypair_name     = "ssh_inbound"
-	aws_private_key_file = "{{.PrivateKeyFile}}"
-	aws_public_key_file  = "{{.PublicKeyFile}}"
+	aws_keypair_name     = "do_rsa"
+	aws_private_key_file = "{{.Config.PrivateKeyFile}}"
+	aws_public_key_file  = "{{.Config.PublicKeyFile}}"
   }
 
 `
 
-const ec2Module = `
-	module "aws-{{.Region}}" {
-		source         		 = "modules/ec2-deployment"
-		default_sg_name 	 = "{{.SecurityGroup}}"
-		aws_sg_id			 = "{{.SecurityGroupID}}"
-		region_count   		 = {{.Count}}
-		custom_ami 			 = "{{.CustomAmi}}"
-		aws_instance_type	 = "{{.InstanceType}}"
-		ec2_default_user	 = "{{.DefaultUser}}"
-		aws_access_key 		 = "${var.aws_access_key}"
-		aws_secret_key 		 = "${var.aws_secret_key}"
-		aws_region    		 = "{{.Region}}"
-		aws_new_keypair      = "{{.NewKeypair}}"
-		aws_keypair_name     = "{{.KeypairName}}"
-		aws_private_key_file = "{{.PrivateKeyFile}}"
-		aws_public_key_file  = "{{.PublicKeyFile}}"
-		ansible_groups       = "[]"
-	}
-`
+// Deprecated
+// const ec2Module = `
+// 	module "aws-{{.Region}}" {
+// 		source         		 = "modules/ec2-deployment"
+// 		default_sg_name 	 = "{{.SecurityGroup}}"
+// 		aws_sg_id			 = "{{.SecurityGroupID}}"
+// 		region_count   		 = {{.Count}}
+// 		custom_ami 			 = "{{.CustomAmi}}"
+// 		aws_instance_type	 = "{{.InstanceType}}"
+// 		ec2_default_user	 = "{{.DefaultUser}}"
+// 		aws_access_key 		 = "${var.aws_access_key}"
+// 		aws_secret_key 		 = "${var.aws_secret_key}"
+// 		aws_region    		 = "{{.Region}}"
+// 		aws_new_keypair      = "{{.NewKeypair}}"
+// 		aws_keypair_name     = "{{.KeypairName}}"
+// 		aws_private_key_file = "{{.PrivateKeyFile}}"
+// 		aws_public_key_file  = "{{.PublicKeyFile}}"
+// 		ansible_groups       = "[]"
+// 	}
+// `
 
 const azureCdnModule = `
 	module "azure-cdn-{{.Endpoint}}" {

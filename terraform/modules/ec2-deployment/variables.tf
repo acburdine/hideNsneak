@@ -38,7 +38,7 @@ variable "aws_keypair_name" {
 }
 
 variable "default_sg_name" {
-  default = "ssh_inbound"
+  default = "ssh_inbound2"
 }
 
 variable "aws_sg_id" {
