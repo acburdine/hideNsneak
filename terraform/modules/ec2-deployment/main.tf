@@ -10,7 +10,8 @@ module "aws-us-east-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["us-east-1"]}"
 
@@ -34,7 +35,8 @@ module "aws-us-east-2" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "var"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["us-east-2"]}"
 
@@ -56,7 +58,8 @@ module "aws-us-west-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["us-west-1"]}"
 
@@ -78,7 +81,8 @@ module "aws-us-west-2" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["us-west-2"]}"
 
@@ -100,7 +104,8 @@ module "aws-ca-central-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["ca-central-1"]}"
 
@@ -122,7 +127,8 @@ module "aws-eu-central-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["eu-central-1"]}"
 
@@ -144,7 +150,8 @@ module "aws-eu-west-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["eu-west-1"]}"
 
@@ -166,7 +173,8 @@ module "aws-eu-west-2" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["eu-west-2"]}"
 
@@ -188,7 +196,8 @@ module "aws-eu-west-3" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["eu-west-3"]}"
 
@@ -210,7 +219,8 @@ module "aws-ap-northeast-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["ap-northeast-1"]}"
 
@@ -232,7 +242,8 @@ module "aws-ap-northeast-2" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["ap-northeast-2"]}"
 
@@ -254,7 +265,8 @@ module "aws-ap-southeast-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["ap-southeast-1"]}"
 
@@ -276,7 +288,8 @@ module "aws-ap-southeast-2" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["ap-southeast-2"]}"
 
@@ -298,7 +311,8 @@ module "aws-ap-south-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["ap-south-1"]}"
 
@@ -320,7 +334,8 @@ module "aws-sa-east-1" {
   }
 
   #TODO: Fix Security Groups
-  # default_sg_name      = "test"
+  default_sg_name = "ssh_inbound2"
+
   # aws_sg_id            = ""
   instance_count = "${local.region_count_final["sa-east-1"]}"
 

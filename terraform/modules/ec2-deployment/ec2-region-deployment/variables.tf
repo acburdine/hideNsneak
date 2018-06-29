@@ -10,9 +10,7 @@ variable "aws_public_key_file" {}
 
 variable "aws_keypair_name" {}
 
-variable "default_sg_name" {
-  default = "hidensneak"
-}
+variable "default_sg_name" {}
 
 variable "aws_sg_id" {
   default = ""

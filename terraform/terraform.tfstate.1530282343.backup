@@ -1,0 +1,1800 @@
+{
+    "version": 3,
+    "terraform_version": "0.11.7",
+    "serial": 140,
+    "lineage": "37519308-ad0d-c422-0458-d4602ccd860a",
+    "modules": [
+        {
+            "path": [
+                "root"
+            ],
+            "outputs": {},
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All"
+            ],
+            "outputs": {
+                "allRegions": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": [
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "us-east-1",
+                                "region_count": "1"
+                            },
+                            "ip_id": {
+                                "34.238.192.226": "i-06163fa5a008a082e"
+                            }
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "us-east-2",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "us-west-1",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "us-west-2",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "ca-central-1",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "eu-west-1",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "eu-west-2",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "eu-west-3",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "ap-northeast-1",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "ap-northeast-2",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "ap-southeast-1",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "ap-southeast-2",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "ap-south-1",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        },
+                        {
+                            "config": {
+                                "aws_instance_type": "t2.micro",
+                                "aws_sg_id": "",
+                                "custom_ami": "",
+                                "default_sg_name": "ssh_inbound2",
+                                "ec2_default_user": "ubuntu",
+                                "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                                "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                                "region": "sa-east-1",
+                                "region_count": "0"
+                            },
+                            "ip_id": {}
+                        }
+                    ]
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2"
+            ],
+            "outputs": {},
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-ap-northeast-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-northeast-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-ap-northeast-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-northeast-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-ap-south-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-south-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-ap-southeast-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-southeast-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-ap-southeast-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-southeast-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-ca-central-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ca-central-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-eu-central-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-central-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-eu-west-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-west-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-eu-west-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-west-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-eu-west-3"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-west-3",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-sa-east-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "sa-east-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-us-east-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "us-east-1",
+                            "region_count": "1"
+                        },
+                        "ip_id": {
+                            "34.238.192.226": "i-06163fa5a008a082e"
+                        }
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": [
+                        [
+                            "ssh_inbound"
+                        ]
+                    ]
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": [
+                        "sg-8b8dcac0"
+                    ]
+                }
+            },
+            "resources": {
+                "ansible_host.hideNsneak": {
+                    "type": "ansible_host",
+                    "depends_on": [
+                        "aws_instance.hideNsneak",
+                        "aws_instance.hideNsneak.*"
+                    ],
+                    "primary": {
+                        "id": "34.238.192.226",
+                        "attributes": {
+                            "id": "34.238.192.226",
+                            "inventory_hostname": "34.238.192.226",
+                            "vars.%": "4",
+                            "vars.ansible_connection": "ssh",
+                            "vars.ansible_ssh_common_args": "-o StrictHostKeyChecking=no",
+                            "vars.ansible_ssh_private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "vars.ansible_user": "ubuntu"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "provider.ansible"
+                },
+                "aws_instance.hideNsneak": {
+                    "type": "aws_instance",
+                    "depends_on": [
+                        "aws_security_group.allow_ssh",
+                        "aws_security_group.allow_ssh.*",
+                        "data.aws_ami.ubuntu",
+                        "data.aws_subnet_ids.all"
+                    ],
+                    "primary": {
+                        "id": "i-06163fa5a008a082e",
+                        "attributes": {
+                            "ami": "ami-759bc50a",
+                            "associate_public_ip_address": "true",
+                            "availability_zone": "us-east-1f",
+                            "credit_specification.#": "1",
+                            "credit_specification.0.cpu_credits": "standard",
+                            "disable_api_termination": "false",
+                            "ebs_block_device.#": "0",
+                            "ebs_optimized": "false",
+                            "ephemeral_block_device.#": "0",
+                            "get_password_data": "false",
+                            "iam_instance_profile": "",
+                            "id": "i-06163fa5a008a082e",
+                            "instance_state": "running",
+                            "instance_type": "t2.micro",
+                            "ipv6_addresses.#": "0",
+                            "key_name": "do_rsa",
+                            "monitoring": "false",
+                            "network_interface.#": "0",
+                            "network_interface_id": "eni-1a390bbf",
+                            "password_data": "",
+                            "placement_group": "",
+                            "primary_network_interface_id": "eni-1a390bbf",
+                            "private_dns": "ip-172-31-82-98.ec2.internal",
+                            "private_ip": "172.31.82.98",
+                            "public_dns": "ec2-34-238-192-226.compute-1.amazonaws.com",
+                            "public_ip": "34.238.192.226",
+                            "root_block_device.#": "1",
+                            "root_block_device.0.delete_on_termination": "true",
+                            "root_block_device.0.iops": "100",
+                            "root_block_device.0.volume_id": "vol-051d3af5a2823ff8b",
+                            "root_block_device.0.volume_size": "8",
+                            "root_block_device.0.volume_type": "gp2",
+                            "security_groups.#": "1",
+                            "security_groups.897094884": "ssh_inbound",
+                            "source_dest_check": "true",
+                            "subnet_id": "subnet-0725460b",
+                            "tags.%": "1",
+                            "tags.Name": "hideNsneak",
+                            "tenancy": "default",
+                            "volume_tags.%": "0",
+                            "vpc_security_group_ids.#": "1",
+                            "vpc_security_group_ids.2329366424": "sg-8b8dcac0"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 1200000000000,
+                                "update": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All.provider.aws.us-east-1"
+                },
+                "aws_security_group.allow_ssh": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "data.aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-8b8dcac0",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:us-east-1:685629546442:security-group/sg-8b8dcac0",
+                            "description": "Allow SSH Traffic",
+                            "egress.#": "1",
+                            "egress.482069346.cidr_blocks.#": "1",
+                            "egress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "egress.482069346.description": "",
+                            "egress.482069346.from_port": "0",
+                            "egress.482069346.ipv6_cidr_blocks.#": "0",
+                            "egress.482069346.prefix_list_ids.#": "0",
+                            "egress.482069346.protocol": "-1",
+                            "egress.482069346.security_groups.#": "0",
+                            "egress.482069346.self": "false",
+                            "egress.482069346.to_port": "0",
+                            "id": "sg-8b8dcac0",
+                            "ingress.#": "1",
+                            "ingress.2541437006.cidr_blocks.#": "1",
+                            "ingress.2541437006.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.2541437006.description": "",
+                            "ingress.2541437006.from_port": "22",
+                            "ingress.2541437006.ipv6_cidr_blocks.#": "0",
+                            "ingress.2541437006.protocol": "tcp",
+                            "ingress.2541437006.security_groups.#": "0",
+                            "ingress.2541437006.self": "false",
+                            "ingress.2541437006.to_port": "22",
+                            "name": "ssh_inbound",
+                            "owner_id": "685629546442",
+                            "revoke_rules_on_delete": "false",
+                            "tags.%": "0",
+                            "vpc_id": "vpc-c506e0bc"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All.provider.aws.us-east-1"
+                },
+                "data.aws_ami.ubuntu": {
+                    "type": "aws_ami",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "ami-759bc50a",
+                        "attributes": {
+                            "architecture": "x86_64",
+                            "block_device_mappings.#": "3",
+                            "block_device_mappings.1634610537.device_name": "/dev/sdb",
+                            "block_device_mappings.1634610537.ebs.%": "0",
+                            "block_device_mappings.1634610537.no_device": "",
+                            "block_device_mappings.1634610537.virtual_name": "ephemeral0",
+                            "block_device_mappings.2547816212.device_name": "/dev/sda1",
+                            "block_device_mappings.2547816212.ebs.%": "6",
+                            "block_device_mappings.2547816212.ebs.delete_on_termination": "true",
+                            "block_device_mappings.2547816212.ebs.encrypted": "false",
+                            "block_device_mappings.2547816212.ebs.iops": "0",
+                            "block_device_mappings.2547816212.ebs.snapshot_id": "snap-0e4592a08b31e87d3",
+                            "block_device_mappings.2547816212.ebs.volume_size": "8",
+                            "block_device_mappings.2547816212.ebs.volume_type": "gp2",
+                            "block_device_mappings.2547816212.no_device": "",
+                            "block_device_mappings.2547816212.virtual_name": "",
+                            "block_device_mappings.3850042718.device_name": "/dev/sdc",
+                            "block_device_mappings.3850042718.ebs.%": "0",
+                            "block_device_mappings.3850042718.no_device": "",
+                            "block_device_mappings.3850042718.virtual_name": "ephemeral1",
+                            "creation_date": "2018-06-27T13:43:53.000Z",
+                            "description": "Canonical, Ubuntu, 16.04 LTS, amd64 xenial image build on 2018-06-27",
+                            "filter.#": "2",
+                            "filter.1585153008.name": "name",
+                            "filter.1585153008.values.#": "1",
+                            "filter.1585153008.values.0": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*",
+                            "filter.490168357.name": "virtualization-type",
+                            "filter.490168357.values.#": "1",
+                            "filter.490168357.values.0": "hvm",
+                            "hypervisor": "xen",
+                            "id": "ami-759bc50a",
+                            "image_id": "ami-759bc50a",
+                            "image_location": "099720109477/ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180627",
+                            "image_type": "machine",
+                            "most_recent": "true",
+                            "name": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180627",
+                            "owner_id": "099720109477",
+                            "owners.#": "1",
+                            "owners.0": "099720109477",
+                            "product_codes.#": "0",
+                            "public": "true",
+                            "root_device_name": "/dev/sda1",
+                            "root_device_type": "ebs",
+                            "root_snapshot_id": "snap-0e4592a08b31e87d3",
+                            "sriov_net_support": "simple",
+                            "state": "available",
+                            "state_reason.%": "2",
+                            "state_reason.code": "UNSET",
+                            "state_reason.message": "UNSET",
+                            "tags.%": "0",
+                            "virtualization_type": "hvm"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All.provider.aws.us-east-1"
+                },
+                "data.aws_subnet_ids.all": {
+                    "type": "aws_subnet_ids",
+                    "depends_on": [
+                        "data.aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "vpc-c506e0bc",
+                        "attributes": {
+                            "id": "vpc-c506e0bc",
+                            "ids.#": "6",
+                            "ids.1195531735": "subnet-0725460b",
+                            "ids.2163644955": "subnet-39a95515",
+                            "ids.2311232673": "subnet-d490d9e8",
+                            "ids.2337136125": "subnet-5b75db13",
+                            "ids.2582010739": "subnet-6150bb3b",
+                            "ids.3354156098": "subnet-957353f0",
+                            "vpc_id": "vpc-c506e0bc"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All.provider.aws.us-east-1"
+                },
+                "data.aws_vpc.default": {
+                    "type": "aws_vpc",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "vpc-c506e0bc",
+                        "attributes": {
+                            "cidr_block": "172.31.0.0/16",
+                            "default": "true",
+                            "dhcp_options_id": "dopt-6908ff0f",
+                            "enable_dns_hostnames": "true",
+                            "enable_dns_support": "true",
+                            "id": "vpc-c506e0bc",
+                            "instance_tenancy": "default",
+                            "state": "available",
+                            "tags.%": "0"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All.provider.aws.us-east-1"
+                }
+            },
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-us-east-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "us-east-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-us-west-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "us-west-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All",
+                "aws-us-west-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "us-west-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-ap-northeast-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-northeast-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-ap-northeast-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-northeast-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-ap-south-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-south-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-ap-southeast-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-southeast-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-ap-southeast-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ap-southeast-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-ca-central-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "ca-central-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-eu-central-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-central-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-eu-west-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-west-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-eu-west-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-west-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-eu-west-3"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "eu-west-3",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-sa-east-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "sa-east-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-us-east-1"
+            ],
+            "outputs": {},
+            "resources": {
+                "aws_security_group.allow_ssh": {
+                    "type": "aws_security_group",
+                    "depends_on": [
+                        "data.aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "sg-ab8dcae0",
+                        "attributes": {
+                            "arn": "arn:aws:ec2:us-east-1:685629546442:security-group/sg-ab8dcae0",
+                            "description": "Allow SSH Traffic",
+                            "egress.#": "1",
+                            "egress.482069346.cidr_blocks.#": "1",
+                            "egress.482069346.cidr_blocks.0": "0.0.0.0/0",
+                            "egress.482069346.description": "",
+                            "egress.482069346.from_port": "0",
+                            "egress.482069346.ipv6_cidr_blocks.#": "0",
+                            "egress.482069346.prefix_list_ids.#": "0",
+                            "egress.482069346.protocol": "-1",
+                            "egress.482069346.security_groups.#": "0",
+                            "egress.482069346.self": "false",
+                            "egress.482069346.to_port": "0",
+                            "id": "sg-ab8dcae0",
+                            "ingress.#": "1",
+                            "ingress.2541437006.cidr_blocks.#": "1",
+                            "ingress.2541437006.cidr_blocks.0": "0.0.0.0/0",
+                            "ingress.2541437006.description": "",
+                            "ingress.2541437006.from_port": "22",
+                            "ingress.2541437006.ipv6_cidr_blocks.#": "0",
+                            "ingress.2541437006.protocol": "tcp",
+                            "ingress.2541437006.security_groups.#": "0",
+                            "ingress.2541437006.self": "false",
+                            "ingress.2541437006.to_port": "22",
+                            "name": "ssh_inbound2",
+                            "owner_id": "685629546442",
+                            "revoke_rules_on_delete": "false",
+                            "tags.%": "0",
+                            "vpc_id": "vpc-c506e0bc"
+                        },
+                        "meta": {
+                            "e2bfb730-ecaa-11e6-8f88-34363bc7c4c0": {
+                                "create": 600000000000,
+                                "delete": 600000000000
+                            },
+                            "schema_version": "1"
+                        },
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All2.provider.aws.us-east-1"
+                },
+                "data.aws_ami.ubuntu": {
+                    "type": "aws_ami",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "ami-759bc50a",
+                        "attributes": {
+                            "architecture": "x86_64",
+                            "block_device_mappings.#": "3",
+                            "block_device_mappings.1634610537.device_name": "/dev/sdb",
+                            "block_device_mappings.1634610537.ebs.%": "0",
+                            "block_device_mappings.1634610537.no_device": "",
+                            "block_device_mappings.1634610537.virtual_name": "ephemeral0",
+                            "block_device_mappings.2547816212.device_name": "/dev/sda1",
+                            "block_device_mappings.2547816212.ebs.%": "6",
+                            "block_device_mappings.2547816212.ebs.delete_on_termination": "true",
+                            "block_device_mappings.2547816212.ebs.encrypted": "false",
+                            "block_device_mappings.2547816212.ebs.iops": "0",
+                            "block_device_mappings.2547816212.ebs.snapshot_id": "snap-0e4592a08b31e87d3",
+                            "block_device_mappings.2547816212.ebs.volume_size": "8",
+                            "block_device_mappings.2547816212.ebs.volume_type": "gp2",
+                            "block_device_mappings.2547816212.no_device": "",
+                            "block_device_mappings.2547816212.virtual_name": "",
+                            "block_device_mappings.3850042718.device_name": "/dev/sdc",
+                            "block_device_mappings.3850042718.ebs.%": "0",
+                            "block_device_mappings.3850042718.no_device": "",
+                            "block_device_mappings.3850042718.virtual_name": "ephemeral1",
+                            "creation_date": "2018-06-27T13:43:53.000Z",
+                            "description": "Canonical, Ubuntu, 16.04 LTS, amd64 xenial image build on 2018-06-27",
+                            "filter.#": "2",
+                            "filter.1585153008.name": "name",
+                            "filter.1585153008.values.#": "1",
+                            "filter.1585153008.values.0": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*",
+                            "filter.490168357.name": "virtualization-type",
+                            "filter.490168357.values.#": "1",
+                            "filter.490168357.values.0": "hvm",
+                            "hypervisor": "xen",
+                            "id": "ami-759bc50a",
+                            "image_id": "ami-759bc50a",
+                            "image_location": "099720109477/ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180627",
+                            "image_type": "machine",
+                            "most_recent": "true",
+                            "name": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180627",
+                            "owner_id": "099720109477",
+                            "owners.#": "1",
+                            "owners.0": "099720109477",
+                            "product_codes.#": "0",
+                            "public": "true",
+                            "root_device_name": "/dev/sda1",
+                            "root_device_type": "ebs",
+                            "root_snapshot_id": "snap-0e4592a08b31e87d3",
+                            "sriov_net_support": "simple",
+                            "state": "available",
+                            "state_reason.%": "2",
+                            "state_reason.code": "UNSET",
+                            "state_reason.message": "UNSET",
+                            "tags.%": "0",
+                            "virtualization_type": "hvm"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All2.provider.aws.us-east-1"
+                },
+                "data.aws_subnet_ids.all": {
+                    "type": "aws_subnet_ids",
+                    "depends_on": [
+                        "data.aws_vpc.default"
+                    ],
+                    "primary": {
+                        "id": "vpc-c506e0bc",
+                        "attributes": {
+                            "id": "vpc-c506e0bc",
+                            "ids.#": "6",
+                            "ids.1195531735": "subnet-0725460b",
+                            "ids.2163644955": "subnet-39a95515",
+                            "ids.2311232673": "subnet-d490d9e8",
+                            "ids.2337136125": "subnet-5b75db13",
+                            "ids.2582010739": "subnet-6150bb3b",
+                            "ids.3354156098": "subnet-957353f0",
+                            "vpc_id": "vpc-c506e0bc"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All2.provider.aws.us-east-1"
+                },
+                "data.aws_vpc.default": {
+                    "type": "aws_vpc",
+                    "depends_on": [],
+                    "primary": {
+                        "id": "vpc-c506e0bc",
+                        "attributes": {
+                            "cidr_block": "172.31.0.0/16",
+                            "default": "true",
+                            "dhcp_options_id": "dopt-6908ff0f",
+                            "enable_dns_hostnames": "true",
+                            "enable_dns_support": "true",
+                            "id": "vpc-c506e0bc",
+                            "instance_tenancy": "default",
+                            "state": "available",
+                            "tags.%": "0"
+                        },
+                        "meta": {},
+                        "tainted": false
+                    },
+                    "deposed": [],
+                    "provider": "module.ec2All2.provider.aws.us-east-1"
+                }
+            },
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-us-east-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "us-east-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-us-west-1"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "us-west-1",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        },
+        {
+            "path": [
+                "root",
+                "ec2All2",
+                "aws-us-west-2"
+            ],
+            "outputs": {
+                "region_info": {
+                    "sensitive": false,
+                    "type": "map",
+                    "value": {
+                        "config": {
+                            "aws_instance_type": "t2.micro",
+                            "aws_sg_id": "",
+                            "custom_ami": "",
+                            "default_sg_name": "ssh_inbound2",
+                            "ec2_default_user": "ubuntu",
+                            "private_key_file": "/Users/mike.hodges/.ssh/do_rsa",
+                            "public_key_file": "/Users/mike.hodges/.ssh/do_rsa.pub",
+                            "region": "us-west-2",
+                            "region_count": "0"
+                        },
+                        "ip_id": {}
+                    }
+                },
+                "security_group": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                },
+                "security_group_id": {
+                    "sensitive": false,
+                    "type": "list",
+                    "value": []
+                }
+            },
+            "resources": {},
+            "depends_on": []
+        }
+    ]
+}

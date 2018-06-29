@@ -50,7 +50,7 @@ data "aws_ami" "ubuntu" {
 resource "aws_key_pair" "hideNsneak" {
   key_name   = "${var.aws_keypair_name}"
   public_key = "${file(var.aws_public_key_file)}"
-  count      = "${var.aws_keypair_name == "ssh_inbound" ? local.keyCount : 0}"
+  count      = "${var.aws_keypair_name == "hidensneak" ? local.keyCount : 0}"
 }
 
 resource "aws_instance" "hideNsneak" {

@@ -51,6 +51,7 @@ type apiGatewayDeployer struct {
 }
 
 //Output Parsing Structs
+
 type TerraformOutput struct {
 	Master OuterLevel `json:"providers"`
 }
@@ -61,7 +62,7 @@ type OuterLevel struct {
 
 type Providers struct {
 	AWSProvider    AWSProvider    `json:"AWS"`
-	DoProvider     DOProvider     `json:"DO"`
+	DOProvider     DOProvider     `json:"DO"`
 	GoogleProvider GoogleProvider `json:"GOOGLE"`
 	AzureProvider  AzureProvider  `json:"AZURE"`
 }
@@ -73,19 +74,24 @@ type AWSProvider struct {
 	SecurityGroups []AWSSecurityGroup `json:"security_group"`
 }
 
+type AWSConfigWrapper struct {
+	Config    AWSRegionConfig
+	RegionMap map[string]int
+}
+
 type AWSInstance struct {
 	Config  AWSRegionConfig   `json:"config"`
 	IPIDMap map[string]string `json:"ip_id"`
 }
 
 type AWSRegionConfig struct {
+	ModuleName      string
 	SecurityGroup   string `json:"hidensneak"`
 	SecurityGroupID string `json:"aws_sg_id"`
 	Count           string `json:"region_count"`
 	CustomAmi       string `json:"custom_ami"`
 	InstanceType    string `json:"aws_instance_type"`
 	DefaultUser     string `json:"ec2_default_user"`
-	KeypairName     string
 	Region          string `json:"region"`
 	PrivateKeyFile  string `json:"private_key_file"`
 	PublicKeyFile   string `json:"public_key_file"`
@@ -98,11 +104,43 @@ type AWSDomainFront struct{}
 
 type AWSSecurityGroup struct{}
 
-type DOProvider struct{}
+type DOProvider struct {
+	Instances []DOInstance `json:"instances"`
+}
 
-type GoogleProvider struct{}
+type DOInstance struct {
+	Config  DORegionConfig    `json:"config"`
+	IPIDMap map[string]string `json:"ip_id"`
+}
 
-type AzureProvider struct{}
+type DORegionConfig struct {
+}
+
+type GoogleProvider struct {
+	Instances []GoogleInstance `json:"instances"`
+}
+
+type GoogleInstance struct {
+	Config  GoogleRegionConfig `json:"config"`
+	IPIDMap map[string]string  `json:"ip_id"`
+}
+
+type GoogleRegionConfig struct {
+}
+
+type AzureProvider struct {
+	Instances   []AzureInstance    `json:"instances"`
+	DomainFront []AzureDomainFront `json:"domain_front"`
+}
+
+type AzureDomainFront struct{}
+
+type AzureInstance struct {
+	Config  AzureRegionConfig `json:"config"`
+	IPIDMap map[string]string `json:"ip_id"`
+}
+
+type AzureRegionConfig struct{}
 
 //ReadList contains a list of all of the resources
 //across different providers per region
