@@ -31,7 +31,6 @@ var regionDo []string
 var regionAzure []string
 var regionGoogle []string
 var numberInput string
-var destroyList int
 
 var instance = &cobra.Command{
 	Use:   "instance",
@@ -70,15 +69,10 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		//check if input is valid, either 1-49 or 1,2,3 format
 		if !deployer.IsValidNumberInput(numberInput) {
 			return fmt.Errorf("invalid formatting specified: %s", numberInput)
 		}
-
-		//expand the input into an array of ints todo
 		numsToDestroy := deployer.ExpandNumberInput(numberInput)
-
-		//get largest number in that array
 		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
 
 		//get the number of instances actually available in state
@@ -106,10 +100,8 @@ var instanceDestroy = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledOutput := deployer.TerraformOutputMarshaller()
+		numsToDelete := deployer.ExpandNumberInput(numberInput)
 
-		//TODO:
-		//get the number of instances that they want to delete
-		//parse that number based on comma (1-49 for 1 through 49, comma separated)
 		//convert numbers into ip addresses
 		//put ip addresses in list
 		//loop through the ip list and get id for each corresponding ip address
@@ -123,7 +115,7 @@ var instanceList = &cobra.Command{
 	Short: "list instances",
 	Long:  `list instances`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("List called")
+		fmt.Println("list of active instances: ", generateIPIDList())
 	},
 }
 
@@ -151,6 +143,9 @@ func init() {
 
 	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
+
+	instanceDestroy.PersistentFlags().IntVarP(&numberInput, "input", "i", nil, "number of instances to destroy")
+	instanceDestroy.MarkPersistentFlagRequired("input")
 
 	//TODO: default all regions
 	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")

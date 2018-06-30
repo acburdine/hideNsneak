@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"terraform-playground/deployer"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -219,6 +220,13 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+func mergeMap(map1 map[string]string, map2 map[string]string) map[string]string {
+	for key, value := range map2 {
+		map1[key] = value
+	}
+	return map1
+}
+
 func FindLargestNumber(nums []int) int {
 	var n, largest int
 	for _, i := range nums {
@@ -228,6 +236,35 @@ func FindLargestNumber(nums []int) int {
 		}
 	}
 	return largest
+}
+
+func generateIPIDList() {
+	var list map[string]string
+	var awsList map[string]string
+	var doList map[string]string
+	var googleList map[string]string
+	var azureList map[string]string
+	marshalledOutput := deployer.TerraformOutputMarshaller()
+
+	for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
+		awsList := mergeMap(awsList, marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].IPIDMap)
+	}
+	for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
+		doList := mergeMap(doList, marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].IPIDMap)
+	}
+	for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
+		googleList := mergeMap(googleList, marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].IPIDMap)
+	}
+	for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
+		azureList := mergeMap(azureList, marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].IPIDMap)
+	}
+
+	list = mergeMap(list, awsList)
+	list = mergeMap(list, doList)
+	list = mergeMap(list, googleList)
+	list = mergeMap(list, azureList)
+
+	return list
 }
 
 //checkEc2KeyExistence queries the Amazon EC2 API for the keypairs with the specified keyname
