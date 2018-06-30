@@ -339,7 +339,7 @@ func compareAWSConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig)
 
 func compareDOConfig(initialRegion DORegionConfig, testRegion DORegionConfig) bool {
 	if initialRegion.Image == testRegion.Image &&
-		initialRegion.PublicKey == testRegion.PublicKey &&
+		initialRegion.Fingerprint == testRegion.Fingerprint &&
 		initialRegion.PrivateKey == testRegion.PrivateKey &&
 		initialRegion.Size == testRegion.Size &&
 		initialRegion.Count == testRegion.Count &&
@@ -415,29 +415,85 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 						continue
 					}
 
-				}
-				for index := range awsInstances {
-					if compareAWSConfig(awsInstances[index].Config, newRegionConfig) && awsInstances[index].Config.Region == newRegionConfig.Region {
+					for index := range awsInstances {
+						if compareAWSConfig(awsInstances[index].Config, newRegionConfig) &&
+							awsInstances[index].Config.Region == newRegionConfig.Region {
 
-						//String conversion madness
-						count1, _ := strconv.Atoi(awsInstances[index].Config.Count)
-						count2, _ := strconv.Atoi(newRegionConfig.Count)
+							//String conversion madness
+							count1, _ := strconv.Atoi(awsInstances[index].Config.Count)
+							count2, _ := strconv.Atoi(newRegionConfig.Count)
 
-						awsInstances[index].Config.Count = strconv.Itoa(count1 + count2)
-						break
+							awsInstances[index].Config.Count = strconv.Itoa(count1 + count2)
+							break
 
-					} else {
-						awsInstances = append(awsInstances, AWSInstance{
-							Config:  newRegionConfig,
-							IPIDMap: make(map[string]string)})
+						} else {
+							awsInstances = append(awsInstances, AWSInstance{
+								Config:  newRegionConfig,
+								IPIDMap: make(map[string]string)})
+						}
+
 					}
-
 				}
 
 			}
 			fmt.Println(awsInstances)
 			output.Master.ProviderValues.AWSProvider.Instances = awsInstances
 		case "DO":
+			doInstances := output.Master.ProviderValues.DOProvider.Instances
+
+			countPerDOregion := countPerProvider / len(doRegions)
+
+			remainderForDORegion := countPerProvider % len(awsRegions)
+
+			if remainderForProviders > 0 {
+				remainderForDORegion = remainderForDORegion + 1
+				remainderForProviders = remainderForProviders - 1
+			}
+
+			for _, region := range doRegions {
+				regionCount := countPerDOregion
+
+				if remainderForDORegion > 0 {
+					regionCount = regionCount + 1
+					remainderForDORegion = remainderForDORegion - 1
+				}
+
+				if regionCount > 0 {
+					newDORegionConfig := DORegionConfig{
+						Image:       "ubuntu-16-04-x64",
+						Count:       regionCount,
+						PrivateKey:  "/Users/mike.hodges/.ssh/do_rsa",
+						Fingerprint: "b3:b2:c7:b1:73:9e:28:c6:61:8d:15:e1:0e:61:7e:35",
+						Size:        "512MB",
+						Region:      region,
+						DefaultUser: "root",
+					}
+
+					if len(doInstances) == 0 {
+						doInstances = append(doInstances, DOInstance{
+							Config:  newDORegionConfig,
+							IPIDMap: make(map[string]string),
+						})
+						continue
+					}
+
+					for index := range doInstances {
+						if compareDOConfig(doInstances[index].Config, newDORegionConfig) &&
+							doInstances[index].Config.Region == newDORegionConfig.Region {
+							doInstances[index].Config.Count = doInstances[index].Config.Count + newDORegionConfig.Count
+							break
+
+						} else {
+							doInstances = append(doInstances, DOInstance{
+								Config:  newDORegionConfig,
+								IPIDMap: make(map[string]string),
+							})
+						}
+					}
+				}
+			}
+			output.Master.ProviderValues.DOProvider.Instances = doInstances
+
 			// var doDeployerList []digitalOceanDeployer
 
 			// countPerDORegion := countPerProvider / len(doRegions)

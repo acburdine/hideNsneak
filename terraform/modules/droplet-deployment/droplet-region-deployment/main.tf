@@ -33,29 +33,33 @@ resource "digitalocean_droplet" "hideNsneak" {
   # }
 }
 
-resource "digitalocean_firewall" "hideNsneak" {
-  name        = "hidensneak-test"
-  droplet_ids = ["${digitalocean_droplet.hideNsneak.*.id}"]
-  count       = "${digitalocean_droplet.hideNsneak.count > 0 ? 1 : 0}"
+//Uncomment this for default firewall rules
+# resource "digitalocean_firewall" "hideNsneak" {
+#   name        = "hidensneak-test"
+#   droplet_ids = ["${digitalocean_droplet.hideNsneak.*.id}"]
+#   count       = "${digitalocean_droplet.hideNsneak.count > 0 ? 1 : 0}"
 
-  inbound_rule = [
-    {
-      protocol         = "tcp"
-      port_range       = "22"
-      source_addresses = ["0.0.0.0/0"]
-    },
-  ]
 
-  outbound_rule = [
-    {
-      protocol              = "tcp"
-      port_range            = "1-65535"
-      destination_addresses = ["0.0.0.0/0", "::/0"]
-    },
-    {
-      protocol              = "udp"
-      port_range            = "1-65535"
-      destination_addresses = ["0.0.0.0/0", "::/0"]
-    },
-  ]
-}
+#   inbound_rule = [
+#     {
+#       protocol         = "tcp"
+#       port_range       = "22"
+#       source_addresses = ["0.0.0.0/0"]
+#     },
+#   ]
+
+
+#   outbound_rule = [
+#     {
+#       protocol              = "tcp"
+#       port_range            = "1-65535"
+#       destination_addresses = ["0.0.0.0/0", "::/0"]
+#     },
+#     {
+#       protocol              = "udp"
+#       port_range            = "1-65535"
+#       destination_addresses = ["0.0.0.0/0", "::/0"]
+#     },
+#   ]
+# }
+

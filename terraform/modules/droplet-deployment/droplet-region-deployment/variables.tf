@@ -1,4 +1,7 @@
-variable "do_private_key" {}
+variable "do_private_key" {
+  default = ""
+}
+
 variable "do_ssh_fingerprint" {}
 
 variable "do_image" {}

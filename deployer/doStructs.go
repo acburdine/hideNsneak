@@ -10,13 +10,13 @@ type DOInstance struct {
 }
 
 type DORegionConfig struct {
-	Image       string
-	PublicKey   string
-	PrivateKey  string
-	Size        string
-	Count       int
-	Region      string
-	DefaultUser string
+	Image       string `json:"image"`
+	PrivateKey  string `json:"private_key_file"`
+	Fingerprint string `json:"fingerprint"`
+	Size        string `json:"size"`
+	Count       int    `json:"region_count"`
+	Region      string `json:"region"`
+	DefaultUser string `json:"default_user"`
 }
 
 //Deprecated
