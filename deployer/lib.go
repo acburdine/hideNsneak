@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"terraform-playground/deployer"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -238,25 +237,25 @@ func FindLargestNumber(nums []int) int {
 	return largest
 }
 
-func generateIPIDList() {
-	var list map[string]string
-	var awsList map[string]string
-	var doList map[string]string
-	var googleList map[string]string
-	var azureList map[string]string
-	marshalledOutput := deployer.TerraformOutputMarshaller()
+func GenerateIPIDList() map[string]string {
+	list := make(map[string]string)
+	awsList := make(map[string]string)
+	doList := make(map[string]string)
+	googleList := make(map[string]string)
+	azureList := make(map[string]string)
+	marshalledOutput := TerraformOutputMarshaller()
 
 	for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-		awsList := mergeMap(awsList, marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].IPIDMap)
+		awsList = mergeMap(awsList, marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].IPIDMap)
 	}
-	for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
-		doList := mergeMap(doList, marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].IPIDMap)
+	for i := range marshalledOutput.Master.ProviderValues.DOProvider.Instances {
+		doList = mergeMap(doList, marshalledOutput.Master.ProviderValues.DOProvider.Instances[i].IPIDMap)
 	}
 	for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-		googleList := mergeMap(googleList, marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].IPIDMap)
+		googleList = mergeMap(googleList, marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].IPIDMap)
 	}
 	for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-		azureList := mergeMap(azureList, marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].IPIDMap)
+		azureList = mergeMap(azureList, marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].IPIDMap)
 	}
 
 	list = mergeMap(list, awsList)

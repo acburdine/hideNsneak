@@ -69,38 +69,38 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if !deployer.IsValidNumberInput(numberInput) {
-			return fmt.Errorf("invalid formatting specified: %s", numberInput)
-		}
-		numsToDestroy := deployer.ExpandNumberInput(numberInput)
-		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
+		// if !deployer.IsValidNumberInput(numberInput) {
+		// 	return fmt.Errorf("invalid formatting specified: %s", numberInput)
+		// }
+		// numsToDestroy := deployer.ExpandNumberInput(numberInput)
+		// largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
 
-		//get the number of instances actually available in state
-		marshalledOutput := deployer.TerraformOutputMarshaller()
-		for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-			awsCount := awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
-		}
-		for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
-			doCount := doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
-		}
-		for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-			googleCount := googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
-		}
-		for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-			azureCount := azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
-		}
+		// //get the number of instances actually available in state
+		// marshalledOutput := deployer.TerraformOutputMarshaller()
+		// for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
+		// 	awsCount := awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
+		// }
+		// for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
+		// 	doCount := doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
+		// }
+		// for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
+		// 	googleCount := googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
+		// }
+		// for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
+		// 	azureCount := azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
+		// }
 
-		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if awsCount < largestInstanceNumToDestroy {
-			return error("The number you entered is too big. Try running `list` to see the number of instances you have.")
-		}
+		// //make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
+		// if awsCount < largestInstanceNumToDestroy {
+		// 	return error("The number you entered is too big. Try running `list` to see the number of instances you have.")
+		// }
 
 		return nil
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		marshalledOutput := deployer.TerraformOutputMarshaller()
-		numsToDelete := deployer.ExpandNumberInput(numberInput)
+		// marshalledOutput := deployer.TerraformOutputMarshaller()
+		// numsToDelete := deployer.ExpandNumberInput(numberInput)
 
 		//convert numbers into ip addresses
 		//put ip addresses in list
@@ -115,7 +115,7 @@ var instanceList = &cobra.Command{
 	Short: "list instances",
 	Long:  `list instances`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list of active instances: ", generateIPIDList())
+		fmt.Println("list of active instances: ", deployer.GenerateIPIDList())
 	},
 }
 
@@ -144,8 +144,8 @@ func init() {
 	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
-	instanceDestroy.PersistentFlags().IntVarP(&numberInput, "input", "i", nil, "number of instances to destroy")
-	instanceDestroy.MarkPersistentFlagRequired("input")
+	// instanceDestroy.PersistentFlags().IntVarP(&numberInput, "input", "i", 0, "number of instances to destroy")
+	// instanceDestroy.MarkPersistentFlagRequired("input")
 
 	//TODO: default all regions
 	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
