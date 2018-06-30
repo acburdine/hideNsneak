@@ -10,6 +10,7 @@ type DOInstance struct {
 }
 
 type DORegionConfig struct {
+	ModuleName  string
 	Image       string `json:"image"`
 	PrivateKey  string `json:"private_key_file"`
 	Fingerprint string `json:"fingerprint"`
@@ -17,6 +18,11 @@ type DORegionConfig struct {
 	Count       int    `json:"region_count"`
 	Region      string `json:"region"`
 	DefaultUser string `json:"default_user"`
+}
+
+type DOConfigWrapper struct {
+	Config    DORegionConfig
+	RegionMap map[string]int
 }
 
 //Deprecated

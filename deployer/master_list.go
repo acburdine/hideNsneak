@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+//This is necessary to group instances together by Module name
 func createEc2ConfigWrapper(ec2Instances []AWSInstance) (wrapperList []AWSConfigWrapper) {
 	var moduleCounter = 1
 
@@ -29,8 +30,7 @@ func createEc2ConfigWrapper(ec2Instances []AWSInstance) (wrapperList []AWSConfig
 			//add it to the RegionMap by either adding to the existing value or creating
 			//a new map key. If it doesn't match we initialize a new wrapper and add it to list.
 			for i := range wrapperList {
-				fmt.Println(i)
-				if compareAWSConfig(ec2Instances[outer].Config, ec2Instances[i].Config) {
+				if compareAWSConfig(ec2Instances[outer].Config, wrapperList[i].Config) {
 					if wrapperList[i].RegionMap[ec2Instances[outer].Config.Region] < 1 {
 						wrapperList[i].RegionMap[ec2Instances[outer].Config.Region] = count
 					} else {
@@ -64,6 +64,48 @@ func createEc2ConfigWrapper(ec2Instances []AWSInstance) (wrapperList []AWSConfig
 	return
 }
 
+func createDOConfigWrapper(doInstances []DOInstance) (wrapperList []DOConfigWrapper) {
+	var moduleCounter = 1
+
+	for outer := range doInstances {
+		count := doInstances[outer].Config.Count
+
+		if outer == 0 {
+			doInstances[outer].Config.ModuleName = "doDeploy" + strconv.Itoa(moduleCounter)
+			tempMap := make(map[string]int)
+			tempMap[doInstances[outer].Config.Region] = count
+			configWrapper := DOConfigWrapper{Config: doInstances[outer].Config, RegionMap: tempMap}
+
+			wrapperList = append(wrapperList, configWrapper)
+		} else {
+			for i := range wrapperList {
+				if compareDOConfig(doInstances[outer].Config, wrapperList[i].Config) {
+					if wrapperList[i].RegionMap[doInstances[outer].Config.Region] < 1 {
+						wrapperList[i].RegionMap[doInstances[outer].Config.Region] = count
+					} else {
+						wrapperList[i].RegionMap[doInstances[outer].Config.Region] = wrapperList[i].RegionMap[doInstances[outer].Config.Region] + count
+					}
+				} else if i == len(wrapperList)-1 {
+					tempMap := make(map[string]int)
+					tempMap[doInstances[outer].Config.Region] = count
+					configWrapper := DOConfigWrapper{Config: doInstances[outer].Config, RegionMap: tempMap}
+					wrapperList = append(wrapperList, configWrapper)
+				}
+			}
+		}
+		for inner := range doInstances {
+
+			if compareDOConfig(doInstances[outer].Config, doInstances[inner].Config) {
+				doInstances[inner].Config.ModuleName = doInstances[outer].Config.ModuleName
+			} else if doInstances[inner].Config.ModuleName == "" {
+				doInstances[inner].Config.ModuleName = "doDeploy" + strconv.Itoa(moduleCounter)
+				moduleCounter = moduleCounter + 1
+			}
+		}
+	}
+	return
+}
+
 //CreateMasterList takes a MasterList object as input
 //and maps it to the corresponding templates, executes them,
 //then adds the resulting string to a complete string
@@ -84,10 +126,21 @@ func CreateMasterFile(terraformOutput TerraformOutput) (masterString string) {
 	//EC2 Creation
 
 	ec2ConfigWrappers := createEc2ConfigWrapper(terraformOutput.Master.ProviderValues.AWSProvider.Instances)
+	doConfigWrappers := createDOConfigWrapper(terraformOutput.Master.ProviderValues.DOProvider.Instances)
 
 	for _, config := range ec2ConfigWrappers {
 		fmt.Println(config)
 		templ := template.Must(template.New("ec2").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainEc2Module))
+
+		var templBuffer bytes.Buffer
+		err := templ.Execute(&templBuffer, config)
+		masterString = masterString + templBuffer.String()
+		checkErr(err)
+	}
+
+	for _, config := range doConfigWrappers {
+		fmt.Println(config)
+		templ := template.Must(template.New("ec2").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainDOModule))
 
 		var templBuffer bytes.Buffer
 		err := templ.Execute(&templBuffer, config)

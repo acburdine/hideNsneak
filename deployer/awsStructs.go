@@ -7,11 +7,6 @@ type AWSProvider struct {
 	SecurityGroups []AWSSecurityGroup `json:"security_group"`
 }
 
-type AWSConfigWrapper struct {
-	Config    AWSRegionConfig
-	RegionMap map[string]int
-}
-
 type AWSInstance struct {
 	Config  AWSRegionConfig   `json:"config"`
 	IPIDMap map[string]string `json:"ip_id"`
@@ -40,6 +35,11 @@ type AWSSecurityGroup struct{}
 type cloudFrontDeployer struct {
 	Origin string
 	Region string
+}
+
+type AWSConfigWrapper struct {
+	Config    AWSRegionConfig
+	RegionMap map[string]int
 }
 
 //Deprecated

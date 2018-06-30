@@ -379,7 +379,6 @@ func compareDOConfig(initialRegion DORegionConfig, testRegion DORegionConfig) bo
 		initialRegion.PrivateKey == testRegion.PrivateKey &&
 		initialRegion.Size == testRegion.Size &&
 		initialRegion.Count == testRegion.Count &&
-		initialRegion.Region == initialRegion.Region &&
 		initialRegion.DefaultUser == initialRegion.DefaultUser {
 		return true
 	}
