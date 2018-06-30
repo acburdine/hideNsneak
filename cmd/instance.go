@@ -69,45 +69,49 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		// if !deployer.IsValidNumberInput(numberInput) {
-		// 	return fmt.Errorf("invalid formatting specified: %s", numberInput)
-		// }
-		// numsToDestroy := deployer.ExpandNumberInput(numberInput)
-		// largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
+		if !deployer.IsValidNumberInput(numberInput) {
+			return fmt.Errorf("invalid formatting specified: %s", numberInput)
+		}
+		numsToDestroy := deployer.ExpandNumberInput(numberInput)
+		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
 
-		// //get the number of instances actually available in state
-		// marshalledOutput := deployer.TerraformOutputMarshaller()
-		// for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-		// 	awsCount := awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
-		// }
-		// for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
-		// 	doCount := doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
-		// }
-		// for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-		// 	googleCount := googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
-		// }
-		// for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-		// 	azureCount := azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
-		// }
+		//get the number of instances actually available in state
+		marshalledOutput := deployer.TerraformOutputMarshaller()
+		for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
+			awsCount := awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
+		}
+		for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
+			doCount := doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
+		}
+		for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
+			googleCount := googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
+		}
+		for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
+			azureCount := azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
+		}
 
-		// //make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		// if awsCount < largestInstanceNumToDestroy {
-		// 	return error("The number you entered is too big. Try running `list` to see the number of instances you have.")
-		// }
+		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
+		if awsCount < largestInstanceNumToDestroy {
+			return error("The number you entered is too big. Try running `list` to see the number of instances you have.")
+		}
 
 		return nil
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		numsToDelete := deployer.ExpandNumberInput(numberInput)
-		IPIDList := generateIPIDList()
+		IPIDList := deployer.GenerateIPIDList()
 
-		IDsToDelete := 
-		
-		//convert numbers into ip addresses
-		//put ip addresses in list
-		//loop through the ip list and get id for each corresponding ip address
-		//get the ip address for each host and then do a terraform state list id = '', and then do terraform destroy target 'name from list' target 'another name'
+		//check numstodelete agaisnt ipidlist
+		var IDsToDelete []string
+
+		for key, value := IPIDList {
+			IDsToDelete = IDsToDelete + value
+		}
+
+		for _, id := IDsToDelete {
+			//do a terraform state list id = '', and then do terraform destroy target 'name from list' target 'another name'
+		}
 		//delete those based on array nums
 	},
 }
