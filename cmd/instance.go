@@ -99,9 +99,11 @@ var instanceDestroy = &cobra.Command{
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// marshalledOutput := deployer.TerraformOutputMarshaller()
-		// numsToDelete := deployer.ExpandNumberInput(numberInput)
+		numsToDelete := deployer.ExpandNumberInput(numberInput)
+		IPIDList := generateIPIDList()
 
+		IDsToDelete := 
+		
 		//convert numbers into ip addresses
 		//put ip addresses in list
 		//loop through the ip list and get id for each corresponding ip address
