@@ -100,19 +100,21 @@ var instanceDestroy = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		numsToDelete := deployer.ExpandNumberInput(numberInput)
-		IPIDList := deployer.GenerateIPIDList()
-
-		//check numstodelete agaisnt ipidlist
+		IPIDList := deployer.GenerateIPIDList() 
+		destroyCommand := {"destroy"}
 		var IDsToDelete []string
 
 		for key, value := IPIDList {
-			IDsToDelete = IDsToDelete + value
+			IDsToDelete = append(IDsToDelete, value)
 		}
 
-		for _, id := IDsToDelete {
-			//do a terraform state list id = '', and then do terraform destroy target 'name from list' target 'another name'
+		for index, id := IDsToDelete {
+			if deployer.Contains(numsToDelete, index) {
+				destroyCommand = append(destroyCommand, "-target", id)
+			}
 		}
-		//delete those based on array nums
+
+		deployer.TerraformDestroy(destroyCommand)
 	},
 }
 

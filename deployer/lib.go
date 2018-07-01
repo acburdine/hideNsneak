@@ -53,6 +53,15 @@ func InitializeTerraformFiles() {
 	tfvarsFile.Write([]byte(templateSecrets))
 }
 
+func Contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 func execCmd(binary string, args []string, filepath string) string {
 	var stdout, stderr bytes.Buffer
 
@@ -90,6 +99,21 @@ func TerraformApply() {
 	args = []string{"apply", "-input=false", "tfplan"}
 	execCmd(binary, args, "terraform")
 
+}
+
+func TerraformDestroy(destroyCmd []string) {
+	binary, err := exec.LookPath("terraform")
+
+	checkErr(err)
+
+	//Initializing Terraform
+	fmt.Println("init")
+	args := []string{"init", "-input=false", "terraform"}
+	execCmd(binary, args, "terraform")
+
+	//Destroy instances
+	args = destroyCmd
+	execCmd(binary, args, "terraform")
 }
 
 //TerraforrmOutputMarshaller runs the terraform output command
