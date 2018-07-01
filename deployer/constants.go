@@ -15,7 +15,8 @@ const state = `
 	  }
 `
 
-const variables = `variable "do_token" {}
+const variables = `
+variable "do_token" {}
 
 variable "aws_access_key" {}
 
@@ -68,7 +69,19 @@ const mainEc2Module = `
 	aws_private_key_file = "{{.Config.PrivateKeyFile}}"
 	aws_public_key_file  = "{{.Config.PublicKeyFile}}"
   }
+`
 
+const mainDropletModule = `
+  module "{{.Config.ModuleName}}" {
+	  source              = "modules/droplet-deployment"
+	  do_region_count     = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}","{{$value}}"{{end}})}"
+	  do_token            = "${var.do_token}"
+	  do_image            = "{{.Config.Image}}"
+	  do_private_key      = "{{.Config.PrivateKey}}"
+	  do_ssh_fingerprint  = "{{.Config.Fingerprint}}"
+	  do_size             = "{{.Config.Size}}"
+	  do_default_user     = "{{.Config.DefaultUser}}"
+  }
 `
 
 // Deprecated
@@ -134,22 +147,23 @@ const cloudfrontModule = `
 	}
 `
 
-const digitalOceanModule = `
-	module "digital-ocean-{{.Region}}" {
-		source           = "modules/droplet-deployment"
-		do_token         = "${var.do_token}"
-		do_image         = "{{.Image}}"
-		pvt_key          = "{{.PrivateKey}}"
-		ssh_fingerprint  = "{{.Fingerprint}}"
-		do_region        = "{{.Region}}"
-		do_size          = "{{.Size}}"
-		do_count         = {{.Count}}
-		do_default_user  = "{{.DefaultUser}}"
-		do_name 		 = "{{.Name}}"
-		do_firewall_name = "{{.FirewallName}}"
-		ansible_groups       = "[]"
-	}
-`
+//Deprecated
+// const digitalOceanModule = `
+// 	module "digital-ocean-{{.Region}}" {
+// 		source           = "modules/droplet-deployment"
+// 		do_token         = "${var.do_token}"
+// 		do_image         = "{{.Image}}"
+// 		pvt_key          = "{{.PrivateKey}}"
+// 		ssh_fingerprint  = "{{.Fingerprint}}"
+// 		do_region        = "{{.Region}}"
+// 		do_size          = "{{.Size}}"
+// 		do_count         = {{.Count}}
+// 		do_default_user  = "{{.DefaultUser}}"
+// 		do_name 		 = "{{.Name}}"
+// 		do_firewall_name = "{{.FirewallName}}"
+// 		ansible_groups       = "[]"
+// 	}
+// `
 
 const googleCloudModule = `
 	module "google-cloud-{{.Region}}" {

@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -99,6 +100,57 @@ func TerraformApply() {
 	args = []string{"apply", "-input=false", "tfplan"}
 	execCmd(binary, args, "terraform")
 
+}
+
+//Types for our destruction magic
+//TODO: Rename and put in correct place
+
+type ConcurrentSlice struct {
+	sync.RWMutex
+	items []interface{}
+}
+
+// Concurrent slice item
+type ConcurrentSliceItem struct {
+	Index int
+	Value interface{}
+}
+
+func (cs *ConcurrentSlice) Append(item interface{}) {
+	cs.Lock()
+	defer cs.Unlock()
+
+	cs.items = append(cs.items, item)
+}
+
+func (cs *ConcurrentSlice) Iter() <-chan ConcurrentSliceItem {
+	c := make(chan ConcurrentSliceItem)
+
+	f := func() {
+		cs.Lock()
+		defer cs.Unlock()
+		for index, value := range cs.items {
+			c <- ConcurrentSliceItem{index, value}
+		}
+		close(c)
+	}
+	go f()
+
+	return c
+}
+
+func retrieveName(outputSlice *ConcurrentSlice, id string) {
+	//terraform command to retrive ID
+	name := ""
+	outputSlice.Append(name)
+}
+
+func TerraformRetrieveNames(IDList []string) ConcurrentSlice {
+	var concurrentSlice ConcurrentSlice
+	for _, id := range IDList {
+		go retrieveName(&concurrentSlice, id)
+	}
+	return concurrentSlice
 }
 
 func TerraformDestroy(destroyCmd []string) {
@@ -344,15 +396,17 @@ func genDOKeyFingerprint(publicKey string) (keyFingerprint string) {
 	key, err := ioutil.ReadFile(publicKey)
 
 	if err != nil {
-		fmt.Println("Unable to read")
+		fmt.Println("Specified DO public key does not exist")
+		os.Exit(1)
 	}
 	pubKey, _, _, _, err := ssh.ParseAuthorizedKey(key)
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Specified DO public key is not formatted correctly")
+		os.Exit(1)
 	}
 
-	return ssh.FingerprintLegacyMD5(pubKey)
+	return strings.TrimSpace(ssh.FingerprintLegacyMD5(pubKey))
 }
 
 //checkEc2KeyExistence queries the Amazon EC2 API for the security groups
@@ -458,7 +512,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				if regionCount > 0 {
 					newRegionConfig = AWSRegionConfig{
 						//TODO: Figure the security group thing out
-						Count:          strconv.Itoa(regionCount),
+						Count:          regionCount,
 						CustomAmi:      "",
 						InstanceType:   "t2.micro",
 						DefaultUser:    "ubuntu",
@@ -478,11 +532,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 						if compareAWSConfig(awsInstances[index].Config, newRegionConfig) &&
 							awsInstances[index].Config.Region == newRegionConfig.Region {
 
-							//String conversion madness
-							count1, _ := strconv.Atoi(awsInstances[index].Config.Count)
-							count2, _ := strconv.Atoi(newRegionConfig.Count)
-
-							awsInstances[index].Config.Count = strconv.Itoa(count1 + count2)
+							awsInstances[index].Config.Count = awsInstances[index].Config.Count + newRegionConfig.Count
 							break
 
 						} else {
@@ -521,8 +571,8 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 					newDORegionConfig := DORegionConfig{
 						Image:       "ubuntu-16-04-x64",
 						Count:       regionCount,
-						PrivateKey:  "/Users/mike.hodges/.ssh/do_rsa",
-						Fingerprint: "b3:b2:c7:b1:73:9e:28:c6:61:8d:15:e1:0e:61:7e:35",
+						PrivateKey:  privKey,
+						Fingerprint: genDOKeyFingerprint(pubKey),
 						Size:        "512MB",
 						Region:      region,
 						DefaultUser: "root",

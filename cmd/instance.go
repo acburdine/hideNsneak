@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	"terraform-playground/deployer"
@@ -69,6 +70,11 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
+		var awsCount int
+		var doCount int
+		var googleCount int
+		var azureCount int
+
 		if !deployer.IsValidNumberInput(numberInput) {
 			return fmt.Errorf("invalid formatting specified: %s", numberInput)
 		}
@@ -78,21 +84,21 @@ var instanceDestroy = &cobra.Command{
 		//get the number of instances actually available in state
 		marshalledOutput := deployer.TerraformOutputMarshaller()
 		for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-			awsCount := awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
+			awsCount = awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
 		}
-		for i := range marshalledOutput.Master.ProviderValues.DoProvider.Instances {
-			doCount := doCount + marshalledOutput.Master.ProviderValues.DoProvider.Instances[i].Config.Count
+		for i := range marshalledOutput.Master.ProviderValues.DOProvider.Instances {
+			doCount = doCount + marshalledOutput.Master.ProviderValues.DOProvider.Instances[i].Config.Count
 		}
 		for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-			googleCount := googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
+			googleCount = googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
 		}
 		for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-			azureCount := azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
+			azureCount = azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
 		}
 
 		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
 		if awsCount < largestInstanceNumToDestroy {
-			return error("The number you entered is too big. Try running `list` to see the number of instances you have.")
+			return errors.New("The number you entered is too big. Try running `list` to see the number of instances you have.")
 		}
 
 		return nil
@@ -100,20 +106,21 @@ var instanceDestroy = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		numsToDelete := deployer.ExpandNumberInput(numberInput)
-		IPIDList := deployer.GenerateIPIDList() 
-		destroyCommand := {"destroy"}
+		IPIDList := deployer.GenerateIPIDList()
+		destroyCommand := []string{"destroy"}
 		var IDsToDelete []string
 
-		for key, value := IPIDList {
+		for _, value := range IPIDList {
 			IDsToDelete = append(IDsToDelete, value)
 		}
 
-		for index, id := IDsToDelete {
+		for index, id := range IDsToDelete {
 			if deployer.Contains(numsToDelete, index) {
 				destroyCommand = append(destroyCommand, "-target", id)
 			}
 		}
 
+		fmt.Println(destroyCommand)
 		deployer.TerraformDestroy(destroyCommand)
 	},
 }
@@ -152,12 +159,12 @@ func init() {
 	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
-	// instanceDestroy.PersistentFlags().IntVarP(&numberInput, "input", "i", 0, "number of instances to destroy")
-	// instanceDestroy.MarkPersistentFlagRequired("input")
+	instanceDestroy.PersistentFlags().StringVarP(&numberInput, "input", "i", "", "number of instances to destroy")
+	instanceDestroy.MarkPersistentFlagRequired("input")
 
 	//TODO: default all regions
 	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"AMS2", "SFO2"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"NYC1", "NYC2"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
 	rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
 	rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
 

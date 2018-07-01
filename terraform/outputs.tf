@@ -33,7 +33,7 @@ output "providers" {
       "api", list(map()),
       "domain_front", list(map())),
     "DO", map(
-      "instances", concat(module.dodeploy1.allRegions),
+      "instances", concat(module.doDropletDeploy1.allRegions),
       "firewalls", list(map())),
     "GOOGLE", map(
       "instances", list(map())),

@@ -12,7 +12,7 @@ func createEc2ConfigWrapper(ec2Instances []AWSInstance) (wrapperList []AWSConfig
 	var moduleCounter = 1
 
 	for outer := range ec2Instances {
-		count, _ := strconv.Atoi(ec2Instances[outer].Config.Count)
+		count := ec2Instances[outer].Config.Count
 		//On First iteration create the initial module name and configWrapper for our template
 		if outer == 0 {
 			//Module Name
@@ -71,7 +71,7 @@ func createDOConfigWrapper(doInstances []DOInstance) (wrapperList []DOConfigWrap
 		count := doInstances[outer].Config.Count
 
 		if outer == 0 {
-			doInstances[outer].Config.ModuleName = "doDeploy" + strconv.Itoa(moduleCounter)
+			doInstances[outer].Config.ModuleName = "doDropletDeploy" + strconv.Itoa(moduleCounter)
 			tempMap := make(map[string]int)
 			tempMap[doInstances[outer].Config.Region] = count
 			configWrapper := DOConfigWrapper{Config: doInstances[outer].Config, RegionMap: tempMap}
@@ -98,7 +98,7 @@ func createDOConfigWrapper(doInstances []DOInstance) (wrapperList []DOConfigWrap
 			if compareDOConfig(doInstances[outer].Config, doInstances[inner].Config) {
 				doInstances[inner].Config.ModuleName = doInstances[outer].Config.ModuleName
 			} else if doInstances[inner].Config.ModuleName == "" {
-				doInstances[inner].Config.ModuleName = "doDeploy" + strconv.Itoa(moduleCounter)
+				doInstances[inner].Config.ModuleName = "doDropletDeploy" + strconv.Itoa(moduleCounter)
 				moduleCounter = moduleCounter + 1
 			}
 		}
@@ -128,6 +128,7 @@ func CreateMasterFile(terraformOutput TerraformOutput) (masterString string) {
 	ec2ConfigWrappers := createEc2ConfigWrapper(terraformOutput.Master.ProviderValues.AWSProvider.Instances)
 	doConfigWrappers := createDOConfigWrapper(terraformOutput.Master.ProviderValues.DOProvider.Instances)
 
+	//EC2
 	for _, config := range ec2ConfigWrappers {
 		fmt.Println(config)
 		templ := template.Must(template.New("ec2").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainEc2Module))
@@ -138,9 +139,10 @@ func CreateMasterFile(terraformOutput TerraformOutput) (masterString string) {
 		checkErr(err)
 	}
 
+	//DigitalOcean Droplets
 	for _, config := range doConfigWrappers {
 		fmt.Println(config)
-		templ := template.Must(template.New("ec2").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainDOModule))
+		templ := template.Must(template.New("droplet").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainDropletModule))
 
 		var templBuffer bytes.Buffer
 		err := templ.Execute(&templBuffer, config)

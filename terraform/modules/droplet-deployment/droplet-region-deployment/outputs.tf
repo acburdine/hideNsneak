@@ -8,6 +8,7 @@ output "region_info" {
     "image", var.do_image,
     "default_user", var.do_default_user,
     "region", var.do_region,
+    "self", terraform.
     ),
     "ip_id", zipmap(digitalocean_droplet.hideNsneak.*.ipv4_address, digitalocean_droplet.hideNsneak.*.id),
   )}"

@@ -16,7 +16,7 @@ type AWSRegionConfig struct {
 	ModuleName      string
 	SecurityGroup   string `json:"hidensneak"`
 	SecurityGroupID string `json:"aws_sg_id"`
-	Count           string `json:"region_count"`
+	Count           int    `json:"region_count"`
 	CustomAmi       string `json:"custom_ami"`
 	InstanceType    string `json:"aws_instance_type"`
 	DefaultUser     string `json:"ec2_default_user"`

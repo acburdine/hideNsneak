@@ -10,6 +10,7 @@ type GoogleInstance struct {
 }
 
 type GoogleRegionConfig struct {
+	Count int
 }
 
 //Deprecated

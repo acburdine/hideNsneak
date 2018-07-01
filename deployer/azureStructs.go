@@ -12,7 +12,9 @@ type AzureInstance struct {
 	IPIDMap map[string]string `json:"ip_id"`
 }
 
-type AzureRegionConfig struct{}
+type AzureRegionConfig struct {
+	Count int
+}
 
 //Deprecated
 type azureCdnDeployer struct {
