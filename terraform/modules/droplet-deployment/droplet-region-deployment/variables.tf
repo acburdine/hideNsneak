@@ -10,7 +10,9 @@ variable "do_region" {}
 
 variable "do_size" {}
 
-variable "do_count" {}
+variable "do_count" {
+  default = 0
+}
 
 variable "do_default_user" {
   default = "root"

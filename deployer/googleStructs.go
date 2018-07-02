@@ -5,8 +5,8 @@ type GoogleProvider struct {
 }
 
 type GoogleInstance struct {
-	Config  GoogleRegionConfig `json:"config"`
-	IPIDMap map[string]string  `json:"ip_id"`
+	Config GoogleRegionConfig `json:"config"`
+	IPID   IPID               `json:"ip_id"`
 }
 
 type GoogleRegionConfig struct {

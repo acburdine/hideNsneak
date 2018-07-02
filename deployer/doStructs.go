@@ -5,8 +5,8 @@ type DOProvider struct {
 }
 
 type DOInstance struct {
-	Config  DORegionConfig    `json:"config"`
-	IPIDMap map[string]string `json:"ip_id"`
+	Config DORegionConfig `json:"config"`
+	IPID   IPID           `json:"ip_id"`
 }
 
 type DORegionConfig struct {

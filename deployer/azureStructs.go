@@ -8,8 +8,8 @@ type AzureProvider struct {
 type AzureDomainFront struct{}
 
 type AzureInstance struct {
-	Config  AzureRegionConfig `json:"config"`
-	IPIDMap map[string]string `json:"ip_id"`
+	Config AzureRegionConfig `json:"config"`
+	IPID   IPID              `json:"ip_id"`
 }
 
 type AzureRegionConfig struct {

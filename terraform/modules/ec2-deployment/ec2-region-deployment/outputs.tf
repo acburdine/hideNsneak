@@ -19,6 +19,6 @@ output "region_info" {
     "ec2_default_user", var.ec2_default_user,
     "region", var.aws_region
     ),
-    "ip_id", zipmap(aws_instance.hideNsneak.*.public_ip, aws_instance.hideNsneak.*.id),
+    "ip_id", map("ip",aws_instance.hideNsneak.*.public_ip, "id",aws_instance.hideNsneak.*.id),
   )}"
 }

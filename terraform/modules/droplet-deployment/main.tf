@@ -14,7 +14,7 @@ module "do-nyc1" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "nyc1"
+  do_region          = "NYC1"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -28,7 +28,7 @@ module "do-nyc2" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "nyc2"
+  do_region          = "NYC2"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -42,7 +42,7 @@ module "do-nyc3" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "nyc3"
+  do_region          = "NYC3"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -56,7 +56,7 @@ module "do-ams2" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "ams2"
+  do_region          = "AMS2"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -70,7 +70,7 @@ module "do-ams3" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "ams3"
+  do_region          = "AMS3"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -84,7 +84,7 @@ module "do-blr1" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "blr1"
+  do_region          = "BLR1"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -98,7 +98,7 @@ module "do-fra1" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "fra1"
+  do_region          = "FRA1"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -112,7 +112,7 @@ module "do-lon1" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "lon1"
+  do_region          = "LON1"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -126,7 +126,7 @@ module "do-sfo1" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "sfo1"
+  do_region          = "SFO1"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -140,7 +140,7 @@ module "do-sfo2" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "sfo2"
+  do_region          = "SFO2"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -154,7 +154,7 @@ module "do-tor1" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "tor1"
+  do_region          = "TOR1"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"
@@ -168,7 +168,7 @@ module "do-sgp1" {
   do_ssh_fingerprint = "${var.do_ssh_fingerprint}"
   do_private_key     = "${var.do_private_key}"
   do_default_user    = "${var.do_default_user}"
-  do_region          = "sgp1"
+  do_region          = "SGP1"
 
   //Think about seperating firewalls
   do_firewall_name = "${var.do_firewall_name}"

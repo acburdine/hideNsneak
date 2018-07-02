@@ -62,42 +62,27 @@ var instanceDeploy = &cobra.Command{
 		mainFile := deployer.CreateMasterFile(masterList)
 
 		deployer.CreateTerraformMain(mainFile)
+
+		deployer.TerraformApply()
 	},
 }
+
+var ipID deployer.IPID
 
 var instanceDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		var awsCount int
-		var doCount int
-		var googleCount int
-		var azureCount int
-
+		ipID = deployer.GenerateIPIDList()
 		if !deployer.IsValidNumberInput(numberInput) {
 			return fmt.Errorf("invalid formatting specified: %s", numberInput)
 		}
 		numsToDestroy := deployer.ExpandNumberInput(numberInput)
 		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
 
-		//get the number of instances actually available in state
-		marshalledOutput := deployer.TerraformOutputMarshaller()
-		for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-			awsCount = awsCount + marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].Config.Count
-		}
-		for i := range marshalledOutput.Master.ProviderValues.DOProvider.Instances {
-			doCount = doCount + marshalledOutput.Master.ProviderValues.DOProvider.Instances[i].Config.Count
-		}
-		for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-			googleCount = googleCount + marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].Config.Count
-		}
-		for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-			azureCount = azureCount + marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].Config.Count
-		}
-
 		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if awsCount < largestInstanceNumToDestroy {
+		if len(ipID.IDList) < largestInstanceNumToDestroy {
 			return errors.New("The number you entered is too big. Try running `list` to see the number of instances you have.")
 		}
 
@@ -106,22 +91,23 @@ var instanceDestroy = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		numsToDelete := deployer.ExpandNumberInput(numberInput)
-		IPIDList := deployer.GenerateIPIDList()
-		destroyCommand := []string{"destroy"}
 		var IDsToDelete []string
 
-		for _, value := range IPIDList {
-			IDsToDelete = append(IDsToDelete, value)
+		for _, numIndex := range numsToDelete {
+			IDsToDelete = append(IDsToDelete, ipID.IDList[numIndex])
 		}
 
-		for index, id := range IDsToDelete {
-			if deployer.Contains(numsToDelete, index) {
-				destroyCommand = append(destroyCommand, "-target", id)
-			}
-		}
+		// namesToDelete := deployer.
 
-		fmt.Println(destroyCommand)
-		deployer.TerraformDestroy(destroyCommand)
+		// for index, id := range IDsToDelete {
+		// 	if deployer.Contains(numsToDelete, index) {
+
+		// 		destroyCommand = append(destroyCommand, "-target", id)
+		// 	}
+		// }
+
+		// fmt.Println(destroyCommand)
+		deployer.TerraformDestroy(IDsToDelete)
 	},
 }
 
@@ -130,7 +116,15 @@ var instanceList = &cobra.Command{
 	Short: "list instances",
 	Long:  `list instances`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list of active instances: ", deployer.GenerateIPIDList())
+		ipID = deployer.GenerateIPIDList()
+
+		// fmt.Println("list of active instances: ", deployer.GenerateIPIDList())
+
+		for index := range ipID.IPList {
+			fmt.Print("Index: ")
+			fmt.Print(index)
+			fmt.Println("  -  IP: " + ipID.IPList[index] + " - ID: " + ipID.IDList[index])
+		}
 	},
 }
 

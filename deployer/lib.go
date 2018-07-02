@@ -63,6 +63,26 @@ func Contains(s []int, e int) bool {
 	return false
 }
 
+func execTerraform(args []string, filepath string) string {
+	var stdout, stderr bytes.Buffer
+
+	binary, err := exec.LookPath("terraform")
+
+	checkErr(err)
+
+	cmd := exec.Command(binary, args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = filepath
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(stderr.String())
+	}
+
+	return stdout.String()
+}
+
 func execCmd(binary string, args []string, filepath string) string {
 	var stdout, stderr bytes.Buffer
 
@@ -83,22 +103,19 @@ func execCmd(binary string, args []string, filepath string) string {
 //TerraformApply runs the init, plan, and apply commands for our
 //generated terraform templates
 func TerraformApply() {
-	binary, err := exec.LookPath("terraform")
-
-	checkErr(err)
 
 	//Initializing Terraform
 	fmt.Println("init")
 	args := []string{"init", "-input=false", "terraform"}
-	execCmd(binary, args, "terraform")
+	execTerraform(args, "terraform")
 
 	//Planning Terraform changes and saving plan to file tfplan
 	args = []string{"plan", "-out=tfplan", "-input=false", "-var-file=terraform.tfvars"}
-	execCmd(binary, args, "terraform")
+	execTerraform(args, "terraform")
 
 	//Applying Changes Identified in tfplan
 	args = []string{"apply", "-input=false", "tfplan"}
-	execCmd(binary, args, "terraform")
+	execTerraform(args, "terraform")
 
 }
 
@@ -139,61 +156,60 @@ func (cs *ConcurrentSlice) Iter() <-chan ConcurrentSliceItem {
 	return c
 }
 
-func retrieveName(outputSlice *ConcurrentSlice, id string) {
-	//terraform command to retrive ID
-	name := ""
-	outputSlice.Append(name)
-}
-
-func TerraformRetrieveNames(IDList []string) ConcurrentSlice {
-	var concurrentSlice ConcurrentSlice
-	for _, id := range IDList {
-		go retrieveName(&concurrentSlice, id)
+func NewConcurrentSlice() *ConcurrentSlice {
+	cs := &ConcurrentSlice{
+		items: make([]interface{}, 0),
 	}
-	return concurrentSlice
+
+	return cs
 }
 
-func TerraformDestroy(destroyCmd []string) {
-	binary, err := exec.LookPath("terraform")
+func terraformRetrieveNames(IDList []string) (nameList []string) {
+	var wg sync.WaitGroup
 
-	checkErr(err)
+	concurrentSlice := NewConcurrentSlice()
+	for _, id := range IDList {
+		wg.Add(1)
+		go func(id string) {
+			defer wg.Done()
+			args := []string{"state", "list", "-id=" + id}
+			name := strings.TrimSpace(execTerraform(args, "terraform"))
+			concurrentSlice.Append(name)
+		}(id)
+	}
+	wg.Wait()
+	for i := range concurrentSlice.Iter() {
+		nameList = append(nameList, i.Value.(string))
+	}
+
+	return nameList
+}
+
+func TerraformDestroy(idList []string) {
 
 	//Initializing Terraform
-	fmt.Println("init")
 	args := []string{"init", "-input=false", "terraform"}
-	execCmd(binary, args, "terraform")
+	execTerraform(args, "terraform")
 
-	//Destroy instances
-	args = destroyCmd
-	execCmd(binary, args, "terraform")
+	nameList := terraformRetrieveNames(idList)
+
+	args = []string{"destroy", "-auto-approve"}
+
+	for _, name := range nameList {
+		args = append(args, "-target", name)
+	}
+	execTerraform(args, "terraform")
 }
 
 //TerraforrmOutputMarshaller runs the terraform output command
 //and marshalls the resulting JSON into a TerraformOutput struct
 func TerraformOutputMarshaller() (outputStruct TerraformOutput) {
 
-	binary, err := exec.LookPath("terraform")
-
-	checkErr(err)
-
 	//Initializing Terraform
 	args := []string{"output", "--json"}
+	output := execTerraform(args, "terraform")
 
-	var stdout, stderr bytes.Buffer
-
-	cmd := exec.Command(binary, args...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	cmd.Dir = "terraform"
-
-	err = cmd.Run()
-	if err != nil {
-		return
-	}
-
-	bytes := stdout.Bytes()
-
-	json.Unmarshal(bytes, &outputStruct)
+	json.Unmarshal([]byte(output), &outputStruct)
 
 	return
 
@@ -313,33 +329,29 @@ func FindLargestNumber(nums []int) int {
 	return largest
 }
 
-func GenerateIPIDList() map[string]string {
-	list := make(map[string]string)
-	awsList := make(map[string]string)
-	doList := make(map[string]string)
-	googleList := make(map[string]string)
-	azureList := make(map[string]string)
+func GenerateIPIDList() IPID {
+
+	var masterIPID IPID
 	marshalledOutput := TerraformOutputMarshaller()
 
-	for i := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-		awsList = mergeMap(awsList, marshalledOutput.Master.ProviderValues.AWSProvider.Instances[i].IPIDMap)
+	for _, instance := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
+		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
+		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
 	}
-	for i := range marshalledOutput.Master.ProviderValues.DOProvider.Instances {
-		doList = mergeMap(doList, marshalledOutput.Master.ProviderValues.DOProvider.Instances[i].IPIDMap)
+	for _, instance := range marshalledOutput.Master.ProviderValues.DOProvider.Instances {
+		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
+		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
 	}
-	for i := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-		googleList = mergeMap(googleList, marshalledOutput.Master.ProviderValues.GoogleProvider.Instances[i].IPIDMap)
+	for _, instance := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
+		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
+		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
 	}
-	for i := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-		azureList = mergeMap(azureList, marshalledOutput.Master.ProviderValues.AzureProvider.Instances[i].IPIDMap)
+	for _, instance := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
+		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
+		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
 	}
 
-	list = mergeMap(list, awsList)
-	list = mergeMap(list, doList)
-	list = mergeMap(list, googleList)
-	list = mergeMap(list, azureList)
-
-	return list
+	return masterIPID
 }
 
 //checkEc2KeyExistence queries the Amazon EC2 API for the keypairs with the specified keyname
@@ -456,7 +468,6 @@ func compareDOConfig(initialRegion DORegionConfig, testRegion DORegionConfig) bo
 		initialRegion.Fingerprint == testRegion.Fingerprint &&
 		initialRegion.PrivateKey == testRegion.PrivateKey &&
 		initialRegion.Size == testRegion.Size &&
-		initialRegion.Count == testRegion.Count &&
 		initialRegion.DefaultUser == initialRegion.DefaultUser {
 		return true
 	}
@@ -523,8 +534,11 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 
 					if len(awsInstances) == 0 {
 						awsInstances = append(awsInstances, AWSInstance{
-							Config:  newRegionConfig,
-							IPIDMap: make(map[string]string)})
+							Config: newRegionConfig,
+							IPID: IPID{
+								IPList: []string{},
+								IDList: []string{},
+							}})
 						continue
 					}
 
@@ -537,8 +551,11 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 
 						} else {
 							awsInstances = append(awsInstances, AWSInstance{
-								Config:  newRegionConfig,
-								IPIDMap: make(map[string]string)})
+								Config: newRegionConfig,
+								IPID: IPID{
+									IPList: []string{},
+									IDList: []string{},
+								}})
 						}
 
 					}
@@ -580,9 +597,11 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 
 					if len(doInstances) == 0 {
 						doInstances = append(doInstances, DOInstance{
-							Config:  newDORegionConfig,
-							IPIDMap: make(map[string]string),
-						})
+							Config: newDORegionConfig,
+							IPID: IPID{
+								IPList: []string{},
+								IDList: []string{},
+							}})
 						continue
 					}
 
@@ -594,9 +613,11 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 
 						} else {
 							doInstances = append(doInstances, DOInstance{
-								Config:  newDORegionConfig,
-								IPIDMap: make(map[string]string),
-							})
+								Config: newDORegionConfig,
+								IPID: IPID{
+									IPList: []string{},
+									IDList: []string{},
+								}})
 						}
 					}
 				}

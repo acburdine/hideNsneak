@@ -8,8 +8,8 @@ type AWSProvider struct {
 }
 
 type AWSInstance struct {
-	Config  AWSRegionConfig   `json:"config"`
-	IPIDMap map[string]string `json:"ip_id"`
+	Config AWSRegionConfig `json:"config"`
+	IPID   IPID            `json:"ip_id"`
 }
 
 type AWSRegionConfig struct {

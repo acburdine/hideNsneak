@@ -17,6 +17,11 @@ type Providers struct {
 	AzureProvider  AzureProvider  `json:"AZURE"`
 }
 
+type IPID struct {
+	IPList []string `json:"ip"`
+	IDList []string `json:"id"`
+}
+
 //Deprecated
 //ReadList contains a list of all of the resources
 //across different providers per region
