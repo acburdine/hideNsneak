@@ -59,7 +59,7 @@ const mainEc2Module = `
 	aws_sg_id       = "{{.Config.SecurityGroupID}}"
   
 	#Example of region_count
-	region_count         = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}","{{$value}}"{{end}})}"
+	region_count         = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}",{{$value}}{{end}})}"
 	custom_ami           = "{{.Config.CustomAmi}}"
 	aws_instance_type    = "{{.Config.InstanceType}}"
 	ec2_default_user     = "{{.Config.DefaultUser}}"
@@ -74,7 +74,7 @@ const mainEc2Module = `
 const mainDropletModule = `
   module "{{.Config.ModuleName}}" {
 	  source              = "modules/droplet-deployment"
-	  do_region_count     = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}","{{$value}}"{{end}})}"
+	  do_region_count     = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}",{{$value}}{{end}})}"
 	  do_token            = "${var.do_token}"
 	  do_image            = "{{.Config.Image}}"
 	  do_private_key      = "{{.Config.PrivateKey}}"

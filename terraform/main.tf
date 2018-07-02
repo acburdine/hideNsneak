@@ -9,9 +9,26 @@
 		}
 	  }
 
+	module "ec2deploy1" {
+	source          = "modules/ec2-deployment"
+	default_sg_name = ""
+	aws_sg_id       = ""
+  
+	#Example of region_count
+	region_count         = "${map("",0)}"
+	custom_ami           = ""
+	aws_instance_type    = ""
+	ec2_default_user     = ""
+	aws_access_key       = "${var.aws_access_key}"
+	aws_secret_key       = "${var.aws_secret_key}"
+	aws_keypair_name     = "do_rsa"
+	aws_private_key_file = ""
+	aws_public_key_file  = ""
+  }
+
   module "doDropletDeploy1" {
 	  source              = "modules/droplet-deployment"
-	  do_region_count     = "${map("NYC1","3", "NYC2","2")}"
+	  do_region_count     = "${map("AMS2",0, "AMS3",0, "BLR1",10, "FRA1",0, "LON1",0, "NYC1",2, "NYC2",0, "NYC3",0, "SFO1",0, "SFO2",0, "SGP1",0, "TOR1",0)}"
 	  do_token            = "${var.do_token}"
 	  do_image            = "ubuntu-16-04-x64"
 	  do_private_key      = "/Users/mike.hodges/.ssh/do_rsa"

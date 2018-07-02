@@ -4,21 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ec2"
-	"golang.org/x/crypto/ssh"
 )
+
+////////////////////////
+//Miscellaneous Functions
+////////////////////////
 
 func checkErr(err error) {
 	if err != nil {
@@ -32,6 +28,136 @@ func templateCounter() func() int {
 		i++
 		return i
 	}
+}
+
+func removeSpaces(input string) (newString string) {
+	newString = strings.ToLower(input)
+	newString = strings.Replace(newString, " ", "_", -1)
+
+	return
+}
+
+//ContainsString checks to see if the array contains the target string
+func ContainsString(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+//ContainsInt checks to see if the array contains the target int
+func ContainsInt(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func execCmd(binary string, args []string, filepath string) string {
+	var stdout, stderr bytes.Buffer
+
+	cmd := exec.Command(binary, args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = filepath
+
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(stderr.String())
+		log.Fatalf("cmd.Run() failed with %s\n", err)
+	}
+
+	return stdout.String()
+}
+
+func IsValidNumberInput(input string) bool {
+	sliceToParse := strings.Split(input, ",")
+
+	for _, num := range sliceToParse {
+		_, err := strconv.Atoi(num)
+		if err != nil {
+			dashSlice := strings.Split(num, "-")
+			if len(dashSlice) != 2 {
+				return false
+			} else {
+				_, err := strconv.Atoi(dashSlice[0])
+				if err != nil {
+					return false
+				}
+				_, err = strconv.Atoi(dashSlice[1])
+				if err != nil {
+					return false
+				}
+			}
+			continue
+		}
+	}
+	return true
+}
+
+func ExpandNumberInput(input string) []int {
+	var result []int
+	sliceToParse := strings.Split(input, ",")
+
+	for _, num := range sliceToParse {
+		getInt, err := strconv.Atoi(num)
+		if err != nil {
+			sliceToSplit := strings.Split(num, "-")
+			firstNum, err := strconv.Atoi(sliceToSplit[0])
+			if err != nil {
+				continue
+			}
+			secondNum, err := strconv.Atoi(sliceToSplit[1])
+			if err != nil {
+				continue
+			}
+			for i := firstNum; i <= secondNum; i++ {
+				result = append(result, i)
+			}
+		} else {
+			result = append(result, getInt)
+		}
+	}
+	return result
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+/////////////////////
+//Terraform Functions
+/////////////////////
+
+func execTerraform(args []string, filepath string) string {
+	var stdout, stderr bytes.Buffer
+
+	binary, err := exec.LookPath("terraform")
+
+	checkErr(err)
+
+	cmd := exec.Command(binary, args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = filepath
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(stderr.String())
+	}
+
+	fmt.Println(stderr.String())
+
+	return stdout.String()
 }
 
 //InitializeTerraformFiles Creates the base templates for
@@ -54,67 +180,17 @@ func InitializeTerraformFiles() {
 	tfvarsFile.Write([]byte(templateSecrets))
 }
 
-func Contains(s []int, e int) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
-func execTerraform(args []string, filepath string) string {
-	var stdout, stderr bytes.Buffer
-
-	binary, err := exec.LookPath("terraform")
-
-	checkErr(err)
-
-	cmd := exec.Command(binary, args...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	cmd.Dir = filepath
-
-	err = cmd.Run()
-	if err != nil {
-		fmt.Println(stderr.String())
-	}
-
-	return stdout.String()
-}
-
-func execCmd(binary string, args []string, filepath string) string {
-	var stdout, stderr bytes.Buffer
-
-	cmd := exec.Command(binary, args...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	cmd.Dir = filepath
-
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println(stderr.String())
-		log.Fatalf("cmd.Run() failed with %s\n", err)
-	}
-
-	return stdout.String()
-}
-
 //TerraformApply runs the init, plan, and apply commands for our
 //generated terraform templates
 func TerraformApply() {
 
 	//Initializing Terraform
 	fmt.Println("init")
-	args := []string{"init", "-input=false", "terraform"}
-	execTerraform(args, "terraform")
-
-	//Planning Terraform changes and saving plan to file tfplan
-	args = []string{"plan", "-out=tfplan", "-input=false", "-var-file=terraform.tfvars"}
+	args := []string{"init", "-input=false"}
 	execTerraform(args, "terraform")
 
 	//Applying Changes Identified in tfplan
-	args = []string{"apply", "-input=false", "tfplan"}
+	args = []string{"apply", "-input=false", "-auto-approve"}
 	execTerraform(args, "terraform")
 
 }
@@ -230,13 +306,6 @@ func CreateTerraformMain(masterString string) {
 	checkErr(err)
 }
 
-func removeSpaces(input string) (newString string) {
-	newString = strings.ToLower(input)
-	newString = strings.Replace(newString, " ", "_", -1)
-
-	return
-}
-
 //ProviderCheck takes in a user-defined array of
 //providers and validates they are supported
 func ProviderCheck(providerArray []string) bool {
@@ -249,66 +318,6 @@ func ProviderCheck(providerArray []string) bool {
 		}
 	}
 	return true
-}
-
-func IsValidNumberInput(input string) bool {
-	sliceToParse := strings.Split(input, ",")
-
-	for _, num := range sliceToParse {
-		_, err := strconv.Atoi(num)
-		if err != nil {
-			dashSlice := strings.Split(num, "-")
-			if len(dashSlice) != 2 {
-				return false
-			} else {
-				_, err := strconv.Atoi(dashSlice[0])
-				if err != nil {
-					return false
-				}
-				_, err = strconv.Atoi(dashSlice[1])
-				if err != nil {
-					return false
-				}
-			}
-			continue
-		}
-	}
-	return true
-}
-
-func ExpandNumberInput(input string) []int {
-	var result []int
-	sliceToParse := strings.Split(input, ",")
-
-	for _, num := range sliceToParse {
-		getInt, err := strconv.Atoi(num)
-		if err != nil {
-			sliceToSplit := strings.Split(num, "-")
-			firstNum, err := strconv.Atoi(sliceToSplit[0])
-			if err != nil {
-				continue
-			}
-			secondNum, err := strconv.Atoi(sliceToSplit[1])
-			if err != nil {
-				continue
-			}
-			for i := firstNum; i <= secondNum; i++ {
-				result = append(result, i)
-			}
-		} else {
-			result = append(result, getInt)
-		}
-	}
-	return result
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }
 
 func mergeMap(map1 map[string]string, map2 map[string]string) map[string]string {
@@ -354,92 +363,6 @@ func GenerateIPIDList() IPID {
 	return masterIPID
 }
 
-//checkEc2KeyExistence queries the Amazon EC2 API for the keypairs with the specified keyname
-//Returns true if the resulting array is > 0, false otherwise
-func checkEC2KeyExistance(secret string, accessID string, region string, privateKey string) (bool, string) {
-	keyFingerprint := genEC2KeyFingerprint(privateKey)
-
-	svc := ec2.New(session.New(&aws.Config{
-		Region:      aws.String(region),
-		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
-	}))
-	keyPairOutput, _ := svc.DescribeKeyPairs(&ec2.DescribeKeyPairsInput{
-		Filters: []*ec2.Filter{
-			&ec2.Filter{
-				Name:   aws.String("fingerprint"),
-				Values: aws.StringSlice([]string{keyFingerprint}),
-			},
-		},
-	})
-	if len(keyPairOutput.KeyPairs) == 0 {
-		return false, ""
-	}
-	return true, *keyPairOutput.KeyPairs[0].KeyName
-}
-
-func genEC2KeyFingerprint(privateKey string) (keyFingerprint string) {
-	args1 := []string{"pkey", "-in", privateKey, "-pubout", "-outform", "DER"}
-	args2 := []string{"md5", "-c"}
-
-	pipeReader, pipeWriter := io.Pipe()
-
-	cmd1 := exec.Command("openssl", args1...)
-	cmd2 := exec.Command("openssl", args2...)
-
-	cmd1.Stdout = pipeWriter
-	cmd2.Stdin = pipeReader
-
-	var cmd2Out bytes.Buffer
-
-	cmd2.Stdout = &cmd2Out
-
-	cmd1.Start()
-	cmd2.Start()
-	cmd1.Wait()
-	pipeWriter.Close()
-	cmd2.Wait()
-
-	keyFingerprint = strings.Split(strings.TrimSpace(cmd2Out.String()), " ")[1]
-
-	return
-}
-
-func genDOKeyFingerprint(publicKey string) (keyFingerprint string) {
-	key, err := ioutil.ReadFile(publicKey)
-
-	if err != nil {
-		fmt.Println("Specified DO public key does not exist")
-		os.Exit(1)
-	}
-	pubKey, _, _, _, err := ssh.ParseAuthorizedKey(key)
-
-	if err != nil {
-		fmt.Println("Specified DO public key is not formatted correctly")
-		os.Exit(1)
-	}
-
-	return strings.TrimSpace(ssh.FingerprintLegacyMD5(pubKey))
-}
-
-//checkEc2KeyExistence queries the Amazon EC2 API for the security groups
-//with the specified name
-//Returns true if the resulting array is > 0, false otherwise
-func checkEC2SecurityGroupExistence(secret string, accessID string, region string, securityGroupName string) (bool, string) {
-	svc := ec2.New(session.New(&aws.Config{
-		Region:      aws.String(region),
-		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
-	}))
-	securityGroupOutput, _ := svc.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{
-		GroupNames: aws.StringSlice([]string{securityGroupName}),
-	})
-
-	if len(securityGroupOutput.SecurityGroups) == 0 {
-		return false, ""
-	}
-
-	return true, *securityGroupOutput.SecurityGroups[0].GroupId
-}
-
 //createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
 //returns a pointer to the specified OS process so that we can kill it effictively
 func createSingleSOCKS(privateKey string, username string, ipv4 string, port int) *os.Process {
@@ -450,28 +373,6 @@ func createSingleSOCKS(privateKey string, username string, ipv4 string, port int
 		return nil
 	}
 	return cmd.Process
-}
-
-func compareAWSConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig) bool {
-	if initialRegion.CustomAmi == testRegion.CustomAmi &&
-		initialRegion.DefaultUser == testRegion.DefaultUser &&
-		initialRegion.InstanceType == testRegion.InstanceType &&
-		initialRegion.PrivateKeyFile == testRegion.PrivateKeyFile &&
-		initialRegion.PublicKeyFile == testRegion.PublicKeyFile {
-		return true
-	}
-	return false
-}
-
-func compareDOConfig(initialRegion DORegionConfig, testRegion DORegionConfig) bool {
-	if initialRegion.Image == testRegion.Image &&
-		initialRegion.Fingerprint == testRegion.Fingerprint &&
-		initialRegion.PrivateKey == testRegion.PrivateKey &&
-		initialRegion.Size == testRegion.Size &&
-		initialRegion.DefaultUser == initialRegion.DefaultUser {
-		return true
-	}
-	return false
 }
 
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
@@ -562,7 +463,6 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				}
 
 			}
-			fmt.Println(awsInstances)
 			output.Master.ProviderValues.AWSProvider.Instances = awsInstances
 		case "DO":
 			doInstances := output.Master.ProviderValues.DOProvider.Instances

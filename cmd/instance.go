@@ -17,6 +17,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"terraform-playground/deployer"
 
@@ -49,10 +50,21 @@ var instanceDeploy = &cobra.Command{
 	Long:  `deploys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.InitializeTerraformFiles()
-		if deployer.ProviderCheck(instanceProviders) {
-			return nil
+		if !deployer.ProviderCheck(instanceProviders) {
+			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}
-		return fmt.Errorf("invalid providers specified: %s", instanceProviders)
+		availableDORegions := deployer.GetDoRegions()
+		var unavailableRegions []string
+		for _, region := range regionDo {
+			if !deployer.ContainsString(availableDORegions, strings.ToLower(region)) {
+				unavailableRegions = append(unavailableRegions, region)
+			}
+		}
+		if len(unavailableRegions) != 0 {
+			return fmt.Errorf("digitalocean region(s) not available: %s", strings.Join(unavailableRegions, ","))
+		}
+		return nil
+
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -158,7 +170,7 @@ func init() {
 
 	//TODO: default all regions
 	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"NYC1", "NYC2"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"NYC1", "SGP1", "LON1", "NYC3", "AMS3", "FRA1", "TOR1", "SFO2", "BLR1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
 	rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
 	rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
 

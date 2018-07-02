@@ -1,5 +1,9 @@
 package deployer
 
+type Token struct {
+	AccessToken string
+}
+
 type DOProvider struct {
 	Instances []DOInstance `json:"instances"`
 }

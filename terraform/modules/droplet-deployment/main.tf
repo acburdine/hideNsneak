@@ -20,6 +20,7 @@ module "do-nyc1" {
   do_firewall_name = "${var.do_firewall_name}"
 }
 
+# //NYC2 is basically full
 module "do-nyc2" {
   source             = "droplet-region-deployment"
   do_image           = "${var.do_image}"
@@ -48,6 +49,7 @@ module "do-nyc3" {
   do_firewall_name = "${var.do_firewall_name}"
 }
 
+# Basically Full
 module "do-ams2" {
   source             = "droplet-region-deployment"
   do_image           = "${var.do_image}"
@@ -118,6 +120,7 @@ module "do-lon1" {
   do_firewall_name = "${var.do_firewall_name}"
 }
 
+# Basically Full
 module "do-sfo1" {
   source             = "droplet-region-deployment"
   do_image           = "${var.do_image}"
