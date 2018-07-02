@@ -9,24 +9,24 @@ type DOProvider struct {
 }
 
 type DOInstance struct {
-	Config DORegionConfig `json:"config"`
-	IPID   IPID           `json:"ip_id"`
-}
-
-type DORegionConfig struct {
 	ModuleName  string
 	Image       string `json:"image"`
 	PrivateKey  string `json:"private_key_file"`
 	Fingerprint string `json:"fingerprint"`
 	Size        string `json:"size"`
-	Count       int    `json:"region_count"`
+	Count       int    `json:"region_count,string"`
 	Region      string `json:"region"`
 	DefaultUser string `json:"default_user"`
 }
 
 type DOConfigWrapper struct {
-	Config    DORegionConfig
-	RegionMap map[string]int
+	ModuleName  string
+	Image       string
+	PrivateKey  string
+	Fingerprint string
+	Size        string
+	DefaultUser string
+	RegionMap   map[string]int
 }
 
 //Deprecated

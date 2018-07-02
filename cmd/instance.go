@@ -68,10 +68,10 @@ var instanceDeploy = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
-		marshalledOutput := deployer.TerraformOutputMarshaller()
-		masterList := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, marshalledOutput)
+		marshalledState := deployer.TerraformStateMarshaller()
+		wrappers := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, marshalledState)
 
-		mainFile := deployer.CreateMasterFile(masterList)
+		mainFile := deployer.CreateMasterFile(wrappers)
 
 		deployer.CreateTerraformMain(mainFile)
 
@@ -79,14 +79,14 @@ var instanceDeploy = &cobra.Command{
 	},
 }
 
-var ipID deployer.IPID
-
 var instanceDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		ipID = deployer.GenerateIPIDList()
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
 		if !deployer.IsValidNumberInput(numberInput) {
 			return fmt.Errorf("invalid formatting specified: %s", numberInput)
 		}
@@ -94,7 +94,7 @@ var instanceDestroy = &cobra.Command{
 		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
 
 		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(ipID.IDList) < largestInstanceNumToDestroy {
+		if len(list) < largestInstanceNumToDestroy {
 			return errors.New("The number you entered is too big. Try running `list` to see the number of instances you have.")
 		}
 
@@ -102,24 +102,17 @@ var instanceDestroy = &cobra.Command{
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
 		numsToDelete := deployer.ExpandNumberInput(numberInput)
-		var IDsToDelete []string
+		var namesToDelete []string
 
 		for _, numIndex := range numsToDelete {
-			IDsToDelete = append(IDsToDelete, ipID.IDList[numIndex])
+			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
 
-		// namesToDelete := deployer.
-
-		// for index, id := range IDsToDelete {
-		// 	if deployer.Contains(numsToDelete, index) {
-
-		// 		destroyCommand = append(destroyCommand, "-target", id)
-		// 	}
-		// }
-
-		// fmt.Println(destroyCommand)
-		deployer.TerraformDestroy(IDsToDelete)
+		deployer.TerraformDestroy(namesToDelete)
 	},
 }
 
@@ -128,14 +121,13 @@ var instanceList = &cobra.Command{
 	Short: "list instances",
 	Long:  `list instances`,
 	Run: func(cmd *cobra.Command, args []string) {
-		ipID = deployer.GenerateIPIDList()
+		marshalledState := deployer.TerraformStateMarshaller()
 
-		// fmt.Println("list of active instances: ", deployer.GenerateIPIDList())
+		list := deployer.ListIPAddresses(marshalledState)
 
-		for index := range ipID.IPList {
-			fmt.Print("Index: ")
+		for index, item := range list {
 			fmt.Print(index)
-			fmt.Println("  -  IP: " + ipID.IPList[index] + " - ID: " + ipID.IDList[index])
+			fmt.Println(" : " + item.String())
 		}
 	},
 }
@@ -170,7 +162,7 @@ func init() {
 
 	//TODO: default all regions
 	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"NYC1", "SGP1", "LON1", "NYC3", "AMS3", "FRA1", "TOR1", "SFO2", "BLR1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
 	rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
 	rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
 

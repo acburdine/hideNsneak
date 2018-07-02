@@ -2,18 +2,18 @@ variable "do_region_count_template" {
   type = "map"
 
   default = {
-    "NYC1" = 0
-    "NYC2" = 0
-    "NYC3" = 0
-    "SFO1" = 0
-    "SFO2" = 0
-    "SGP1" = 0
-    "TOR1" = 0
-    "AMS2" = 0
-    "AMS3" = 0
-    "BLR1" = 0
-    "FRA1" = 0
-    "LON1" = 0
+    "nyc1" = 0
+    "nyc2" = 0
+    "nyc3" = 0
+    "sfo1" = 0
+    "sfo2" = 0
+    "sgp1" = 0
+    "tor1" = 0
+    "ams2" = 0
+    "ams3" = 0
+    "blr1" = 0
+    "fra1" = 0
+    "lon1" = 0
   }
 }
 

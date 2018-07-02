@@ -5,22 +5,17 @@ type GoogleProvider struct {
 }
 
 type GoogleInstance struct {
-	Config GoogleRegionConfig `json:"config"`
-	IPID   IPID               `json:"ip_id"`
-}
-
-type GoogleRegionConfig struct {
 	Count int
 }
 
 //Deprecated
-type googleCloudDeployer struct {
-	Region            string
-	Project           string
-	Count             int
-	SSHUser           string
-	SSHPubKeyFile     string
-	SSHPrivateKeyFile string
-	MachineType       string
-	Image             string
-}
+// type googleCloudDeployer struct {
+// 	Region            string
+// 	Project           string
+// 	Count             int
+// 	SSHUser           string
+// 	SSHPubKeyFile     string
+// 	SSHPrivateKeyFile string
+// 	MachineType       string
+// 	Image             string
+// }

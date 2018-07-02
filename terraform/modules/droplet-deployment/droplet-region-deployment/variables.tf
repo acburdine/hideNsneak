@@ -10,6 +10,10 @@ variable "do_region" {}
 
 variable "do_size" {}
 
+variable "name" {
+  default = "hidensneak"
+}
+
 variable "do_count" {
   default = 0
 }

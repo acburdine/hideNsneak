@@ -25,19 +25,20 @@
 # output "domainfront_url" {
 #   value = "${module.cloudfront.domainfront_url}"
 # }
-output "providers" {
-  value = "${map(
-    "AWS", map(
-      "instances", list(map()),
-      "security_group", list(map()), 
-      "api", list(map()),
-      "domain_front", list(map())),
-    "DO", map(
-      "instances", concat(module.doDropletDeploy1.allRegions),
-      "firewalls", list(map())),
-    "GOOGLE", map(
-      "instances", list(map())),
-    "AZURE", map(
-      "instances", list(map())))
-    }"
-}
+# output "providers" {
+#   value = "${map(
+#     "AWS", map(
+#       "instances", list(map()),
+#       "security_group", list(map()), 
+#       "api", list(map()),
+#       "domain_front", list(map())),
+#     "DO", map(
+#       "instances", concat(module.doDropletDeploy1.allRegions),
+#       "firewalls", list(map())),
+#     "GOOGLE", map(
+#       "instances", list(map())),
+#     "AZURE", map(
+#       "instances", list(map())))
+#     }"
+# }
+

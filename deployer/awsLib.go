@@ -81,12 +81,12 @@ func checkEC2SecurityGroupExistence(secret string, accessID string, region strin
 	return true, *securityGroupOutput.SecurityGroups[0].GroupId
 }
 
-func compareAWSConfig(initialRegion AWSRegionConfig, testRegion AWSRegionConfig) bool {
-	if initialRegion.CustomAmi == testRegion.CustomAmi &&
-		initialRegion.DefaultUser == testRegion.DefaultUser &&
-		initialRegion.InstanceType == testRegion.InstanceType &&
-		initialRegion.PrivateKeyFile == testRegion.PrivateKeyFile &&
-		initialRegion.PublicKeyFile == testRegion.PublicKeyFile {
+func compareAWSInstance(instanceOne AWSInstance, instanceTwo AWSInstance) bool {
+	if instanceOne.CustomAmi == instanceTwo.CustomAmi &&
+		instanceOne.DefaultUser == instanceTwo.DefaultUser &&
+		instanceOne.InstanceType == instanceTwo.InstanceType &&
+		instanceOne.PrivateKeyFile == instanceTwo.PrivateKeyFile &&
+		instanceOne.PublicKeyFile == instanceTwo.PublicKeyFile {
 		return true
 	}
 	return false

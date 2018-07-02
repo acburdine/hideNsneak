@@ -12,12 +12,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func compareDOConfig(initialRegion DORegionConfig, testRegion DORegionConfig) bool {
-	if initialRegion.Image == testRegion.Image &&
-		initialRegion.Fingerprint == testRegion.Fingerprint &&
-		initialRegion.PrivateKey == testRegion.PrivateKey &&
-		initialRegion.Size == testRegion.Size &&
-		initialRegion.DefaultUser == initialRegion.DefaultUser {
+func compareDOConfig(instanceOne DOConfigWrapper, instanceTwo DOConfigWrapper) bool {
+	if instanceOne.Image == instanceTwo.Image &&
+		instanceOne.Fingerprint == instanceTwo.Fingerprint &&
+		instanceOne.PrivateKey == instanceTwo.PrivateKey &&
+		instanceOne.Size == instanceTwo.Size &&
+		instanceOne.DefaultUser == instanceTwo.DefaultUser {
 		return true
 	}
 	return false

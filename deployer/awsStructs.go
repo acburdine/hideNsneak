@@ -8,21 +8,16 @@ type AWSProvider struct {
 }
 
 type AWSInstance struct {
-	Config AWSRegionConfig `json:"config"`
-	IPID   IPID            `json:"ip_id"`
-}
-
-type AWSRegionConfig struct {
 	ModuleName      string
-	SecurityGroup   string `json:"hidensneak"`
-	SecurityGroupID string `json:"aws_sg_id"`
-	Count           int    `json:"region_count"`
-	CustomAmi       string `json:"custom_ami"`
-	InstanceType    string `json:"aws_instance_type"`
-	DefaultUser     string `json:"ec2_default_user"`
-	Region          string `json:"region"`
-	PrivateKeyFile  string `json:"private_key_file"`
-	PublicKeyFile   string `json:"public_key_file"`
+	SecurityGroup   string
+	SecurityGroupID string
+	Count           int
+	CustomAmi       string
+	InstanceType    string
+	DefaultUser     string
+	Region          string
+	PrivateKeyFile  string
+	PublicKeyFile   string
 }
 
 type AWSApi struct {
@@ -38,8 +33,17 @@ type cloudFrontDeployer struct {
 }
 
 type AWSConfigWrapper struct {
-	Config    AWSRegionConfig
-	RegionMap map[string]int
+	ModuleName      string
+	SecurityGroup   string
+	SecurityGroupID string
+	Count           int
+	Ami             string
+	InstanceType    string
+	DefaultUser     string
+	Region          string
+	PrivateKeyFile  string
+	PublicKeyFile   string
+	RegionMap       map[string]int
 }
 
 //Deprecated
