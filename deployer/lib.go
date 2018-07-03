@@ -376,16 +376,24 @@ func createSingleSOCKS(privateKey string, username string, ipv4 string, port int
 func (listStruct *ListStruct) String() string {
 	return ("IP: " + listStruct.IP + " - Provider: " + listStruct.Provider + " - Region: " + listStruct.Region + " - Name: " + listStruct.Name)
 }
+
 func ListIPAddresses(state State) (hostOutput []ListStruct) {
 	for _, module := range state.Modules {
 		for name, resource := range module.Resources {
+			fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+			nameSlice := strings.Split(name, ".")
+			finalString := nameSlice[len(nameSlice)-1]
+			_, err := strconv.Atoi(finalString)
+			if err == nil {
+				fullName = "module." + strings.Join(module.Path[1:], ".module.") + ".[" + finalString + "]"
+			}
 			switch {
 			case strings.Contains(name, "digitalocean_droplet"):
 				hostOutput = append(hostOutput, ListStruct{
 					IP:       resource.Primary.Attributes["ipv4_address"],
 					Provider: "DigitalOcean",
 					Region:   resource.Primary.Attributes["region"],
-					Name:     "module." + strings.Join(module.Path[1:], ".module.") + "." + name,
+					Name:     fullName,
 				})
 			default:
 				continue
