@@ -120,3 +120,10 @@ type ConfigWrappers struct {
 	EC2 []AWSConfigWrapper
 	DO  []DOConfigWrapper
 }
+
+type ListStruct struct {
+	IP       string
+	Provider string
+	Region   string
+	Name     string
+}

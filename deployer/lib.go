@@ -373,13 +373,6 @@ func createSingleSOCKS(privateKey string, username string, ipv4 string, port int
 	return cmd.Process
 }
 
-type ListStruct struct {
-	IP       string
-	Provider string
-	Region   string
-	Name     string
-}
-
 func (listStruct *ListStruct) String() string {
 	return ("IP: " + listStruct.IP + " - Provider: " + listStruct.Provider + " - Region: " + listStruct.Region + " - Name: " + listStruct.Name)
 }
@@ -457,7 +450,12 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 					}
 					for index, config := range wrappers.DO {
 						if compareDOConfig(config, newDORegionConfig) {
-							config.RegionMap[region] = config.RegionMap[region] + regionCount
+							if config.RegionMap[region] > 0 {
+								config.RegionMap[region] = config.RegionMap[region] + regionCount
+							} else {
+								config.RegionMap[region] = regionCount
+							}
+							break
 						} else if index == len(wrappers.DO)-1 {
 							doModuleCount = doModuleCount + 1
 							newDORegionConfig.ModuleName = "doDropletDeploy" + strconv.Itoa(doModuleCount)
