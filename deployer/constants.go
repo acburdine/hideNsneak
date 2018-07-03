@@ -15,41 +15,95 @@ const state = `
 	  }
 `
 
-const variables = `variable "do_token" {}
+const variables = `
+variable "do_token" {}
 
 variable "aws_access_key" {}
 
 variable "aws_secret_key" {}
-
-variable "azure_tenant_id" {}
-
-variable "azure_client_id" {}
-
-variable "azure_client_secret" {}
-
-variable "azure_subscription_id" {}
 `
+
+//Removed for testing
+
+// variable "azure_tenant_id" {}
+
+// variable "azure_client_id" {}
+
+// variable "azure_client_secret" {}
+
+// variable "azure_subscription_id" {}
+
+const outputs = `output "providers" {
+	value = "${map(
+	  "AWS", map(
+		"instances", concat({{.ModuleNames}}),
+		"security_group", list(map()), 
+		"api", list(map()),
+		"domain_front", list(map())),
+	  "DO", map(
+		"instances", list(map()),
+		"firewalls", list(map())),
+	  "GOOGLE", map(
+		"instances", list(map())),
+	  "AZURE", map(
+		"instances", list(map())))
+	  }"
+  }`
 
 ///////////////////// MODULES /////////////////////
-const ec2Module = `
-	module "aws-{{.Region}}" {
-		source         		 = "modules/ec2-deployment"
-		default_sg_name 	 = "{{.SecurityGroup}}"
-		aws_sg_id			 = "{{.SecurityGroupID}}"
-		region_count   		 = {{.Count}}
-		custom_ami 			 = "{{.CustomAmi}}"
-		aws_instance_type	 = "{{.InstanceType}}"
-		ec2_default_user	 = "{{.DefaultUser}}"
-		aws_access_key 		 = "${var.aws_access_key}"
-		aws_secret_key 		 = "${var.aws_secret_key}"
-		aws_region    		 = "{{.Region}}"
-		aws_new_keypair      = "{{.NewKeypair}}"
-		aws_keypair_name     = "{{.KeypairName}}"
-		aws_private_key_file = "{{.PrivateKeyFile}}"
-		aws_public_key_file  = "{{.PublicKeyFile}}"
-		ansible_groups       = "[]"
-	}
+
+const mainEc2Module = `
+	module "{{.Config.ModuleName}}" {
+	source          = "modules/ec2-deployment"
+	default_sg_name = "{{.Config.SecurityGroup}}"
+	aws_sg_id       = "{{.Config.SecurityGroupID}}"
+  
+	#Example of region_count
+	region_count         = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}",{{$value}}{{end}})}"
+	custom_ami           = "{{.CustomAmi}}"
+	aws_instance_type    = "{{.Config.InstanceType}}"
+	ec2_default_user     = "{{.Config.DefaultUser}}"
+	aws_access_key       = "${var.aws_access_key}"
+	aws_secret_key       = "${var.aws_secret_key}"
+	aws_keypair_name     = "do_rsa"
+	aws_private_key_file = "{{.Config.PrivateKeyFile}}"
+	aws_public_key_file  = "{{.Config.PublicKeyFile}}"
+  }
 `
+
+const mainDropletModule = `
+  module "{{.ModuleName}}" {
+	  source              = "modules/droplet-deployment"
+	  do_region_count     = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}",{{$value}}{{end}})}"
+	  do_token            = "${var.do_token}"
+	  do_image            = "{{.Image}}"
+	  do_private_key      = "{{.PrivateKey}}"
+	  do_ssh_fingerprint  = "{{.Fingerprint}}"
+	  do_size             = "{{.Size}}"
+	  do_default_user     = "{{.DefaultUser}}"
+  }
+`
+
+// Deprecated
+// const ec2Module = `
+// 	module "aws-{{.Region}}" {
+// 		source         		 = "modules/ec2-deployment"
+// 		default_sg_name 	 = "{{.SecurityGroup}}"
+// 		aws_sg_id			 = "{{.SecurityGroupID}}"
+// 		region_count   		 = {{.Count}}
+// 		custom_ami 			 = "{{.CustomAmi}}"
+// 		aws_instance_type	 = "{{.InstanceType}}"
+// 		ec2_default_user	 = "{{.DefaultUser}}"
+// 		aws_access_key 		 = "${var.aws_access_key}"
+// 		aws_secret_key 		 = "${var.aws_secret_key}"
+// 		aws_region    		 = "{{.Region}}"
+// 		aws_new_keypair      = "{{.NewKeypair}}"
+// 		aws_keypair_name     = "{{.KeypairName}}"
+// 		aws_private_key_file = "{{.PrivateKeyFile}}"
+// 		aws_public_key_file  = "{{.PublicKeyFile}}"
+// 		ansible_groups       = "[]"
+// 	}
+// `
 
 const azureCdnModule = `
 	module "azure-cdn-{{.Endpoint}}" {
@@ -93,22 +147,23 @@ const cloudfrontModule = `
 	}
 `
 
-const digitalOceanModule = `
-	module "digital-ocean-{{.Region}}" {
-		source           = "modules/droplet-deployment"
-		do_token         = "${var.do_token}"
-		do_image         = "{{.Image}}"
-		pvt_key          = "{{.PrivateKey}}"
-		ssh_fingerprint  = "{{.Fingerprint}}"
-		do_region        = "{{.Region}}"
-		do_size          = "{{.Size}}"
-		do_count         = {{.Count}}
-		do_default_user  = "{{.DefaultUser}}"
-		do_name 		 = "{{.Name}}"
-		do_firewall_name = "{{.FirewallName}}"
-		ansible_groups       = "[]"
-	}
-`
+//Deprecated
+// const digitalOceanModule = `
+// 	module "digital-ocean-{{.Region}}" {
+// 		source           = "modules/droplet-deployment"
+// 		do_token         = "${var.do_token}"
+// 		do_image         = "{{.Image}}"
+// 		pvt_key          = "{{.PrivateKey}}"
+// 		ssh_fingerprint  = "{{.Fingerprint}}"
+// 		do_region        = "{{.Region}}"
+// 		do_size          = "{{.Size}}"
+// 		do_count         = {{.Count}}
+// 		do_default_user  = "{{.DefaultUser}}"
+// 		do_name 		 = "{{.Name}}"
+// 		do_firewall_name = "{{.FirewallName}}"
+// 		ansible_groups       = "[]"
+// 	}
+// `
 
 const googleCloudModule = `
 	module "google-cloud-{{.Region}}" {

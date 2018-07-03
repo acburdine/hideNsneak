@@ -1,77 +1,54 @@
 package deployer
 
-type ec2Deployer struct {
-	SecurityGroup   string
-	SecurityGroupID string
-	Count           int
-	CustomAmi       string
-	InstanceType    string
-	DefaultUser     string
-	Region          string
-	NewKeypair      bool
-	KeypairName     string
-	PrivateKeyFile  string
-	PublicKeyFile   string
-}
+// //State Parsing
+// type TerraformState struct {
+// 	Version int
+// 	Serial  int
+// 	Backend *TerraformBackend
+// 	Modules []TerraformStateModule
+// }
 
-type azureCdnDeployer struct {
-	HostName     string
-	ProfileName  string
-	EndpointName string
-	Location     string
-}
+// // The structure of the "backend" section of the Terraform .tfstate file
+// type TerraformBackend struct {
+// 	Type   string
+// 	Config map[string]interface{}
+// }
 
-type azureDeployer struct {
-	Location    string
-	Count       int
-	VMSize      string
-	Environment string
-	PrivateKey  string
-	PublicKey   string
-}
+// // The structure of a "module" section of the Terraform .tfstate file
+// type TerraformStateModule struct {
+// 	Path      []string
+// 	Outputs   map[string]interface{}
+// 	Resources map[string]interface{}
+// }
 
-type cloudFrontDeployer struct {
-	Origin string
-	Region string
-}
-
-type digitalOceanDeployer struct {
-	Image        string
-	Fingerprint  string
-	PrivateKey   string
-	PublicKey    string
-	Size         string
-	Count        int
-	Region       string
-	DefaultUser  string
-	Name         string
-	FirewallName string
-}
-
-type googleCloudDeployer struct {
-	Region            string
-	Project           string
-	Count             int
-	SSHUser           string
-	SSHPubKeyFile     string
-	SSHPrivateKeyFile string
-	MachineType       string
-	Image             string
-}
-
-type apiGatewayDeployer struct {
-	TargetURI string
-	StageName string
-}
-
+//Deprecated
 //ReadList contains a list of all of the resources
 //across different providers per region
-type ReadList struct {
-	ec2DeployerList          []ec2Deployer
-	azureCdnDeployerList     []azureCdnDeployer
-	azureDeployerList        []azureDeployer
-	cloudFrontDeployerList   []cloudFrontDeployer
-	digitalOceanDeployerList []digitalOceanDeployer
-	googleCloudDeployerList  []googleCloudDeployer
-	apiGatewayDeployerList   []apiGatewayDeployer
-}
+// type ReadList struct {
+// 	azureCdnDeployerList     []azureCdnDeployer
+// 	azureDeployerList        []azureDeployer
+// 	cloudFrontDeployerList   []cloudFrontDeployer
+// 	digitalOceanDeployerList []digitalOceanDeployer
+// 	googleCloudDeployerList  []googleCloudDeployer
+// 	apiGatewayDeployerList   []apiGatewayDeployer
+// }
+
+// type TerraformOutput struct {
+// 	Master OuterLevel `json:"providers"`
+// }
+
+// type OuterLevel struct {
+// 	ProviderValues Providers `json:"value"`
+// }
+
+// type Providers struct {
+// 	AWSProvider    AWSProvider    `json:"AWS"`
+// 	DOProvider     DOProvider     `json:"DO"`
+// 	GoogleProvider GoogleProvider `json:"GOOGLE"`
+// 	AzureProvider  AzureProvider  `json:"AZURE"`
+// }
+
+// type IPID struct {
+// 	IPList []string `json:"ip"`
+// 	IDList []string `json:"id"`
+// }

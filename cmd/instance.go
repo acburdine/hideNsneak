@@ -15,7 +15,9 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 
 	"terraform-playground/deployer"
 
@@ -30,6 +32,7 @@ var regionAws []string
 var regionDo []string
 var regionAzure []string
 var regionGoogle []string
+var numberInput string
 
 var instance = &cobra.Command{
 	Use:   "instance",
@@ -47,15 +50,32 @@ var instanceDeploy = &cobra.Command{
 	Long:  `deploys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.InitializeTerraformFiles()
-		if deployer.ProviderCheck(instanceProviders) {
-			return nil
+		if !deployer.ProviderCheck(instanceProviders) {
+			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}
-		return fmt.Errorf("invalid providers specified: %s", instanceProviders)
+		availableDORegions := deployer.GetDoRegions()
+		var unavailableRegions []string
+		for _, region := range regionDo {
+			if !deployer.ContainsString(availableDORegions, strings.ToLower(region)) {
+				unavailableRegions = append(unavailableRegions, region)
+			}
+		}
+		if len(unavailableRegions) != 0 {
+			return fmt.Errorf("digitalocean region(s) not available: %s", strings.Join(unavailableRegions, ","))
+		}
+		return nil
+
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		masterList := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey)
-		masterListFile, _ := deployer.CreateMasterList(masterList)
-		deployer.CreateTerraformMain(masterListFile)
+
+		marshalledState := deployer.TerraformStateMarshaller()
+		wrappers := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, marshalledState)
+
+		mainFile := deployer.CreateMasterFile(wrappers)
+
+		deployer.CreateTerraformMain(mainFile)
+
+		deployer.TerraformApply()
 	},
 }
 
@@ -64,14 +84,35 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		//TODO:
-		//get the number of instances that they want to delete
-		//parse that number based on comma (1-49 for 1 through 49, comma separated)
-		//delete those based on array nums
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+		if !deployer.IsValidNumberInput(numberInput) {
+			return fmt.Errorf("invalid formatting specified: %s", numberInput)
+		}
+		numsToDestroy := deployer.ExpandNumberInput(numberInput)
+		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
+
+		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
+		if len(list) < largestInstanceNumToDestroy {
+			return errors.New("The number you entered is too big. Try running `list` to see the number of instances you have.")
+		}
+
 		return nil
+
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: Write destruction logic")
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+		numsToDelete := deployer.ExpandNumberInput(numberInput)
+		var namesToDelete []string
+
+		for _, numIndex := range numsToDelete {
+			namesToDelete = append(namesToDelete, list[numIndex].Name)
+		}
+
+		deployer.TerraformDestroy(namesToDelete)
 	},
 }
 
@@ -80,7 +121,14 @@ var instanceList = &cobra.Command{
 	Short: "list instances",
 	Long:  `list instances`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("List called")
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		for index, item := range list {
+			fmt.Print(index)
+			fmt.Println(" : " + item.String())
+		}
 	},
 }
 
@@ -109,9 +157,12 @@ func init() {
 	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
+	instanceDestroy.PersistentFlags().StringVarP(&numberInput, "input", "i", "", "number of instances to destroy")
+	instanceDestroy.MarkPersistentFlagRequired("input")
+
 	//TODO: default all regions
 	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"AMS2", "SFO2"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
 	rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
 	rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
 

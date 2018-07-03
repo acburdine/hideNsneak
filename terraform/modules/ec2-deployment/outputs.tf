@@ -1,27 +1,17 @@
-output "instance_id" {
-  value = "${aws_instance.hideNsneak.*.id}"
-}
-
-output "availability_zone" {
-  value = "${aws_instance.hideNsneak.*.availability_zone}"
-}
-
-output "key_name" {
-  value = "${aws_instance.hideNsneak.*.key_name}"
-}
-
-output "public_ip" {
-  value = "${aws_instance.hideNsneak.*.public_ip}"
-}
-
-output "private_ip" {
-  value = "${aws_instance.hideNsneak.*.private_ip}"
-}
-
-output "security_group" {
-  value = "${aws_instance.hideNsneak.*.security_groups}"
-}
-
-output "security_group_id" {
-  value = "${aws_security_group.allow_ssh.*.id}"
+output "allRegions" {
+  value = "${list(module.aws-us-east-1.region_info,
+        module.aws-us-east-2.region_info,
+        module.aws-us-west-1.region_info,
+        module.aws-us-west-2.region_info,
+        module.aws-ca-central-1.region_info,
+        module.aws-eu-west-1.region_info,
+        module.aws-eu-west-2.region_info,
+        module.aws-eu-west-3.region_info,
+        module.aws-ap-northeast-1.region_info,
+        module.aws-ap-northeast-2.region_info,
+        module.aws-ap-southeast-1.region_info,
+         module.aws-ap-southeast-2.region_info,
+        module.aws-ap-south-1.region_info,
+         module.aws-sa-east-1.region_info,
+        )}"
 }
