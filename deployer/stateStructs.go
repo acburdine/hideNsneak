@@ -117,8 +117,12 @@ type InstanceState struct {
 }
 
 type ConfigWrappers struct {
-	EC2 []EC2ConfigWrapper
-	DO  []DOConfigWrapper
+	EC2                []EC2ConfigWrapper
+	EC2ModuleCount     int
+	DO                 []DOConfigWrapper
+	DropletModuleCount int
+	AWSAPI             []AWSApiConfigWrapper
+	AWSAPIModuleCount  int
 }
 
 type ListStruct struct {
@@ -127,4 +131,11 @@ type ListStruct struct {
 	Region   string
 	Name     string
 	Place    int
+}
+
+type APIOutput struct {
+	TargetURI string
+	InvokeURI string
+	Provider  string
+	Name      string
 }

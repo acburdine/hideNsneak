@@ -390,6 +390,29 @@ func listSort(listStructs []ListStruct) (finalList []ListStruct) {
 	return
 }
 
+func ListAPIs(state State) (apiOutputs []APIOutput) {
+	for _, module := range state.Modules {
+		var apiOutput APIOutput
+		if len(module.Path) > 1 && strings.Contains(module.Path[1], "APIDeploy1") {
+			apiOutput.Provider = "AWS"
+			for name, resource := range module.Resources {
+				switch resource.Type {
+				case "aws_api_gateway_deployment":
+					apiOutput.InvokeURI = resource.Primary.Attributes["invoke_url"]
+				case "aws_api_gateway_integration":
+					apiOutput.TargetURI = resource.Primary.Attributes["uri"]
+				case "aws_api_gateway_rest_api":
+					apiOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+				default:
+					continue
+				}
+			}
+		}
+		apiOutputs = append(apiOutputs, apiOutput)
+	}
+	return
+}
+
 func ListIPAddresses(state State) (hostOutput []ListStruct) {
 	for _, module := range state.Modules {
 		var tempOutput []ListStruct
@@ -407,8 +430,8 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 
 				fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName
 			}
-			switch {
-			case resource.Type == "digitalocean_droplet":
+			switch resource.Type {
+			case "digitalocean_droplet":
 				tempOutput = append(tempOutput, ListStruct{
 					IP:       resource.Primary.Attributes["ipv4_address"],
 					Provider: "DigitalOcean",
@@ -416,7 +439,7 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 					Name:     fullName,
 					Place:    count,
 				})
-			case resource.Type == "aws_instance":
+			case "aws_instance":
 				tempOutput = append(tempOutput, ListStruct{
 					IP:       resource.Primary.Attributes["public_ip"],
 					Provider: "AWS",
@@ -436,18 +459,15 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
 //it takes in a TerraformOutput struct, makes the appropriate edits, and returns that same struct
 func InstanceDeploy(providers []string, awsRegions []string, doRegions []string, azureRegions []string,
-	googleRegions []string, count int, privKey string, pubKey string, keyName string, state State) (wrappers ConfigWrappers) {
+	googleRegions []string, count int, privKey string, pubKey string, keyName string, wrappers ConfigWrappers) ConfigWrappers {
 
-	var doModuleCount int
-	var awsModuleCount int
+	doModuleCount := wrappers.DropletModuleCount
+	awsModuleCount := wrappers.EC2ModuleCount
 
 	//Gather the count per provider and the remainder
 	countPerProvider := count / len(providers)
 
 	remainderForProviders := count % len(providers)
-
-	wrappers.DO, doModuleCount = createDOConfigFromState(state.Modules)
-	wrappers.EC2, awsModuleCount = createEC2ConfigFromState(state.Modules)
 
 	for _, provider := range providers {
 		switch strings.ToUpper(provider) {
@@ -574,244 +594,33 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 			continue
 		}
 	}
-	return
+	return wrappers
 }
 
-///Deprecated Deploy
-// for _, provider := range providers {
-// 	switch strings.ToUpper(provider) {
-// 	case "AWS":
-// 		//Existing AWS Instances
-// 		awsInstances := output.Master.ProviderValues.AWSProvider.Instances
+//APIDeploy takes argruments to deploy an API Gateway
+func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) ConfigWrappers {
+	moduleCount := wrappers.AWSAPIModuleCount
 
-// 		countPerAWSRegion := countPerProvider / len(awsRegions)
+	if strings.ToUpper(provider) == "AWS" {
+		if len(wrappers.AWSAPI) > 0 {
+			for _, wrapper := range wrappers.AWSAPI {
+				if targetURI == wrapper.TargetURI {
+					continue
+				}
+				wrappers.AWSAPI = append(wrappers.AWSAPI, AWSApiConfigWrapper{
+					ModuleName: "awsAPIDeploy" + strconv.Itoa(moduleCount+1),
+					TargetURI:  targetURI,
+				})
+				moduleCount = moduleCount + 1
+			}
+		} else {
+			wrappers.AWSAPI = append(wrappers.AWSAPI, AWSApiConfigWrapper{
+				ModuleName: "awsAPIDeploy" + strconv.Itoa(moduleCount+1),
+				TargetURI:  targetURI,
+			})
+		}
+	} else if strings.ToUpper(provider) == "ALIBABA" {
+	}
 
-// 		remainderForAWSRegion := countPerProvider % len(awsRegions)
-
-// 		//This if statement checks if the remainder for providers is 0
-// 		//if it isnt, then we add 1 to the remainder for the region
-// 		//It will result in 1 additional instance being added to the
-// 		//next region in the list
-// 		if remainderForProviders > 0 {
-// 			remainderForAWSRegion = remainderForAWSRegion + 1
-// 			remainderForProviders = remainderForProviders - 1
-// 		}
-
-// 		//Looping through the provided regions
-// 		for _, region := range awsRegions {
-// 			regionCount := countPerAWSRegion
-
-// 			//TODO: Implement this, commented out due to broken functionality
-// 			// keyCheckResult, keyName := checkEC2KeyExistance(awsSecretKey, awsAccessKey, region, privKey)
-// 			// if !keyCheckResult {
-// 			// 	keyName = "hideNsneak"
-// 			// }
-
-// 			if remainderForAWSRegion > 0 {
-// 				regionCount = regionCount + 1
-// 				remainderForAWSRegion = remainderForAWSRegion - 1
-// 			}
-
-// 			if regionCount > 0 {
-// 				newRegionConfig = AWSRegionConfig{
-// 					//TODO: Figure the security group thing out
-// 					Count:          regionCount,
-// 					CustomAmi:      "",
-// 					InstanceType:   "t2.micro",
-// 					DefaultUser:    "ubuntu",
-// 					Region:         region,
-// 					PublicKeyFile:  pubKey,
-// 					PrivateKeyFile: privKey,
-// 				}
-
-// 				if len(awsInstances) == 0 {
-// 					awsInstances = append(awsInstances, AWSInstance{
-// 						Config: newRegionConfig,
-// 						IPID: IPID{
-// 							IPList: []string{},
-// 							IDList: []string{},
-// 						}})
-// 					continue
-// 				}
-
-// 				for index := range awsInstances {
-// 					if compareAWSConfig(awsInstances[index].Config, newRegionConfig) &&
-// 						awsInstances[index].Config.Region == newRegionConfig.Region {
-
-// 						awsInstances[index].Config.Count = awsInstances[index].Config.Count + newRegionConfig.Count
-
-// 					} else if index == len(awsInstances)-1 {
-// 						awsInstances = append(awsInstances, AWSInstance{
-// 							Config: newRegionConfig,
-// 							IPID: IPID{
-// 								IPList: []string{},
-// 								IDList: []string{},
-// 							}})
-// 					}
-
-// 				}
-// 			}
-
-// 		}
-// 		output.Master.ProviderValues.AWSProvider.Instances = awsInstances
-// 	case "DO":
-// 		doInstances := output.Master.ProviderValues.DOProvider.Instances
-
-// 		countPerDOregion := countPerProvider / len(doRegions)
-
-// 		remainderForDORegion := countPerProvider % len(awsRegions)
-
-// 		if remainderForProviders > 0 {
-// 			remainderForDORegion = remainderForDORegion + 1
-// 			remainderForProviders = remainderForProviders - 1
-// 		}
-
-// 		for _, region := range doRegions {
-// 			regionCount := countPerDOregion
-
-// 			if remainderForDORegion > 0 {
-// 				regionCount = regionCount + 1
-// 				remainderForDORegion = remainderForDORegion - 1
-// 			}
-
-// 			if regionCount > 0 {
-// 				newDORegionConfig := DORegionConfig{
-// 					Image:       "ubuntu-16-04-x64",
-// 					Count:       regionCount,
-// 					PrivateKey:  privKey,
-// 					Fingerprint: genDOKeyFingerprint(pubKey),
-// 					Size:        "512MB",
-// 					Region:      region,
-// 					DefaultUser: "root",
-// 				}
-
-// 				if len(doInstances) == 0 {
-// 					doInstances = append(doInstances, DOInstance{
-// 						Config: newDORegionConfig,
-// 						IPID: IPID{
-// 							IPList: []string{},
-// 							IDList: []string{},
-// 						}})
-// 					continue
-// 				}
-
-// 				for index := range doInstances {
-// 					if compareDOConfig(doInstances[index].Config, newDORegionConfig) &&
-// 						doInstances[index].Config.Region == newDORegionConfig.Region {
-// 						doInstances[index].Config.Count = doInstances[index].Config.Count + newDORegionConfig.Count
-// 					} else if index == len(doInstances)-1 {
-// 						doInstances = append(doInstances, DOInstance{
-// 							Config: newDORegionConfig,
-// 							IPID: IPID{
-// 								IPList: []string{},
-// 								IDList: []string{},
-// 							}})
-// 					}
-// 				}
-// 			}
-// 		}
-// 		fmt.Println(doInstances)
-// 		output.Master.ProviderValues.DOProvider.Instances = doInstances
-
-// 		// var doDeployerList []digitalOceanDeployer
-
-// 		// countPerDORegion := countPerProvider / len(doRegions)
-// 		// remainderForDORegion := countPerProvider % len(doRegions)
-// 		// if remainderForProviders != 0 {
-// 		// 	remainderForDORegion = remainderForDORegion + 1
-// 		// 	remainderForProviders = remainderForProviders - 1
-// 		// }
-// 		// for _, region := range doRegions {
-// 		// 	regionCount := countPerDORegion
-// 		// 	if remainderForDORegion > 0 {
-// 		// 		regionCount = regionCount + 1
-// 		// 		remainderForDORegion = remainderForDORegion - 1
-// 		// 	}
-
-// 		// 	if regionCount > 0 {
-// 		// 		newDODeployer := digitalOceanDeployer{
-// 		// 			Image:       "",
-// 		// 			Fingerprint: genDOKeyFingerprint(pubKey),
-// 		// 			PrivateKey:  privKey,
-// 		// 			PublicKey:   pubKey,
-// 		// 			Size:        "",
-// 		// 			Count:       regionCount,
-// 		// 			Region:      region,
-// 		// 			DefaultUser: "",
-// 		// 			Name:        "tester",
-// 		// 		}
-// 		// 		doDeployerList = append(doDeployerList, newDODeployer)
-// 		// 	}
-
-// 		// }
-// 		// masterList.digitalOceanDeployerList = doDeployerList
-
-// 	case "AZURE":
-// 		// var azureDeployerList []azureDeployer
-// 		// countPerAzureRegion := countPerProvider / len(azureRegions)
-// 		// remainderForAzureRegion := countPerProvider % len(azureRegions)
-// 		// if remainderForProviders != 0 {
-// 		// 	remainderForAzureRegion = remainderForAzureRegion + 1
-// 		// 	remainderForProviders = remainderForProviders - 1
-// 		// }
-
-// 		// for _, region := range awsRegions {
-// 		// 	regionCount := countPerAzureRegion
-// 		// 	//TODO check for existing keyname
-
-// 		// 	if remainderForAzureRegion > 0 {
-// 		// 		regionCount = regionCount + 1
-// 		// 		remainderForAzureRegion = remainderForAzureRegion - 1
-// 		// 	}
-
-// 		// 	if regionCount > 0 {
-// 		// 		newAzureDeployer := azureDeployer{
-// 		// 			Location:    region,
-// 		// 			Count:       regionCount,
-// 		// 			VMSize:      "",
-// 		// 			Environment: "",
-// 		// 			PublicKey:   pubKey,
-// 		// 			PrivateKey:  privKey,
-// 		// 		}
-// 		// 		azureDeployerList = append(azureDeployerList, newAzureDeployer)
-// 		// 	}
-
-// 		// }
-// 		// masterList.azureDeployerList = azureDeployerList
-
-// 	case "GOOGLE":
-
-// 	// var googleDeployerList []googleCloudDeployer
-
-// 	// countPerGoogleRegion := countPerProvider / len(googleRegions)
-// 	// remainderForGoogleRegion := countPerProvider % len(googleRegions)
-// 	// if remainderForProviders != 0 {
-// 	// 	remainderForGoogleRegion = remainderForGoogleRegion + 1
-// 	// 	remainderForProviders = remainderForProviders - 1
-// 	// }
-
-// 	// for _, region := range googleRegions {
-
-// 	// 	regionCount := countPerGoogleRegion
-// 	// 	if remainderForGoogleRegion > 0 {
-// 	// 		regionCount = regionCount + 1
-// 	// 		remainderForGoogleRegion = remainderForGoogleRegion - 1
-
-// 	// 	}
-
-// 	// 	if regionCount > 0 {
-// 	// 		newGoogleDeployer := googleCloudDeployer{
-// 	// 			Region:            region,
-// 	// 			Project:           "inboxa90",
-// 	// 			Count:             regionCount,
-// 	// 			SSHUser:           "tester",
-// 	// 			SSHPubKeyFile:     pubKey,
-// 	// 			SSHPrivateKeyFile: privKey,
-// 	// 			MachineType:       "",
-// 	// 			Image:             "",
-// 	// 		}
-// 	// 		googleDeployerList = append(googleDeployerList, newGoogleDeployer)
-// 	// 	}
-
-// 	// }
-// 	// masterList.googleCloudDeployerList = googleDeployerList
+	return wrappers
+}

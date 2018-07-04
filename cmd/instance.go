@@ -72,7 +72,9 @@ var instanceDeploy = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		marshalledState := deployer.TerraformStateMarshaller()
-		wrappers := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, "hidensneak", marshalledState)
+		wrappers := deployer.CreateWrappersFromState(marshalledState)
+
+		wrappers = deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, "hidensneak", wrappers)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
@@ -110,7 +112,6 @@ var instanceDestroy = &cobra.Command{
 		list := deployer.ListIPAddresses(marshalledState)
 		numsToDelete := deployer.ExpandNumberInput(numberInput)
 
-		fmt.Println(numsToDelete)
 		var namesToDelete []string
 
 		for _, numIndex := range numsToDelete {
