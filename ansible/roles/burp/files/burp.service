@@ -1,4 +1,5 @@
 #here we store files that will be sent to the target machine 
+#these are just files to copy for servers
 
 [Unit]
 Description=Burp Collaborator

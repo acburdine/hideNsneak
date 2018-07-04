@@ -1,1 +1,7 @@
 #If roles/x/meta/main.yml exists, any role dependencies listed therein will be added to the list of roles (1.3 and later)
+
+# ---
+# dependencies:
+# - { role: sslcertificates }
+
+# if I try to run this role, it will run sslcertificates first 
