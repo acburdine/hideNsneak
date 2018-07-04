@@ -53,23 +53,26 @@ var instanceDeploy = &cobra.Command{
 		if !deployer.ProviderCheck(instanceProviders) {
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}
-		availableDORegions := deployer.GetDoRegions()
-		var unavailableRegions []string
-		for _, region := range regionDo {
-			if !deployer.ContainsString(availableDORegions, strings.ToLower(region)) {
-				unavailableRegions = append(unavailableRegions, region)
+		if deployer.ContainsString(instanceProviders, "DO") {
+			availableDORegions := deployer.GetDoRegions()
+			var unavailableRegions []string
+			for _, region := range regionDo {
+				if !deployer.ContainsString(availableDORegions, strings.ToLower(region)) {
+					unavailableRegions = append(unavailableRegions, region)
+				}
+			}
+			if len(unavailableRegions) != 0 {
+				return fmt.Errorf("digitalocean region(s) not available: %s", strings.Join(unavailableRegions, ","))
 			}
 		}
-		if len(unavailableRegions) != 0 {
-			return fmt.Errorf("digitalocean region(s) not available: %s", strings.Join(unavailableRegions, ","))
-		}
+
 		return nil
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 
 		marshalledState := deployer.TerraformStateMarshaller()
-		wrappers := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, marshalledState)
+		wrappers := deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, "hidensneak", marshalledState)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
@@ -161,7 +164,7 @@ func init() {
 	instanceDestroy.MarkPersistentFlagRequired("input")
 
 	//TODO: default all regions
-	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-west-2"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
+	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "ap-south-1", "sa-east-1"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
 	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
 	rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
 	rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")

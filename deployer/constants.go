@@ -53,21 +53,20 @@ const outputs = `output "providers" {
 ///////////////////// MODULES /////////////////////
 
 const mainEc2Module = `
-	module "{{.Config.ModuleName}}" {
+	module "{{.ModuleName}}" {
 	source          = "modules/ec2-deployment"
-	default_sg_name = "{{.Config.SecurityGroup}}"
-	aws_sg_id       = "{{.Config.SecurityGroupID}}"
   
-	#Example of region_count
+	default_sg           = "{{.DefaultSG}}"
+	aws_sg_id            = "{{.SgID}}"
+
 	region_count         = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}",{{$value}}{{end}})}"
-	custom_ami           = "{{.CustomAmi}}"
-	aws_instance_type    = "{{.Config.InstanceType}}"
-	ec2_default_user     = "{{.Config.DefaultUser}}"
+	aws_instance_type    = "{{.InstanceType}}"
+	ec2_default_user     = "{{.DefaultUser}}"
 	aws_access_key       = "${var.aws_access_key}"
 	aws_secret_key       = "${var.aws_secret_key}"
-	aws_keypair_name     = "do_rsa"
-	aws_private_key_file = "{{.Config.PrivateKeyFile}}"
-	aws_public_key_file  = "{{.Config.PublicKeyFile}}"
+	aws_keypair_name     = "{{.KeyPairName}}"
+	aws_private_key_file = "{{.PrivateKey}}"
+	aws_public_key_file  = "{{.PublicKey}}"
   }
 `
 

@@ -27,9 +27,9 @@ variable "region_count" {
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
 
-variable "custom_ami" {
-  default = ""
-}
+# variable "custom_ami" {
+#   default = ""
+# }
 
 variable "aws_public_key_file" {}
 
@@ -37,13 +37,13 @@ variable "aws_keypair_name" {
   default = "hidensneak"
 }
 
-# variable "default_sg_name" {
-#   default = "ssh_inbound2"
-# }
+variable "default_sg" {
+  default = "ssh_inbound"
+}
 
-# variable "aws_sg_id" {
-#   default = ""
-# }
+variable "aws_sg_id" {
+  default = ""
+}
 
 variable "aws_instance_type" {
   default = "t2.micro"

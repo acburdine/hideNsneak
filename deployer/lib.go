@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -388,11 +389,18 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 				fullName = "module." + strings.Join(module.Path[1:], ".module.") + ".[" + finalString + "]"
 			}
 			switch {
-			case strings.Contains(name, "digitalocean_droplet"):
+			case resource.Type == "digitalocean_droplet":
 				hostOutput = append(hostOutput, ListStruct{
 					IP:       resource.Primary.Attributes["ipv4_address"],
 					Provider: "DigitalOcean",
 					Region:   resource.Primary.Attributes["region"],
+					Name:     fullName,
+				})
+			case resource.Type == "aws_instance":
+				hostOutput = append(hostOutput, ListStruct{
+					IP:       resource.Primary.Attributes["public_ip"],
+					Provider: "AWS",
+					Region:   resource.Primary.Attributes["availability_zone"],
 					Name:     fullName,
 				})
 			default:
@@ -406,7 +414,7 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
 //it takes in a TerraformOutput struct, makes the appropriate edits, and returns that same struct
 func InstanceDeploy(providers []string, awsRegions []string, doRegions []string, azureRegions []string,
-	googleRegions []string, count int, privKey string, pubKey string, state State) (wrappers ConfigWrappers) {
+	googleRegions []string, count int, privKey string, pubKey string, keyName string, state State) (wrappers ConfigWrappers) {
 
 	var doModuleCount int
 	var awsModuleCount int
@@ -417,48 +425,61 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	remainderForProviders := count % len(providers)
 
 	wrappers.DO, doModuleCount = createDOConfigFromState(state.Modules)
-	wrappers.AWS, awsModuleCount = createEC2ConfigFromState(state.Modules)
+	wrappers.DO, doModuleCount = createDOConfigFromState(state.Modules)
 
 	for _, provider := range providers {
 		switch strings.ToUpper(provider) {
 		case "AWS":
-			countPerDOregion := countPerProvider / len(doRegions)
+			countPerAWSregion := countPerProvider / len(awsRegions)
 
-			remainderForDORegion := countPerProvider % len(doRegions)
+			remainderForAWSRegion := countPerProvider % len(awsRegions)
 
 			if remainderForProviders > 0 {
-				remainderForDORegion = remainderForDORegion + 1
+				remainderForAWSRegion = remainderForAWSRegion + 1
 				remainderForProviders = remainderForProviders - 1
 			}
 
-			for _, region := range doRegions {
-				regionCount := countPerDOregion
+			for _, region := range awsRegions {
 
-				if remainderForDORegion > 0 {
+				regionCount := countPerAWSregion
+
+				if remainderForAWSRegion > 0 {
 					regionCount = regionCount + 1
-					remainderForDORegion = remainderForDORegion - 1
+					remainderForAWSRegion = remainderForAWSRegion - 1
 				}
 				//TODO: Add custom input
 				if regionCount > 0 {
-					newDORegionConfig := DOConfigWrapper{
-						Image:       "ubuntu-16-04-x64",
-						PrivateKey:  privKey,
-						Fingerprint: genDOKeyFingerprint(pubKey),
-						Size:        "512mb",
-						DefaultUser: "root",
-						RegionMap:   make(map[string]int),
-					}
-					newDORegionConfig.RegionMap[region] = regionCount
+					//TODO: Ensure private key is the same
+					result := checkEC2KeyExistance(awsSecretKey, awsAccessKey, region, keyName)
 
-					if len(wrappers.DO) == 0 {
-						doModuleCount = 1
-						newDORegionConfig.ModuleName = "doDropletDeploy" + strconv.Itoa(doModuleCount)
-						doModuleCount = doModuleCount + 1
-						wrappers.DO = append(wrappers.DO, newDORegionConfig)
+					if !result {
+						publicKeyBytes, _ := ioutil.ReadFile(pubKey)
+
+						err := importEC2Key(awsSecretKey, awsAccessKey, region, publicKeyBytes, pubKey)
+						if err != nil {
+							fmt.Printf("There was an errror importing your key to EC2: %s", err)
+						}
+					}
+
+					newEC2RegionConfig := EC2ConfigWrapper{
+						InstanceType: "t2.micro",
+						PrivateKey:   privKey,
+						PublicKey:    pubKey,
+						KeyPairName:  keyName,
+						DefaultUser:  "ubuntu",
+						RegionMap:    make(map[string]int),
+					}
+					newEC2RegionConfig.RegionMap[region] = regionCount
+
+					if len(wrappers.EC2) == 0 {
+						awsModuleCount = 1
+						newEC2RegionConfig.ModuleName = "ec2Deploy" + strconv.Itoa(awsModuleCount)
+						awsModuleCount = awsModuleCount + 1
+						wrappers.EC2 = append(wrappers.EC2, newEC2RegionConfig)
 						continue
 					}
-					for index, config := range wrappers.DO {
-						if compareDOConfig(config, newDORegionConfig) {
+					for index, config := range wrappers.EC2 {
+						if compareEC2Config(config, newEC2RegionConfig) {
 							if config.RegionMap[region] > 0 {
 								config.RegionMap[region] = config.RegionMap[region] + regionCount
 							} else {
@@ -466,10 +487,10 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 							}
 							break
 						} else if index == len(wrappers.DO)-1 {
-							doModuleCount = doModuleCount + 1
-							newDORegionConfig.ModuleName = "doDropletDeploy" + strconv.Itoa(doModuleCount)
-							wrappers.DO = append(wrappers.DO, newDORegionConfig)
-							doModuleCount = doModuleCount + 1
+							awsModuleCount = awsModuleCount + 1
+							newEC2RegionConfig.ModuleName = "ec2Deploy" + strconv.Itoa(awsModuleCount)
+							wrappers.EC2 = append(wrappers.EC2, newEC2RegionConfig)
+							awsModuleCount = awsModuleCount + 1
 						}
 					}
 				}

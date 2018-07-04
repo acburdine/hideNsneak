@@ -15,7 +15,7 @@
             "host": "127.0.0.1",
             "program": "/Users/mike.hodges/go/src/terraform-playground/main.go",
             "env": {},
-            "args": ["instance","deploy","-p","DO","-v","/Users/mike.hodges/.ssh/do_rsa","-b","/Users/mike.hodges/.ssh/do_rsa.pub","-c","2","--region-do","nyc1,blr1"],
+            "args": ["instance","deploy","-p","AWS","-v","/Users/mike.hodges/.ssh/do_rsa","-b","/Users/mike.hodges/.ssh/do_rsa.pub","-c","2"],
             "showLog": true
         }
     ]
