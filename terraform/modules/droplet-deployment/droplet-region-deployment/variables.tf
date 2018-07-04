@@ -22,9 +22,9 @@ variable "do_default_user" {
   default = "root"
 }
 
-variable "do_firewall_name" {
-  default = "default-ssh"
-}
+# variable "do_firewall_name" {
+#   default = "default-ssh"
+# }
 
 variable "ansible_groups" {
   default = []

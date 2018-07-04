@@ -14,25 +14,34 @@ import (
 
 //checkEc2KeyExistence queries the Amazon EC2 API for the keypairs with the specified keyname
 //Returns true if the resulting array is > 0, false otherwise
-func checkEC2KeyExistance(secret string, accessID string, region string, privateKey string) (bool, string) {
-	keyFingerprint := genEC2KeyFingerprint(privateKey)
+func checkEC2KeyExistence(secret string, accessID string, region string, keyName string) bool {
+	// keyFingerprint := genEC2KeyFingerprint(privateKey)
 
 	svc := ec2.New(session.New(&aws.Config{
 		Region:      aws.String(region),
 		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
 	}))
 	keyPairOutput, _ := svc.DescribeKeyPairs(&ec2.DescribeKeyPairsInput{
-		Filters: []*ec2.Filter{
-			&ec2.Filter{
-				Name:   aws.String("fingerprint"),
-				Values: aws.StringSlice([]string{keyFingerprint}),
-			},
-		},
+		KeyNames: aws.StringSlice([]string{keyName}),
 	})
 	if len(keyPairOutput.KeyPairs) == 0 {
-		return false, ""
+		return false
 	}
-	return true, *keyPairOutput.KeyPairs[0].KeyName
+	return true
+}
+
+func importEC2Key(secret string, accessID string, region string, pubKey []byte, keyName string) error {
+	svc := ec2.New(session.New(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
+	}))
+
+	_, err := svc.ImportKeyPair(&ec2.ImportKeyPairInput{
+		KeyName:           aws.String(keyName),
+		PublicKeyMaterial: pubKey,
+	})
+
+	return err
 }
 
 func genEC2KeyFingerprint(privateKey string) (keyFingerprint string) {
@@ -81,12 +90,10 @@ func checkEC2SecurityGroupExistence(secret string, accessID string, region strin
 	return true, *securityGroupOutput.SecurityGroups[0].GroupId
 }
 
-func compareAWSInstance(instanceOne AWSInstance, instanceTwo AWSInstance) bool {
-	if instanceOne.CustomAmi == instanceTwo.CustomAmi &&
-		instanceOne.DefaultUser == instanceTwo.DefaultUser &&
+func compareEC2Config(instanceOne EC2ConfigWrapper, instanceTwo EC2ConfigWrapper) bool {
+	if instanceOne.DefaultUser == instanceTwo.DefaultUser &&
 		instanceOne.InstanceType == instanceTwo.InstanceType &&
-		instanceOne.PrivateKeyFile == instanceTwo.PrivateKeyFile &&
-		instanceOne.PublicKeyFile == instanceTwo.PublicKeyFile {
+		instanceOne.PrivateKey == instanceTwo.PrivateKey {
 		return true
 	}
 	return false

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -376,21 +377,61 @@ func createSingleSOCKS(privateKey string, username string, ipv4 string, port int
 func (listStruct *ListStruct) String() string {
 	return ("IP: " + listStruct.IP + " - Provider: " + listStruct.Provider + " - Region: " + listStruct.Region + " - Name: " + listStruct.Name)
 }
+
+//listStructSOrt takes a list of listStructs and goes ahead and
+//sorts them based on position. This is important because it will
+//ensure that the order of the elements remain the same on each list call
+func listStructSort(listStructs []ListStruct) (finalList []ListStruct) {
+	for index := range listStructs {
+		for _, list := range listStructs {
+			if list.Place == index {
+				finalList = append(finalList, list)
+				break
+			}
+		}
+	}
+	return
+}
+
 func ListIPAddresses(state State) (hostOutput []ListStruct) {
 	for _, module := range state.Modules {
+		var tempOutput []ListStruct
+
 		for name, resource := range module.Resources {
+			fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+			nameSlice := strings.Split(name, ".")
+			finalString := nameSlice[len(nameSlice)-1]
+			count, err := strconv.Atoi(finalString)
+			if err == nil {
+
+				nameSlice[len(nameSlice)-1] = "[" + finalString + "]"
+
+				newName := strings.Join(nameSlice, ".")
+
+				fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName
+			}
 			switch {
-			case strings.Contains(name, "digitalocean_droplet"):
-				hostOutput = append(hostOutput, ListStruct{
+			case resource.Type == "digitalocean_droplet":
+				tempOutput = append(tempOutput, ListStruct{
 					IP:       resource.Primary.Attributes["ipv4_address"],
 					Provider: "DigitalOcean",
 					Region:   resource.Primary.Attributes["region"],
-					Name:     "module." + strings.Join(module.Path[1:], ".module.") + "." + name,
+					Name:     fullName,
+					Place:    count,
+				})
+			case resource.Type == "aws_instance":
+				tempOutput = append(tempOutput, ListStruct{
+					IP:       resource.Primary.Attributes["public_ip"],
+					Provider: "AWS",
+					Region:   resource.Primary.Attributes["availability_zone"],
+					Name:     fullName,
+					Place:    count,
 				})
 			default:
 				continue
 			}
 		}
+		hostOutput = append(hostOutput, listStructSort(tempOutput)...)
 	}
 	return
 }
@@ -398,9 +439,10 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 //InstanceDeploy takes input from the user interface in order to divide and deploy appropriate regions
 //it takes in a TerraformOutput struct, makes the appropriate edits, and returns that same struct
 func InstanceDeploy(providers []string, awsRegions []string, doRegions []string, azureRegions []string,
-	googleRegions []string, count int, privKey string, pubKey string, state State) (wrappers ConfigWrappers) {
+	googleRegions []string, count int, privKey string, pubKey string, keyName string, state State) (wrappers ConfigWrappers) {
 
 	var doModuleCount int
+	var awsModuleCount int
 
 	//Gather the count per provider and the remainder
 	countPerProvider := count / len(providers)
@@ -408,10 +450,76 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	remainderForProviders := count % len(providers)
 
 	wrappers.DO, doModuleCount = createDOConfigFromState(state.Modules)
+	wrappers.EC2, awsModuleCount = createEC2ConfigFromState(state.Modules)
 
 	for _, provider := range providers {
 		switch strings.ToUpper(provider) {
 		case "AWS":
+			countPerAWSregion := countPerProvider / len(awsRegions)
+
+			remainderForAWSRegion := countPerProvider % len(awsRegions)
+
+			if remainderForProviders > 0 {
+				remainderForAWSRegion = remainderForAWSRegion + 1
+				remainderForProviders = remainderForProviders - 1
+			}
+
+			for _, region := range awsRegions {
+
+				regionCount := countPerAWSregion
+
+				if remainderForAWSRegion > 0 {
+					regionCount = regionCount + 1
+					remainderForAWSRegion = remainderForAWSRegion - 1
+				}
+				//TODO: Add custom input
+				if regionCount > 0 {
+					//TODO: Ensure private key is the same
+					result := checkEC2KeyExistence(awsSecretKey, awsAccessKey, region, keyName)
+
+					if !result {
+						publicKeyBytes, _ := ioutil.ReadFile(pubKey)
+
+						err := importEC2Key(awsSecretKey, awsAccessKey, region, publicKeyBytes, pubKey)
+						if err != nil {
+							fmt.Printf("There was an errror importing your key to EC2: %s", err)
+						}
+					}
+
+					newEC2RegionConfig := EC2ConfigWrapper{
+						InstanceType: "t2.micro",
+						PrivateKey:   privKey,
+						PublicKey:    pubKey,
+						KeyPairName:  keyName,
+						DefaultUser:  "ubuntu",
+						RegionMap:    make(map[string]int),
+					}
+					newEC2RegionConfig.RegionMap[region] = regionCount
+
+					if len(wrappers.EC2) == 0 {
+						awsModuleCount = 1
+						newEC2RegionConfig.ModuleName = "ec2Deploy" + strconv.Itoa(awsModuleCount)
+						awsModuleCount = awsModuleCount + 1
+						wrappers.EC2 = append(wrappers.EC2, newEC2RegionConfig)
+						continue
+					}
+					for index, config := range wrappers.EC2 {
+						if compareEC2Config(config, newEC2RegionConfig) {
+							if config.RegionMap[region] > 0 {
+								config.RegionMap[region] = config.RegionMap[region] + regionCount
+							} else {
+								config.RegionMap[region] = regionCount
+							}
+							break
+						} else if index == len(wrappers.DO)-1 {
+							awsModuleCount = awsModuleCount + 1
+							newEC2RegionConfig.ModuleName = "ec2Deploy" + strconv.Itoa(awsModuleCount)
+							wrappers.EC2 = append(wrappers.EC2, newEC2RegionConfig)
+							awsModuleCount = awsModuleCount + 1
+						}
+					}
+				}
+			}
 		case "DO":
 			countPerDOregion := countPerProvider / len(doRegions)
 
@@ -497,7 +605,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 // 			regionCount := countPerAWSRegion
 
 // 			//TODO: Implement this, commented out due to broken functionality
-// 			// keyCheckResult, keyName := checkEC2KeyExistance(awsSecretKey, awsAccessKey, region, privKey)
+// 			// keyCheckResult, keyName := checkEC2KeyExistence(awsSecretKey, awsAccessKey, region, privKey)
 // 			// if !keyCheckResult {
 // 			// 	keyName = "hideNsneak"
 // 			// }

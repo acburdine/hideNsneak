@@ -2,19 +2,17 @@ variable "aws_region" {}
 
 variable "instance_count" {}
 
-variable "custom_ami" {
-  default = ""
-}
+# variable "custom_ami" {
+#   default = ""
+# }
 
 variable "aws_public_key_file" {}
 
 variable "aws_keypair_name" {}
 
-variable "default_sg_name" {}
+variable "default_sg" {}
 
-variable "aws_sg_id" {
-  default = ""
-}
+variable "aws_sg_id" {}
 
 variable "aws_instance_type" {
   default = "t2.micro"
