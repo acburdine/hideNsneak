@@ -378,35 +378,57 @@ func (listStruct *ListStruct) String() string {
 	return ("IP: " + listStruct.IP + " - Provider: " + listStruct.Provider + " - Region: " + listStruct.Region + " - Name: " + listStruct.Name)
 }
 
+func listSort(listStructs []ListStruct) (finalList []ListStruct) {
+	for index := range listStructs {
+		for _, list := range listStructs {
+			if list.Place == index {
+				finalList = append(finalList, list)
+				break
+			}
+		}
+	}
+	return
+}
+
 func ListIPAddresses(state State) (hostOutput []ListStruct) {
 	for _, module := range state.Modules {
+		var tempOutput []ListStruct
+
 		for name, resource := range module.Resources {
 			fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
 			nameSlice := strings.Split(name, ".")
 			finalString := nameSlice[len(nameSlice)-1]
-			_, err := strconv.Atoi(finalString)
+			count, err := strconv.Atoi(finalString)
 			if err == nil {
-				fullName = "module." + strings.Join(module.Path[1:], ".module.") + ".[" + finalString + "]"
+
+				nameSlice[len(nameSlice)-1] = "[" + finalString + "]"
+
+				newName := strings.Join(nameSlice, ".")
+
+				fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName
 			}
 			switch {
 			case resource.Type == "digitalocean_droplet":
-				hostOutput = append(hostOutput, ListStruct{
+				tempOutput = append(tempOutput, ListStruct{
 					IP:       resource.Primary.Attributes["ipv4_address"],
 					Provider: "DigitalOcean",
 					Region:   resource.Primary.Attributes["region"],
 					Name:     fullName,
+					Place:    count,
 				})
 			case resource.Type == "aws_instance":
-				hostOutput = append(hostOutput, ListStruct{
+				tempOutput = append(tempOutput, ListStruct{
 					IP:       resource.Primary.Attributes["public_ip"],
 					Provider: "AWS",
 					Region:   resource.Primary.Attributes["availability_zone"],
 					Name:     fullName,
+					Place:    count,
 				})
 			default:
 				continue
 			}
 		}
+		hostOutput = append(hostOutput, listSort(tempOutput)...)
 	}
 	return
 }
@@ -425,7 +447,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	remainderForProviders := count % len(providers)
 
 	wrappers.DO, doModuleCount = createDOConfigFromState(state.Modules)
-	wrappers.DO, doModuleCount = createDOConfigFromState(state.Modules)
+	wrappers.EC2, awsModuleCount = createEC2ConfigFromState(state.Modules)
 
 	for _, provider := range providers {
 		switch strings.ToUpper(provider) {

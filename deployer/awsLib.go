@@ -94,8 +94,7 @@ func compareEC2Config(instanceOne EC2ConfigWrapper, instanceTwo EC2ConfigWrapper
 	//TODO: Reimplement ami checks
 	if instanceOne.DefaultUser == instanceTwo.DefaultUser &&
 		instanceOne.InstanceType == instanceTwo.InstanceType &&
-		instanceOne.PrivateKey == instanceTwo.PrivateKey &&
-		instanceOne.PublicKey == instanceTwo.PublicKey {
+		instanceOne.PrivateKey == instanceTwo.PrivateKey {
 		return true
 	}
 	return false

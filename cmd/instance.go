@@ -109,11 +109,17 @@ var instanceDestroy = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 		numsToDelete := deployer.ExpandNumberInput(numberInput)
+
+		fmt.Println(numsToDelete)
 		var namesToDelete []string
 
 		for _, numIndex := range numsToDelete {
+			fmt.Println(numIndex)
 			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
+		fmt.Println(namesToDelete)
+
+		return
 
 		deployer.TerraformDestroy(namesToDelete)
 	},

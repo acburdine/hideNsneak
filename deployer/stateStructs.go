@@ -126,4 +126,5 @@ type ListStruct struct {
 	Provider string
 	Region   string
 	Name     string
+	Place    int
 }

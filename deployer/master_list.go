@@ -24,6 +24,7 @@ func retrieveUserAndPrivateKey(module ModuleState) (privateKey string, user stri
 func returnInitialEC2Config(module ModuleState) (tempConfig EC2ConfigWrapper) {
 	privateKey, user := retrieveUserAndPrivateKey(module)
 
+	tempConfig.RegionMap = make(map[string]int)
 	for _, resource := range module.Resources {
 		if resource.Type == "aws_instance" {
 			availZone := resource.Primary.Attributes["availability_zone"]
