@@ -5,3 +5,4 @@ terraform/.terraform/
 terraform/terraform.tfvars
 .terraform/
 deployer/secrets.go
+debug
