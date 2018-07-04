@@ -22,6 +22,8 @@
   sudo: yes 
   tasks: 
   roles:
+    - common
+    #everything down will be dynamic
     - burp
     - cobaltstrike
     - socat

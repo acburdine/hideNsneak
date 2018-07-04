@@ -1,4 +1,0 @@
-- name: Pings to make sure we alive 
-  hosts: all
-  tasks:
-    - ping:
