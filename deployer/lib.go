@@ -409,6 +409,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	googleRegions []string, count int, privKey string, pubKey string, state State) (wrappers ConfigWrappers) {
 
 	var doModuleCount int
+	var awsModuleCount int
 
 	//Gather the count per provider and the remainder
 	countPerProvider := count / len(providers)
@@ -416,10 +417,63 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	remainderForProviders := count % len(providers)
 
 	wrappers.DO, doModuleCount = createDOConfigFromState(state.Modules)
+	wrappers.AWS, awsModuleCount = createEC2ConfigFromState(state.Modules)
 
 	for _, provider := range providers {
 		switch strings.ToUpper(provider) {
 		case "AWS":
+			countPerDOregion := countPerProvider / len(doRegions)
+
+			remainderForDORegion := countPerProvider % len(doRegions)
+
+			if remainderForProviders > 0 {
+				remainderForDORegion = remainderForDORegion + 1
+				remainderForProviders = remainderForProviders - 1
+			}
+
+			for _, region := range doRegions {
+				regionCount := countPerDOregion
+
+				if remainderForDORegion > 0 {
+					regionCount = regionCount + 1
+					remainderForDORegion = remainderForDORegion - 1
+				}
+				//TODO: Add custom input
+				if regionCount > 0 {
+					newDORegionConfig := DOConfigWrapper{
+						Image:       "ubuntu-16-04-x64",
+						PrivateKey:  privKey,
+						Fingerprint: genDOKeyFingerprint(pubKey),
+						Size:        "512mb",
+						DefaultUser: "root",
+						RegionMap:   make(map[string]int),
+					}
+					newDORegionConfig.RegionMap[region] = regionCount
+
+					if len(wrappers.DO) == 0 {
+						doModuleCount = 1
+						newDORegionConfig.ModuleName = "doDropletDeploy" + strconv.Itoa(doModuleCount)
+						doModuleCount = doModuleCount + 1
+						wrappers.DO = append(wrappers.DO, newDORegionConfig)
+						continue
+					}
+					for index, config := range wrappers.DO {
+						if compareDOConfig(config, newDORegionConfig) {
+							if config.RegionMap[region] > 0 {
+								config.RegionMap[region] = config.RegionMap[region] + regionCount
+							} else {
+								config.RegionMap[region] = regionCount
+							}
+							break
+						} else if index == len(wrappers.DO)-1 {
+							doModuleCount = doModuleCount + 1
+							newDORegionConfig.ModuleName = "doDropletDeploy" + strconv.Itoa(doModuleCount)
+							wrappers.DO = append(wrappers.DO, newDORegionConfig)
+							doModuleCount = doModuleCount + 1
+						}
+					}
+				}
+			}
 		case "DO":
 			countPerDOregion := countPerProvider / len(doRegions)
 

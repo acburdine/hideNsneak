@@ -37,13 +37,13 @@ variable "aws_keypair_name" {
   default = "hidensneak"
 }
 
-variable "default_sg_name" {
-  default = "ssh_inbound2"
-}
+# variable "default_sg_name" {
+#   default = "ssh_inbound2"
+# }
 
-variable "aws_sg_id" {
-  default = ""
-}
+# variable "aws_sg_id" {
+#   default = ""
+# }
 
 variable "aws_instance_type" {
   default = "t2.micro"
@@ -55,6 +55,7 @@ variable "ec2_default_user" {
 
 variable "aws_private_key_file" {}
 
-variable "aws_tags" {
-  default = ""
-}
+# variable "aws_tags" {
+#   default = ""
+# }
+

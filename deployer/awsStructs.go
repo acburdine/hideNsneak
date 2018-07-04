@@ -32,7 +32,7 @@ type cloudFrontDeployer struct {
 	Region string
 }
 
-type AWSConfigWrapper struct {
+type EC2ConfigWrapper struct {
 	ModuleName      string
 	SecurityGroup   string
 	SecurityGroupID string

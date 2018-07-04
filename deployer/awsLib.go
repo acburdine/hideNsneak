@@ -81,9 +81,9 @@ func checkEC2SecurityGroupExistence(secret string, accessID string, region strin
 	return true, *securityGroupOutput.SecurityGroups[0].GroupId
 }
 
-func compareAWSInstance(instanceOne AWSInstance, instanceTwo AWSInstance) bool {
-	if instanceOne.CustomAmi == instanceTwo.CustomAmi &&
-		instanceOne.DefaultUser == instanceTwo.DefaultUser &&
+func compareAWSInstance(instanceOne EC2ConfigWrapper, instanceTwo EC2ConfigWrapper) bool {
+	//TODO: Reimplement ami checks
+	if instanceOne.DefaultUser == instanceTwo.DefaultUser &&
 		instanceOne.InstanceType == instanceTwo.InstanceType &&
 		instanceOne.PrivateKeyFile == instanceTwo.PrivateKeyFile &&
 		instanceOne.PublicKeyFile == instanceTwo.PublicKeyFile {

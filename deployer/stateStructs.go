@@ -117,7 +117,7 @@ type InstanceState struct {
 }
 
 type ConfigWrappers struct {
-	EC2 []AWSConfigWrapper
+	EC2 []EC2ConfigWrapper
 	DO  []DOConfigWrapper
 }
 

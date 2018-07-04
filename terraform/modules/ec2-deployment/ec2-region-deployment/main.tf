@@ -58,8 +58,11 @@ resource "aws_instance" "hideNsneak" {
   instance_type          = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
   count                  = "${var.instance_count}"
   subnet_id              = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  vpc_security_group_ids = ["${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"]
-  key_name               = "${var.aws_keypair_name}"
+  vpc_security_group_ids = []
+
+  //Rething how we are going to apply firewalls
+  # "${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"
+  key_name = "${var.aws_keypair_name}"
 
   tags {
     Name = "hideNsneak"
@@ -69,28 +72,31 @@ resource "aws_instance" "hideNsneak" {
   #   command = "sleep 120; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ec2_default_user} --private-key ${var.aws_private_key_file} -i '${self.public_ip},' ../ansible/setup.yml"
   # }
 
-  depends_on = ["aws_security_group.allow_ssh"]
+  # depends_on = ["aws_security_group.allow_ssh"]
 }
 
 //TODO: Pop security groups out into their own module in order to
 //keep configurations upon the creation of new instances
-resource "aws_security_group" "allow_ssh" {
-  name        = "${var.default_sg_name}"
-  description = "Allow SSH Traffic"
-  vpc_id      = "${data.aws_vpc.default.id}"
-  count       = "${var.instance_count > 0 ? 1 : 0}"
+# resource "aws_security_group" "allow_ssh" {
+#   name        = "${var.default_sg_name}"
+#   description = "Allow SSH Traffic"
+#   vpc_id      = "${data.aws_vpc.default.id}"
+#   count       = "${var.instance_count > 0 ? 1 : 0}"
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+#   ingress {
+#     from_port   = 22
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+
+
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
+
