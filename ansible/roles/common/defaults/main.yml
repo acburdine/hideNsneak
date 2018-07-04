@@ -1,9 +1,1 @@
 ---
-burp_http_port: 80
-burp_https_port: 443
-burp_dns_port: 53
-burp_metrics_path: metricated
-burp_whitelist: '["127.0.0.1"]'
-burp_key: burp.pk8
-burp_cert: burp.crt
-burp_ca_bundle: intermediate.crt

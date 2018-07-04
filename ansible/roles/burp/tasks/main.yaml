@@ -1,8 +1,12 @@
 ---   
+
+#If roles/x/tasks/main.yml exists, tasks listed therein will be added to the play
+
 # First we check to see if there are existing TLS keys and certificates
 # I decided it was safer to just abort if there are rather than risk
 # overwriting an active key/cert.
-- name: Check for existing private key
+- host: path={{ chosenHosts }}
+  name: Check for existing private key
   stat: path=burp.key
   become: no
   delegate_to: 127.0.0.1
