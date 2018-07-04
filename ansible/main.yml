@@ -1,0 +1,31 @@
+---
+# playbook example 
+# - name: name  
+#   hosts: web
+#   vars: 
+#     http_port: 80
+#     max_clients: 200
+#   remote_user: root
+
+#   tasks:
+#   - name: install httpd
+#     apt: pkg=httpd state=latest
+#   - name: write apache config
+#     template: src=/srv/httpd.js dest=/etc/httpd.conf
+#   - name: start httpd
+#     service: name=httpd state=started
+
+- name: install all packages
+  hosts: all
+  user: root
+  remote_user: user
+  sudo: yes 
+  tasks: 
+  roles:
+    - burp
+    - cobaltstrike
+    - socat
+    - letsencrypt
+    - gophish
+    - nmap
+    - sqlmap
