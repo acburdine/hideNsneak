@@ -1,0 +1,173 @@
+---   
+# First we check to see if there are existing TLS keys and certificates
+# I decided it was safer to just abort if there are rather than risk
+# overwriting an active key/cert.
+
+#to install packages, heres what you can do
+# - name: install random stuff
+#   hosts: all 
+#   remote_user: ubuntu 
+#   become: yes
+
+#   tasks:
+#   - name: install epel repo 
+#   apt: name=epel-release state=present
+
+#   - name: install python bindings 
+#   apt: name={{item}} state=present
+#   with_items: -->> THIS actually makes a for loop 
+#   - libselinux-python
+#   - libsemanage-python
+
+#   - name: test to see if SElinux is running 
+#     command: getenforce 
+#     register: sestatus -->> registering the output of this task into a variable, 
+#                             AND its being assigned to the var sestatus
+#     changed_when: false --> command module ALWAYS return changed even though nothing might 
+#                             have happened, so you gotta double check
+#   - name: install apache
+#     apt: name=htppd state=present
+  
+#   - name: start apache
+#     service: name=httpd state= started enabled=yes
+
+- name: Check for existing private key
+  stat: path=burp.key
+  become: no
+  delegate_to: 127.0.0.1
+  register: existing_key
+  tags:
+    - tls
+
+- name: Check for existing PKCS8 private key
+  stat: path={{ burp_key }}
+  become: no
+  delegate_to: 127.0.0.1
+  register: existing_pkcs8_key
+  tags:
+    - tls
+
+- name: Check for existing CSR
+  stat: path=burp.csr
+  become: no
+  delegate_to: 127.0.0.1
+  register: existing_csr
+  tags:
+    - tls
+
+- name: Check for existing certificate
+  stat: path={{ burp_cert }}
+  become: no
+  delegate_to: 127.0.0.1
+  register: existing_cert
+  tags:
+    - tls
+
+- name: Check for existing intermediate certificate
+  stat: path={{ burp_ca_bundle }}
+  become: no
+  delegate_to: 127.0.0.1
+  register: existing_ca_bundle
+  tags:
+    - tls
+
+- name: Generate private key
+  command: openssl genrsa -out burp.key 2048
+  delegate_to: 127.0.0.1
+  become: no
+  when:
+    - generate_self_signed_certs
+    - not existing_key.stat.exists
+  tags:
+    - tls
+
+- name: Convert RSA private key to PKCS8
+  command: openssl pkcs8 -topk8 -inform PEM -in burp.key -outform PEM -out {{ burp_key }} -nocrypt
+  delegate_to: 127.0.0.1
+  become: no
+  when:
+    - generate_self_signed_certs
+    - not existing_pkcs8_key.stat.exists
+  tags:
+    - tls
+
+- name: Generate CSR
+  command: openssl req -new -key burp.key -out burp.csr -subj "/C={{ country }}/ST={{ state }}/L={{ locality }}/O={{ organisation }}/OU={{ organisational_unit }}/CN=*.{{ burp_server_domain }}"
+  delegate_to: 127.0.0.1
+  become: no
+  when:
+    - not existing_csr.stat.exists
+  tags:
+    - tls
+    - csr
+
+- name: Create empty intermediate CA cert
+  command: touch {{ burp_ca_bundle }}
+  delegate_to: 127.0.0.1
+  become: no
+  when:
+    - not existing_ca_bundle.stat.exists
+  tags:
+    - tls
+
+- name: Generate self-signed certificate
+  command: openssl x509 -req -sha256 -days 365 -in burp.csr -signkey burp.key -out {{ burp_cert }}
+  delegate_to: 127.0.0.1
+  become: no
+  when:
+    - generate_self_signed_certs
+    - not existing_cert.stat.exists
+  tags:
+    - tls
+    - selfsign
+
+- name: Set up directory for Burp jar
+  file: dest=/usr/share/burp mode=0755 state=directory owner=root group=root
+  tags:
+    - setup
+
+- name: Set up directory for Burp config
+  file: dest=/etc/burp mode=0755 state=directory owner=root group=root
+  tags:
+    - setup
+
+- name: Copy Burp jar
+  copy: src={{ item }} dest=/usr/share/burp/burpsuite_pro.jar
+  with_fileglob:
+    - "{{ playbook_dir }}/burpsuite*.jar"
+  tags:
+    - installjar
+    - setup
+
+- name: Copy over server key
+  copy: src={{ burp_key }} dest=/etc/burp/burp.pk8
+  tags:
+    - setup
+
+- name: Copy over server cert
+  copy: src={{ burp_cert }} dest=/etc/burp/burp.crt
+  tags:
+    - setup
+
+- name: Copy over CA bundle certificates
+  copy: src={{ burp_ca_bundle }} dest=/etc/burp/intermediate.crt
+  tags:
+    - setup
+
+- name: Copy systemd job
+  copy: src={{ role_path }}/files/burp.service dest=/etc/systemd/system/burp.service owner=root group=root
+  tags:
+    - setup
+    - systemd
+
+- name: Generate configuration file
+  template: src={{ role_path }}/templates/collaborator.config.j2 dest=/etc/burp/collaborator.config
+  tags:
+    - configure
+
+- name: Restart Burp collaborator server
+  systemd: name=burp state=restarted
+  tags:
+    - installjar
+    - configure
+    - restart

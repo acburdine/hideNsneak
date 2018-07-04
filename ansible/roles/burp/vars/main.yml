@@ -1,0 +1,4 @@
+#If roles/x/vars/main.yml exists, variables listed therein will be added to the play
+# --- 
+# domain: awsservers.com
+# environment: dhskj
