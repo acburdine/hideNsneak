@@ -17,7 +17,7 @@ module "do-nyc1" {
   do_region          = "nyc1"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 # //nyc2 is basically full
@@ -32,7 +32,7 @@ module "do-nyc2" {
   do_region          = "nyc2"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-nyc3" {
@@ -46,7 +46,7 @@ module "do-nyc3" {
   do_region          = "nyc3"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 # Basically Full
@@ -61,7 +61,7 @@ module "do-ams2" {
   do_region          = "ams2"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-ams3" {
@@ -75,7 +75,7 @@ module "do-ams3" {
   do_region          = "ams3"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-blr1" {
@@ -89,7 +89,7 @@ module "do-blr1" {
   do_region          = "blr1"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-fra1" {
@@ -103,7 +103,7 @@ module "do-fra1" {
   do_region          = "fra1"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-lon1" {
@@ -117,7 +117,7 @@ module "do-lon1" {
   do_region          = "lon1"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 # Basically Full
@@ -132,7 +132,7 @@ module "do-sfo1" {
   do_region          = "sfo1"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-sfo2" {
@@ -146,7 +146,7 @@ module "do-sfo2" {
   do_region          = "sfo2"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-tor1" {
@@ -160,7 +160,7 @@ module "do-tor1" {
   do_region          = "tor1"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }
 
 module "do-sgp1" {
@@ -174,5 +174,5 @@ module "do-sgp1" {
   do_region          = "sgp1"
 
   //Think about seperating firewalls
-  do_firewall_name = "${var.do_firewall_name}"
+  #  do_firewall_name = "${var.do_firewall_name}"
 }

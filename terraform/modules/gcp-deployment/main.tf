@@ -62,16 +62,20 @@ resource "google_compute_instance" "hideNsneak" {
 
 ##This may need to be broken out into its own module
 ##if the changes are network-wideresource "google_compute_firewall" "default" {
-resource "google_compute_firewall" "default" {
-  name    = "test-firewall"
-  network = "default"
+# resource "google_compute_firewall" "default" {
+#   name    = "test-firewall"
+#   network = "default"
 
-  count = "${google_compute_instance.hideNsneak.count > 0 ? 1 : 0}"
 
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
+#   count = "${google_compute_instance.hideNsneak.count > 0 ? 1 : 0}"
 
-  source_tags = ["ssh"]
-}
+
+#   allow {
+#     protocol = "tcp"
+#     ports    = ["22"]
+#   }
+
+
+#   source_tags = ["ssh"]
+# }
+

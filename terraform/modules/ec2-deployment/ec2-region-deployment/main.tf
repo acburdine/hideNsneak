@@ -1,5 +1,10 @@
 provider "aws" {}
 
+resource "random_string" "sg-extension" {
+  length  = 4
+  special = false
+}
+
 resource "ansible_host" "hideNsneak" {
   count = "${var.instance_count}"
 
@@ -54,12 +59,19 @@ resource "aws_key_pair" "hideNsneak" {
 }
 
 resource "aws_instance" "hideNsneak" {
-  ami                    = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
-  instance_type          = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
+  ami = "${data.aws_ami.ubuntu.id}"
+
+  # Old ami identification
+  # ami                    = "${var.custom_ami == "" ? data.aws_ami.ubuntu.id : var.custom_ami}"
+  instance_type = "${var.aws_instance_type == "" ? "t2.micro" :  var.aws_instance_type}"
+
   count                  = "${var.instance_count}"
   subnet_id              = "${element(data.aws_subnet_ids.all.ids, 0)}"
-  vpc_security_group_ids = ["${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"]
-  key_name               = "${var.aws_keypair_name}"
+  vpc_security_group_ids = ["${aws_security_group.allow_ssh.id}"]
+
+  //Rething how we are going to apply firewalls
+  # "${var.aws_sg_id == "" ? element(concat(aws_security_group.allow_ssh.*.id, list("")), 0) : var.aws_sg_id }"
+  key_name = "${var.aws_keypair_name}"
 
   tags {
     Name = "hideNsneak"
@@ -75,7 +87,7 @@ resource "aws_instance" "hideNsneak" {
 //TODO: Pop security groups out into their own module in order to
 //keep configurations upon the creation of new instances
 resource "aws_security_group" "allow_ssh" {
-  name        = "${var.default_sg_name}"
+  name        = "${var.default_sg}${random_string.sg-extension.result}"
   description = "Allow SSH Traffic"
   vpc_id      = "${data.aws_vpc.default.id}"
   count       = "${var.instance_count > 0 ? 1 : 0}"

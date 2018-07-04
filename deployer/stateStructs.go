@@ -117,7 +117,7 @@ type InstanceState struct {
 }
 
 type ConfigWrappers struct {
-	EC2 []AWSConfigWrapper
+	EC2 []EC2ConfigWrapper
 	DO  []DOConfigWrapper
 }
 
@@ -126,4 +126,5 @@ type ListStruct struct {
 	Provider string
 	Region   string
 	Name     string
+	Place    int
 }

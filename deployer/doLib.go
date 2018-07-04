@@ -62,6 +62,7 @@ func doRegions(client *godo.Client) ([]string, error) {
 	return slugs, nil
 }
 
+//Token provides a function to retrieve a new digitalocean token for the service to make API calls
 func (t *Token) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,
