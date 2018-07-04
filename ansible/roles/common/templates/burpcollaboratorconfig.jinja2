@@ -1,0 +1,36 @@
+{
+  "serverDomain" : "{{ burp_server_domain }}",
+  "workerThreads" : 10,
+
+  "eventCapture": {
+      "localAddress" : "{{ burp_local_address }}",
+      "publicAddress" : "{{ burp_public_address }}",
+
+      "http": {
+         "port" : {{ burp_http_port }}
+       },
+
+      "https": {
+          "port" : {{ burp_https_port }},
+          "certificateFiles" : [
+            "/etc/burp/burp.pk8",
+            "/etc/burp/burp.crt",
+            "/etc/burp/intermediate.crt"
+          ]
+      }
+  },
+
+  "metrics": {
+      "path" : "{{ burp_metrics_path }}",
+      "addressWhitelist" : {{ burp_whitelist }}
+  },
+
+  "dns": {
+      "interfaces" : [{
+        "name":"ns",
+	"localAddress" : "{{ burp_local_address }}",
+	"publicAddress" : "{{ burp_public_address }}",
+      }],
+      "port" : {{ burp_dns_port }}
+  }
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Burp Collaborator
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java -Xms10m -Xmx200m -XX:GCTimeRatio=19 -jar /usr/share/burp/burpsuite_pro.jar --collaborator-server --collaborator-config=/etc/burp/collaborator.config
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
