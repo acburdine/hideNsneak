@@ -1,12 +1,37 @@
 ---   
-
-#If roles/x/tasks/main.yml exists, tasks listed therein will be added to the play
-
 # First we check to see if there are existing TLS keys and certificates
 # I decided it was safer to just abort if there are rather than risk
 # overwriting an active key/cert.
-- host: path={{ chosenHosts }}
-  name: Check for existing private key
+
+#to install packages, heres what you can do
+# - name: install random stuff
+#   hosts: all 
+#   remote_user: ubuntu 
+#   become: yes
+
+#   tasks:
+#   - name: install epel repo 
+#   apt: name=epel-release state=present
+
+#   - name: install python bindings 
+#   apt: name={{item}} state=present
+#   with_items: -->> THIS actually makes a for loop 
+#   - libselinux-python
+#   - libsemanage-python
+
+#   - name: test to see if SElinux is running 
+#     command: getenforce 
+#     register: sestatus -->> registering the output of this task into a variable, 
+#                             AND its being assigned to the var sestatus
+#     changed_when: false --> command module ALWAYS return changed even though nothing might 
+#                             have happened, so you gotta double check
+#   - name: install apache
+#     apt: name=htppd state=present
+  
+#   - name: start apache
+#     service: name=httpd state= started enabled=yes
+
+- name: Check for existing private key
   stat: path=burp.key
   become: no
   delegate_to: 127.0.0.1
