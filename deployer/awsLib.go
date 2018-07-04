@@ -14,7 +14,7 @@ import (
 
 //checkEc2KeyExistence queries the Amazon EC2 API for the keypairs with the specified keyname
 //Returns true if the resulting array is > 0, false otherwise
-func checkEC2KeyExistance(secret string, accessID string, region string, keyName string) bool {
+func checkEC2KeyExistence(secret string, accessID string, region string, keyName string) bool {
 	// keyFingerprint := genEC2KeyFingerprint(privateKey)
 
 	svc := ec2.New(session.New(&aws.Config{
@@ -91,7 +91,6 @@ func checkEC2SecurityGroupExistence(secret string, accessID string, region strin
 }
 
 func compareEC2Config(instanceOne EC2ConfigWrapper, instanceTwo EC2ConfigWrapper) bool {
-	//TODO: Reimplement ami checks
 	if instanceOne.DefaultUser == instanceTwo.DefaultUser &&
 		instanceOne.InstanceType == instanceTwo.InstanceType &&
 		instanceOne.PrivateKey == instanceTwo.PrivateKey {
