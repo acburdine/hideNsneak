@@ -1,0 +1,12 @@
+# vars file for socat
+---
+socat_dependencies:
+  - build-essential
+  - libreadline-dev
+  - libssl-dev
+  - libwrap0-dev
+
+socat_build_path: /var/lib/ansible/socat/build
+
+socat_download_path: /var/lib/ansible/socat/downloads
+socat_download_url: "http://www.dest-unreach.org/socat/download/socat-{{ socat_version }}.tar.gz"
