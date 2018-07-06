@@ -22,3 +22,12 @@ type EC2ConfigWrapper struct {
 	KeyPairName  string
 	RegionMap    map[string]int
 }
+
+type CloudfrontConfigWrapper struct {
+	ModuleName string
+	Provider   string
+	URL        string
+	Origin     string
+	Status     string
+	Enabled    string
+}

@@ -5,12 +5,11 @@ provider "aws" {
 }
 
 resource "aws_cloudfront_distribution" "domain_front" {
-  count   = 0
-  enabled = true
+  enabled = "${var.cloudfront_status}"
 
   origin {
     domain_name = "${var.cloudfront_origin}"
-    origin_id   = "tester-${var.cloudfront_origin}"
+    origin_id   = "hidensneak-${var.cloudfront_origin}"
 
     custom_origin_config {
       http_port              = 14380
@@ -20,12 +19,10 @@ resource "aws_cloudfront_distribution" "domain_front" {
     }
   }
 
-  enabled = true
-
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "tester-${var.cloudfront_origin}"
+    target_origin_id = "hidensneak-${var.cloudfront_origin}"
 
     forwarded_values {
       headers = ["*"]

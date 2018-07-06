@@ -81,6 +81,16 @@ const mainAWSAPIModule = `module "{{.ModuleName}}" {
   
 `
 
+const mainCloudfrontModule = `module "{{.ModuleName}}" {
+	source = "modules/cloudfront-deployment"
+  
+	aws_access_key = "${var.aws_access_key}"
+	aws_secret_key = "${var.aws_secret_key}"
+  
+	cloudfront_origin = "{{.Origin}}"
+	cloudfront_status = {{.Enabled}}
+  }`
+
 const mainDropletModule = `
   module "{{.ModuleName}}" {
 	  source              = "modules/droplet-deployment"

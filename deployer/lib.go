@@ -337,31 +337,6 @@ func FindLargestNumber(nums []int) int {
 	return largest
 }
 
-// func GenerateIPIDList() IPID {
-
-// 	var masterIPID IPID
-// 	marshalledOutput := TerraformStateMarshaller()
-
-// 	for _, instance := range marshalledOutput.Master.ProviderValues.AWSProvider.Instances {
-// 		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
-// 		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
-// 	}
-// 	for _, instance := range marshalledOutput.Master.ProviderValues.DOProvider.Instances {
-// 		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
-// 		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
-// 	}
-// 	for _, instance := range marshalledOutput.Master.ProviderValues.GoogleProvider.Instances {
-// 		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
-// 		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
-// 	}
-// 	for _, instance := range marshalledOutput.Master.ProviderValues.AzureProvider.Instances {
-// 		masterIPID.IDList = append(masterIPID.IDList, instance.IPID.IDList...)
-// 		masterIPID.IPList = append(masterIPID.IPList, instance.IPID.IPList...)
-// 	}
-
-// 	return masterIPID
-// }
-
 //createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
 //returns a pointer to the specified OS process so that we can kill it effictively
 func createSingleSOCKS(privateKey string, username string, ipv4 string, port int) *os.Process {
@@ -390,10 +365,39 @@ func listSort(listStructs []ListStruct) (finalList []ListStruct) {
 	return
 }
 
+func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
+	for _, module := range state.Modules {
+		var domainFrontOutput DomainFrontOutput
+		if len(module.Path) > 1 {
+			for name, resource := range module.Resources {
+				if strings.Contains(module.Path[1], "cloudfrontDeploy") {
+					domainFrontOutput.Provider = "AWS"
+					domainFrontOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+					for key, value := range resource.Primary.Attributes {
+						if strings.Contains(key, "domain_name") {
+							if strings.Contains(key, "origin") {
+								domainFrontOutput.Origin = value
+							} else {
+								domainFrontOutput.Invoke = value
+							}
+						}
+					}
+				} else if strings.Contains(module.Path[1], "azurefrontDeploy") {
+					domainFrontOutput.Provider = "AZURE"
+				}
+			}
+
+		}
+		domainFronts = append(domainFronts, domainFrontOutput)
+
+	}
+	return
+}
+
 func ListAPIs(state State) (apiOutputs []APIOutput) {
 	for _, module := range state.Modules {
 		var apiOutput APIOutput
-		if len(module.Path) > 1 && strings.Contains(module.Path[1], "APIDeploy1") {
+		if len(module.Path) > 1 && strings.Contains(module.Path[1], "apiDeploy") {
 			apiOutput.Provider = "AWS"
 			for name, resource := range module.Resources {
 				switch resource.Type {
@@ -620,6 +624,33 @@ func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) Confi
 			})
 		}
 	} else if strings.ToUpper(provider) == "ALIBABA" {
+	}
+
+	return wrappers
+}
+
+func DomainFrontDeploy(provider string, origin string, wrappers ConfigWrappers) ConfigWrappers {
+	moduleCount := wrappers.CloudfrontModuleCount
+
+	if strings.ToUpper(provider) == "AWS" {
+		if len(wrappers.Cloudfront) > 0 {
+			for _, wrapper := range wrappers.Cloudfront {
+				if origin == wrapper.Origin {
+					continue
+				}
+				wrappers.Cloudfront = append(wrappers.Cloudfront, CloudfrontConfigWrapper{
+					ModuleName: "cloudfrontDeploy" + strconv.Itoa(moduleCount+1),
+					Origin:     origin,
+					Enabled:    "true",
+				})
+			}
+		} else {
+			wrappers.Cloudfront = append(wrappers.Cloudfront, CloudfrontConfigWrapper{
+				ModuleName: "cloudfrontDeploy" + strconv.Itoa(moduleCount+1),
+				Origin:     origin,
+				Enabled:    "true",
+			})
+		}
 	}
 
 	return wrappers

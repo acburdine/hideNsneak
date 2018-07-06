@@ -24,11 +24,21 @@ terraform {
 #   aws_public_key_file  = ""
 # }
 
-module "awsAPIDeploy1" {
-  source = "modules/aws-api-gateway"
+# module "awsAPIDeploy1" {
+#   source = "modules/aws-api-gateway"
+
+#   aws_access_key = "${var.aws_access_key}"
+#   aws_secret_key = "${var.aws_secret_key}"
+
+#   aws_api_target_uri = "https://google.com/"
+# }
+
+module "cloudfront1" {
+  source = "modules/cloudfront-deployment"
 
   aws_access_key = "${var.aws_access_key}"
   aws_secret_key = "${var.aws_secret_key}"
 
-  aws_api_target_uri = "https://google.com/"
+  cloudfront_origin = "google.com"
+  cloudfront_status = true
 }

@@ -16,13 +16,14 @@ package cmd
 
 import (
 	"fmt"
+	"terraform-playground/deployer"
 
 	"github.com/spf13/cobra"
 )
 
 // helloCmd represents the hello command
 var domainFront = &cobra.Command{
-	Use:   "domainFront",
+	Use:   "domainfront",
 	Short: "Domain Front Command",
 	Long:  `Domain Front Command`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -53,7 +54,16 @@ var domainFrontList = &cobra.Command{
 	Short: "list domain fronts",
 	Long:  `list domain fronts`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("List called")
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListDomainFronts(marshalledState)
+
+		for index, front := range list {
+			fmt.Print(index)
+			fmt.Println(front)
+		}
+
+		return
 	},
 }
 

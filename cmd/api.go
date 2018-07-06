@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 
@@ -72,10 +73,16 @@ var apiDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		// marshalledState := deployer.TerraformStateMarshaller()
-		// list := deployer.ListAPIs(marshalledState)
+		marshalledState := deployer.TerraformStateMarshaller()
+		apiList := deployer.ListAPIs(marshalledState)
 		if !deployer.IsValidNumberInput(numberInput) {
 			return fmt.Errorf("invalid formatting specified: %s", numberInput)
+		}
+		numsToDestroy := deployer.ExpandNumberInput(numberInput)
+		largestNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
+
+		if largestNumToDestroy > len(apiList) {
+			return errors.New("the number you entered is too big. try running `list` to see the number of apis you have")
 		}
 		return nil
 	},
@@ -87,10 +94,10 @@ var apiDestroy = &cobra.Command{
 		var namesToDelete []string
 
 		for _, numIndex := range numsToDelete {
-			fmt.Println(numIndex)
 			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
-		fmt.Println(namesToDelete)
+
+		deployer.TerraformDestroy(namesToDelete)
 		return
 	},
 }
@@ -102,10 +109,11 @@ var apiList = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListAPIs(marshalledState)
+		apiList := deployer.ListAPIs(marshalledState)
 
-		for _, item := range list {
-			fmt.Println(item)
+		for index, item := range apiList {
+			fmt.Print(index)
+			fmt.Println(item.String())
 		}
 		return
 	},
