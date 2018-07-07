@@ -2,6 +2,7 @@ package deployer
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os/exec"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudfront"
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
@@ -28,6 +30,20 @@ func checkEC2KeyExistance(secret string, accessID string, region string, keyName
 		return false
 	}
 	return true
+}
+
+func deleteCloudFront(id string, ETag string, secret string, accessID string) error {
+	svc := cloudfront.New(session.New(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
+	}))
+	_, err := svc.DeleteDistribution(&cloudfront.DeleteDistributionInput{
+		Id:      aws.String(id),
+		IfMatch: aws.String(ETag),
+	})
+	if err != nil {
+		return fmt.Errorf("Error deleting instance, instance is now disabled: %s", err)
+	}
+	return nil
 }
 
 func importEC2Key(secret string, accessID string, region string, pubKey []byte, keyName string) error {

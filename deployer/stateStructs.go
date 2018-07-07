@@ -128,11 +128,13 @@ type ConfigWrappers struct {
 }
 
 type ListStruct struct {
-	IP       string
-	Provider string
-	Region   string
-	Name     string
-	Place    int
+	IP         string
+	Provider   string
+	Region     string
+	Name       string
+	Place      int
+	Username   string
+	PrivateKey string
 }
 
 type APIOutput struct {
@@ -148,7 +150,14 @@ func (output APIOutput) String() string {
 
 type DomainFrontOutput struct {
 	Origin   string
+	ID       string
 	Invoke   string
 	Provider string
 	Name     string
+	Etag     string
+	Status   string
+}
+
+func (output DomainFrontOutput) String() string {
+	return " - Orign: " + output.Origin + " - Invoke: " + output.Invoke + " - Status: " + output.Status + " - Provider: " + output.Provider + " - Name: " + output.Name
 }

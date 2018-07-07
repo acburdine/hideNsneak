@@ -5,7 +5,7 @@ provider "aws" {
 }
 
 resource "aws_cloudfront_distribution" "domain_front" {
-  enabled = "${var.cloudfront_status}"
+  enabled = "${var.cloudfront_enabled}"
 
   origin {
     domain_name = "${var.cloudfront_origin}"

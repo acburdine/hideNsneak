@@ -88,7 +88,7 @@ const mainCloudfrontModule = `module "{{.ModuleName}}" {
 	aws_secret_key = "${var.aws_secret_key}"
   
 	cloudfront_origin = "{{.Origin}}"
-	cloudfront_status = {{.Enabled}}
+	cloudfront_enabled = {{.Enabled}}
   }`
 
 const mainDropletModule = `

@@ -264,7 +264,7 @@ func terraformRetrieveNames(IDList []string) (nameList []string) {
 func TerraformDestroy(nameList []string) {
 
 	//Initializing Terraform
-	args := []string{"init", "-input=false", "terraform"}
+	args := []string{"init", "-input=false"}
 	execTerraform(args, "terraform")
 
 	args = []string{"destroy", "-auto-approve"}
@@ -293,6 +293,9 @@ func TerraformStateMarshaller() (outputStruct State) {
 //CreateTerraformMain takes in a string containing all the necessary calls
 //for the main.tf file
 func CreateTerraformMain(masterString string) {
+
+	InitializeTerraformFiles()
+
 	//Opening Main.tf to append parsed template
 	mainFile, err := os.OpenFile("terraform/main.tf", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	checkErr(err)
@@ -339,14 +342,13 @@ func FindLargestNumber(nums []int) int {
 
 //createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
 //returns a pointer to the specified OS process so that we can kill it effictively
-func createSingleSOCKS(privateKey string, username string, ipv4 string, port int) *os.Process {
+func CreateSingleSOCKS(privateKey string, username string, ipv4 string, port int) error {
 	portString := strconv.Itoa(port)
 	cmd := exec.Command("ssh", "-N", "-D", portString, "-o", "StrictHostKeyChecking=no", "-i", privateKey, fmt.Sprintf(username+"@%s", ipv4))
 	if err := cmd.Start(); err != nil {
-		fmt.Println(err)
-		return nil
+		return err
 	}
-	return cmd.Process
+	return nil
 }
 
 func (listStruct *ListStruct) String() string {
@@ -365,6 +367,32 @@ func listSort(listStructs []ListStruct) (finalList []ListStruct) {
 	return
 }
 
+func ListProxies(instances []ListStruct) (output string) {
+	for _, instance := range instances {
+		ip := instance.IP
+		args := []string{"-f", "ssh.*-D.*" + ip}
+		cmd := exec.Command("pgrep", args...)
+		out, err := cmd.Output()
+
+		if err != nil {
+			fmt.Println(err)
+		}
+		pid := strings.TrimSpace(string(out))
+
+		args = []string{"-o", "command", pid}
+		cmd = exec.Command("ps", args...)
+		out, err = cmd.Output()
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		commandOutput := strings.Split(string(out), "COMMAND")[1]
+
+		output = output + "PID: " + pid + "CMD: " + strings.TrimSpace(commandOutput) + "\n"
+	}
+	return
+}
+
 func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 	for _, module := range state.Modules {
 		var domainFrontOutput DomainFrontOutput
@@ -372,6 +400,9 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 			for name, resource := range module.Resources {
 				if strings.Contains(module.Path[1], "cloudfrontDeploy") {
 					domainFrontOutput.Provider = "AWS"
+					domainFrontOutput.ID = resource.Primary.Attributes["id"]
+					domainFrontOutput.Etag = resource.Primary.Attributes["etag"]
+					domainFrontOutput.Status = resource.Primary.Attributes["status"]
 					domainFrontOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
 					for key, value := range resource.Primary.Attributes {
 						if strings.Contains(key, "domain_name") {
@@ -382,14 +413,14 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 							}
 						}
 					}
+					domainFronts = append(domainFronts, domainFrontOutput)
 				} else if strings.Contains(module.Path[1], "azurefrontDeploy") {
 					domainFrontOutput.Provider = "AZURE"
+					// domainFronts = append(domainFronts, domainFrontOutput)
 				}
 			}
 
 		}
-		domainFronts = append(domainFronts, domainFrontOutput)
-
 	}
 	return
 }
@@ -420,42 +451,48 @@ func ListAPIs(state State) (apiOutputs []APIOutput) {
 func ListIPAddresses(state State) (hostOutput []ListStruct) {
 	for _, module := range state.Modules {
 		var tempOutput []ListStruct
+		if len(module.Path) > 1 {
+			username, privatekey := retrieveUserAndPrivateKey(module)
+			for name, resource := range module.Resources {
+				fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+				nameSlice := strings.Split(name, ".")
+				finalString := nameSlice[len(nameSlice)-1]
+				count, err := strconv.Atoi(finalString)
+				if err == nil {
 
-		for name, resource := range module.Resources {
-			fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
-			nameSlice := strings.Split(name, ".")
-			finalString := nameSlice[len(nameSlice)-1]
-			count, err := strconv.Atoi(finalString)
-			if err == nil {
+					nameSlice[len(nameSlice)-1] = "[" + finalString + "]"
 
-				nameSlice[len(nameSlice)-1] = "[" + finalString + "]"
+					newName := strings.Join(nameSlice, ".")
 
-				newName := strings.Join(nameSlice, ".")
-
-				fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName
+					fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName
+				}
+				switch resource.Type {
+				case "digitalocean_droplet":
+					tempOutput = append(tempOutput, ListStruct{
+						IP:         resource.Primary.Attributes["ipv4_address"],
+						Provider:   "DigitalOcean",
+						Region:     resource.Primary.Attributes["region"],
+						Name:       fullName,
+						Place:      count,
+						PrivateKey: privatekey,
+						Username:   username,
+					})
+				case "aws_instance":
+					tempOutput = append(tempOutput, ListStruct{
+						IP:         resource.Primary.Attributes["public_ip"],
+						Provider:   "AWS",
+						Region:     resource.Primary.Attributes["availability_zone"],
+						Name:       fullName,
+						Place:      count,
+						PrivateKey: privatekey,
+						Username:   username,
+					})
+				default:
+					continue
+				}
 			}
-			switch resource.Type {
-			case "digitalocean_droplet":
-				tempOutput = append(tempOutput, ListStruct{
-					IP:       resource.Primary.Attributes["ipv4_address"],
-					Provider: "DigitalOcean",
-					Region:   resource.Primary.Attributes["region"],
-					Name:     fullName,
-					Place:    count,
-				})
-			case "aws_instance":
-				tempOutput = append(tempOutput, ListStruct{
-					IP:       resource.Primary.Attributes["public_ip"],
-					Provider: "AWS",
-					Region:   resource.Primary.Attributes["availability_zone"],
-					Name:     fullName,
-					Place:    count,
-				})
-			default:
-				continue
-			}
+			hostOutput = append(hostOutput, listSort(tempOutput)...)
 		}
-		hostOutput = append(hostOutput, listSort(tempOutput)...)
 	}
 	return
 }
@@ -654,4 +691,18 @@ func DomainFrontDeploy(provider string, origin string, wrappers ConfigWrappers) 
 	}
 
 	return wrappers
+}
+
+//AWSCloufFrontDestroy uses the deleteCloudFront function to delete
+//the specified cloudfront due to the problems with terraforms destruction process
+func AWSCloudFrontDestroy(output DomainFrontOutput) error {
+	//TODO catch the error here
+	err := deleteCloudFront(output.ID, output.Etag, awsSecretKey, awsAccessKey)
+	if err != nil {
+		return err
+	}
+
+	args := []string{"state", "rm", output.Name}
+	execTerraform(args, "terraform")
+	return nil
 }

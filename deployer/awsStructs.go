@@ -25,9 +25,11 @@ type EC2ConfigWrapper struct {
 
 type CloudfrontConfigWrapper struct {
 	ModuleName string
+	ID         string
 	Provider   string
 	URL        string
 	Origin     string
 	Status     string
 	Enabled    string
+	Etag       string
 }

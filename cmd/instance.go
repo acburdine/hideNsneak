@@ -49,7 +49,6 @@ var instanceDeploy = &cobra.Command{
 	Short: "deploys an instance",
 	Long:  `deploys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.InitializeTerraformFiles()
 		if !deployer.ProviderCheck(instanceProviders) {
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}

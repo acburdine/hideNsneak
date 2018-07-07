@@ -64,6 +64,9 @@ func createCloudfrontFromState(modules []ModuleState) (cloudfrontConfigWrappers 
 			tempConfig.ModuleName = module.Path[1]
 			for _, resource := range module.Resources {
 				if resource.Type == "aws_cloudfront_distribution" {
+					tempConfig.Status = resource.Primary.Attributes["status"]
+					tempConfig.ID = resource.Primary.Attributes["id"]
+					tempConfig.Etag = resource.Primary.Attributes["etag"]
 					for key, value := range resource.Primary.Attributes {
 						if strings.Contains(key, "domain_name") {
 							if strings.Contains(key, "origin") {

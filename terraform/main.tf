@@ -8,37 +8,18 @@ terraform {
   }
 }
 
-# module "ec2Deploy1" {
-#   source = "modules/ec2-deployment"
-
-#   default_sg = ""
-#   aws_sg_id  = ""
-
-#   region_count         = "${map("us-east-1",4, "us-east-2",2, "us-west-1",1, "us-west-2",1)}"
-#   aws_instance_type    = "t2.micro"
-#   ec2_default_user     = "ubuntu"
-#   aws_access_key       = "${var.aws_access_key}"
-#   aws_secret_key       = "${var.aws_secret_key}"
-#   aws_keypair_name     = ""
-#   aws_private_key_file = "/Users/mike.hodges/.ssh/do_rsa"
-#   aws_public_key_file  = ""
-# }
-
-# module "awsAPIDeploy1" {
-#   source = "modules/aws-api-gateway"
-
-#   aws_access_key = "${var.aws_access_key}"
-#   aws_secret_key = "${var.aws_secret_key}"
-
-#   aws_api_target_uri = "https://google.com/"
-# }
-
-module "cloudfront1" {
+module "cloudfrontDeploy1" {
   source = "modules/cloudfront-deployment"
 
   aws_access_key = "${var.aws_access_key}"
   aws_secret_key = "${var.aws_secret_key}"
 
-  cloudfront_origin = "google.com"
-  cloudfront_status = true
+  cloudfront_origin  = "google.com"
+  cloudfront_enabled = false
+}
+
+resource "null_resource" "test" {
+  provisioner "local-exec" {
+    command = "ssh -i /Users/mike.hodges/.ssh/do_rsa -D 8081 -o StrictHostKeyChecking=no -f -n ubuntu@18.232.107.249"
+  }
 }
