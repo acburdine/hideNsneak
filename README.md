@@ -3,14 +3,16 @@ Welcome to hideNsneak.
 ![Alt text](assets/logo.png "hideNsneak")
 This application assists in managing attack infrastructure for penetration testers by providing an interface to rapidly deploy, manage, and take down various cloud services. These include VMs, domain fronting, Cobalt Strike servers, API gateways, and firewalls.
 
+
 Table of contents 
 ------------------
   * [Overview](#overview)
   * [Running locally](#running-locally)
-  * [Sample commands & functionality](#sample-commands---functionality)
+  * [Commands](#commands)
   * [Organization](#organization)
-  * [Developing locally & contributions](#developing-locally---contributions)
+  * [Contributions](#contributions)
   * [License](#license)
+
 
 Overview
 ---------
@@ -26,6 +28,7 @@ hideNsneak can:
 --> *Send and receive files*
 --> *Port scanning via NMAP*
 --> *Remote installations of Burp Collab, Cobalt Strike, Socat, LetsEncrypt, GoPhish, and SQLMAP*
+
 
 Running locally
 ---------------
@@ -50,10 +53,38 @@ At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're h
 		azure_subscription_id = "YOUR_SECRET_KEY"
 		```
 10. `go run main.go` --> need to make this an executable
+11. run `hidesneak`
 
-Sample commands & functionality
-------------------------
-**For list of functions at anytime, run `hidesneak help`**
+
+Commands
+---------
+* `hidesneak help` --> run this anytime to get available commands 
+* `hidesneak instance deploy`
+* `hidesneak instance destroy`
+* `hidesneak instance list`
+* `hidesneak api deploy`
+* `hidesneak api destroy`
+* `hidesneak api list`
+* `hidesneak domainfront enable`
+* `hidesneak domainfront disable`
+* `hidesneak domainfront deploy`
+* `hidesneak domainfront destroy`
+* `hidesneak domainfront list`
+* `hidesneak socks deploy`
+* `hidesneak socks list`
+* `hidesneak socks destroy`
+* `hidesneak socks proxychains`
+* `hidesneak socks socksd`
+* `hidesneak install burp`
+* `hidesneak install cobaltstrike`
+* `hidesneak install socat`
+* `hidesneak install letsencrypt`
+* `hidesneak install gophish`
+* `hidesneak install nmap`
+* `hidesneak install sqlmap`
+
+For all commands, you can run `--help` after any of them to get guidance on what flags to use.
+
 
 Organization
 ------------
@@ -65,9 +96,11 @@ Organization
 * `main.go` --> where the magic happens 
 * `secrets.go` --> a file that you write yourself, with all your secret stuff
 
-Developing locally & contributions
-----------------------------------
+
+Contributions
+-------------
 We would love to have you contribute to hideNsneak. Feel free to fork the repo and start contributing, we will review pull requests as we receive them. If you feel like some things need improvement or some features need adding, feel free to open up an issue and hopefully -- someone will pick it up. 
+
 
 License 
 -------
