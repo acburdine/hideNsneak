@@ -39,7 +39,7 @@ At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're h
 3. install [ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 4. install [custom providers](https://github.com/nbering/terraform-provider-ansible/)
 5. `git clone https://github.com/rmikehodges/hideNsneak.git`
-6. `cd hideNsneak`
+6. `go run main.go` --> make this an executable
 7. `go get -u github.com/spf13/cobra/cobra`
 8. `go get -u github.com/aws/aws-sdk-go/aws`
 9. Fill in values in `config.yaml` with your keys and filepaths for the cloud providers you'd like to use:
@@ -52,36 +52,35 @@ At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're h
 		azure_client_secret = "YOUR_SECRET_KEY"
 		azure_subscription_id = "YOUR_SECRET_KEY"
 		```
-10. `go run main.go` --> need to make this an executable
-11. run `hidesneak`
+10. run `hidensneak`
 
 
 Commands
 ---------
-* `hidesneak help` --> run this anytime to get available commands 
-* `hidesneak instance deploy`
-* `hidesneak instance destroy`
-* `hidesneak instance list`
-* `hidesneak api deploy`
-* `hidesneak api destroy`
-* `hidesneak api list`
-* `hidesneak domainfront enable`
-* `hidesneak domainfront disable`
-* `hidesneak domainfront deploy`
-* `hidesneak domainfront destroy`
-* `hidesneak domainfront list`
-* `hidesneak socks deploy`
-* `hidesneak socks list`
-* `hidesneak socks destroy`
-* `hidesneak socks proxychains`
-* `hidesneak socks socksd`
-* `hidesneak install burp`
-* `hidesneak install cobaltstrike`
-* `hidesneak install socat`
-* `hidesneak install letsencrypt`
-* `hidesneak install gophish`
-* `hidesneak install nmap`
-* `hidesneak install sqlmap`
+* `hidensneak help` --> run this anytime to get available commands 
+* `hidensneak instance deploy`
+* `hidensneak instance destroy`
+* `hidensneak instance list`
+* `hidensneak api deploy`
+* `hidensneak api destroy`
+* `hidensneak api list`
+* `hidensneak domainfront enable`
+* `hidensneak domainfront disable`
+* `hidensneak domainfront deploy`
+* `hidensneak domainfront destroy`
+* `hidensneak domainfront list`
+* `hidensneak socks deploy`
+* `hidensneak socks list`
+* `hidensneak socks destroy`
+* `hidensneak socks proxychains`
+* `hidensneak socks socksd`
+* `hidensneak install burp`
+* `hidensneak install cobaltstrike`
+* `hidensneak install socat`
+* `hidensneak install letsencrypt`
+* `hidensneak install gophish`
+* `hidensneak install nmap`
+* `hidensneak install sqlmap`
 
 For all commands, you can run `--help` after any of them to get guidance on what flags to use.
 
