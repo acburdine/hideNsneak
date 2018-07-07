@@ -1,72 +1,74 @@
 Welcome to hideNsneak.
 ===============================
 ![Alt text](assets/logo.png "hideNsneak")
-This application assists in managing attack infrastructure by providing an interface to rapidly deploy, manage, and take down various cloud services. These include VMs, domain fronting, Cobalt Strike servers, API gateways, and firewalls.
+This application assists in managing attack infrastructure for penetration testers by providing an interface to rapidly deploy, manage, and take down various cloud services. These include VMs, domain fronting, Cobalt Strike servers, API gateways, and firewalls.
 
+Table of contents 
+------------------
+  * [Overview](#overview)
+  * [Running locally](#running-locally)
+  * [Sample commands & functionality](#sample-commands---functionality)
+  * [Organization](#organization)
+  * [Developing locally & contributions](#developing-locally---contributions)
+  * [License](#license)
 
-How to use the tool & use cases
--------------------------------
-(You run commands to do this and this, for example if you wanna do this you do that)
+Overview
+---------
+hideNsneak provides a simple interface that allows penetration testers to build ephemeral infrastructure -- one that requires minimal overhead. 
 
-For hosts, need to assume Ubuntu 16.04 Linux host
+hideNsneak can:
+--> *`deploy`, `destroy`, and `list`*
+1. Cloud instances via EC2, Google Cloud, Digital Ocean, Azure, and Alibaba Cloud
+2. API Gateway (AWS)
+3. Domain fronts via CloudFront and Azure Cloudfront
 
+--> *Proxy into said infrastructure*
+--> *Send and receive files*
+--> *Port scanning via NMAP*
+--> *Remote installations of Burp Collab, Cobalt Strike, Socat, LetsEncrypt, GoPhish, and SQLMAP*
 
 Running locally
 ---------------
-1. download go
-2. download terraform
-3. download ansible
-4. download docker
-5. `git clone https://github.com/rmikehodges/hideNsneak.git`
-6. `cd hideNsneak/main`
-7. `go get github.com/rmikehodges/hideNsneak/cloud`
-8. `go get github.com/rmikehodges/hideNsneak/misc`
-9. `go get github.com/rmikehodges/hideNsneak/sshext`
-10. `go run main.go`
-11. fill in the values in config.yaml with API keys, file paths, etc
-12. set up your ssh key in your config.yaml file with all cloud provider you'd like to use (AWS, Google, Digital Ocean)
-6. Need to create a file under package main titled `secrets.go`
-7. Need to create ~/.terraform.d/plugins and add https://github.com/nbering/terraform-provider-ansible/ to it
+At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're hoping to add on a docker container to decrease initial setup time. 
 
-	```const tfvars = 
+1. install [go](https://golang.org/dl/)
+2. install [terraform](https://www.terraform.io/intro/getting-started/install.html)
+3. install [ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+4. install [custom providers](https://github.com/nbering/terraform-provider-ansible/)
+5. `git clone https://github.com/rmikehodges/hideNsneak.git`
+6. `cd hideNsneak`
+7. `go get -u github.com/spf13/cobra/cobra`
+8. `go get -u github.com/aws/aws-sdk-go/aws`
+9. Fill in values in `config.yaml` with your keys and filepaths for the cloud providers you'd like to use:
+		```
 		aws_access_key = "YOUR_SECRET_KEY"
 		aws_secret_key = "YOUR_SECRET_KEY"
 		do_token = "YOUR_SECRET_KEY"
 		azure_tenant_id = "YOUR_SECRET_KEY"
 		azure_client_id = "YOUR_SECRET_KEY"
 		azure_client_secret = "YOUR_SECRET_KEY"
-		azure_subscription_id = "YOUR_SECRET_KEY"```
+		azure_subscription_id = "YOUR_SECRET_KEY"
+		```
+10. `go run main.go` --> need to make this an executable
 
-
-Commands & functionality
+Sample commands & functionality
 ------------------------
-(put commands, expected outputs and funcs here)
-
+**For list of functions at anytime, run `hidesneak help`**
 
 Organization
 ------------
-_terraform --> has all the terraform related stuff
-
-_test.go --> test file that is ignored by go code (underscores do that)
-
-secrets.go --> ignored in gitignore. where you keep your secret keys
-
-constants.go --> where you can find all the constants for deploying modules
-
-lib.go --> utility functions
-
-structs.go --> basic structs for all modules
-
-terraformer.go --> wrapper for terraform functionality. This is where the good stuff happens
+* `_terraform` --> stuff related to deploying, destroying, and listing infrastucture
+* `_ansible` --> stuff related to ssh
+* `_assets` --> random assets for the beauty of this project
+* `_cmd` --> frontend interface 
+* `_deployer` --> backend commands and structs
+* `main.go` --> where the magic happens 
+* `secrets.go` --> a file that you write yourself, with all your secret stuff
 
 Developing locally & contributions
 ----------------------------------
-
 We would love to have you contribute to hideNsneak. Feel free to fork the repo and start contributing, we will review pull requests as we receive them. If you feel like some things need improvement or some features need adding, feel free to open up an issue and hopefully -- someone will pick it up. 
-
-For those who decide to contribute regularly... We've got some real comfy t-shirts for you.
 
 License 
 -------
-
-MIT
+MIT/BSD
