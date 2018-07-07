@@ -1,0 +1,11 @@
+---
+# defaults file for jackl0phty.nmap
+
+# Set type of install to do.
+nmap_install_type: 'source'
+
+# Set version of Nmap is installed ( Used only for installing via source ).
+nmap_version: '6.47'
+
+# Nmap download URL ( Used only for installing via source ).
+nmap_download_url: 'https://nmap.org/dist/nmap-{{ nmap_version }}.tar.bz2'
