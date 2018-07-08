@@ -206,7 +206,7 @@ func InitializeTerraformFiles() {
 func TerraformApply() {
 
 	//Initializing Terraform
-	args := []string{"init"}
+	args := []string{"init", "-backend-config=../config/backend.txt"}
 	execTerraform(args, "terraform")
 
 	//Applying Changes Identified in tfplan
@@ -218,7 +218,7 @@ func TerraformApply() {
 func TerraformDestroy(nameList []string) {
 
 	//Initializing Terraform
-	args := []string{"init", "-input=false"}
+	args := []string{"init", "-backend-config=../config/backend.txt"}
 	execTerraform(args, "terraform")
 
 	args = []string{"destroy", "-auto-approve"}
