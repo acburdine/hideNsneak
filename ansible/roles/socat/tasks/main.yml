@@ -1,0 +1,115 @@
+# tasks file for socat
+---
+- name: install dependencies
+  apt:
+    name: "{{ item }}"
+    state: "{{ apt_install_state | default('latest') }}"
+    update_cache: true
+    cache_valid_time: "{{ apt_update_cache_valid_time | default(3600) }}"
+  with_items: "{{ socat_dependencies }}"
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-dependencies
+
+- name: remove (distro version)
+  apt:
+    name: socat
+    state: absent
+    purge: true
+  when: socat_remove_distro_version
+  tags:
+    - configuration
+    - socat
+    - socat-remove
+    - socat-remove-distro
+
+- name: create (download) directory
+  file:
+    path: "{{ socat_download_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-download
+
+- name: download (latest)
+  get_url:
+    url: "{{ socat_download_url }}"
+    dest: "{{ socat_download_path }}/{{ socat_download_url | basename }}"
+    owner: root
+    group: root
+    mode: 0644
+    force: true
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-download
+
+- name: create (build) directory
+  file:
+    path: "{{ socat_build_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-build
+
+- name: extract
+  unarchive:
+    src: "{{ socat_download_path }}/{{ socat_download_url | basename }}"
+    dest: "{{ socat_build_path }}"
+    creates: "{{ socat_build_path }}/socat-{{ socat_version }}"
+    copy: false
+  register: result
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-build
+
+- name: configure
+  command: ./configure {{ socat_configure_options | join(' ') }}
+  args:
+    chdir: "{{ socat_build_path }}/socat-{{ socat_version }}"
+  when: result is changed
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-build
+    - socat-install-build-configure
+
+- name: make
+  command: make
+  args:
+    chdir: "{{ socat_build_path }}/socat-{{ socat_version }}"
+  when: result is changed
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-build
+    - socat-install-build-make
+
+- name: make install
+  command: make install
+  args:
+    chdir: "{{ socat_build_path }}/socat-{{ socat_version }}"
+  when: result is changed
+  tags:
+    - configuration
+    - socat
+    - socat-install
+    - socat-install-build
+    - socat-install-build-make-install

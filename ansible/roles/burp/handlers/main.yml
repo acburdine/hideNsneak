@@ -1,0 +1,22 @@
+#basically if there is a state change, handlers 
+#can trigger other tasks to run, like a restart
+
+#sample handler use case
+
+# tasks:
+# - name: add cache dir 
+#   file:
+#     path: /opt/cache
+#     state: directory
+
+# - name: install nginx
+#   apt:
+#     name: nginx
+#     state: latest
+#   notify: restart nginx 
+
+# handlers:
+# - name: restart nginx 
+#   service: 
+#     name: nginx 
+#     state: restarted 

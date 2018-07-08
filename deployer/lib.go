@@ -400,7 +400,10 @@ func (listStruct *ListStruct) String() string {
 	return ("IP: " + listStruct.IP + " - Provider: " + listStruct.Provider + " - Region: " + listStruct.Region + " - Name: " + listStruct.Name)
 }
 
-func listSort(listStructs []ListStruct) (finalList []ListStruct) {
+//listStructSOrt takes a list of listStructs and goes ahead and
+//sorts them based on position. This is important because it will
+//ensure that the order of the elements remain the same on each list call
+func listStructSort(listStructs []ListStruct) (finalList []ListStruct) {
 	for index := range listStructs {
 		for _, list := range listStructs {
 			if list.Place == index {
@@ -536,7 +539,7 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 					continue
 				}
 			}
-			hostOutput = append(hostOutput, listSort(tempOutput)...)
+			hostOutput = append(hostOutput, listStructSort(tempOutput)...)
 		}
 	}
 	return
@@ -578,7 +581,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				//TODO: Add custom input
 				if regionCount > 0 {
 					//TODO: Ensure private key is the same
-					result := checkEC2KeyExistance(awsSecretKey, awsAccessKey, region, keyName)
+					result := checkEC2KeyExistence(awsSecretKey, awsAccessKey, region, keyName)
 
 					if !result {
 						publicKeyBytes, _ := ioutil.ReadFile(pubKey)
