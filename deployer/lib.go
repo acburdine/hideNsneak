@@ -340,15 +340,62 @@ func FindLargestNumber(nums []int) int {
 	return largest
 }
 
-//createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
-//returns a pointer to the specified OS process so that we can kill it effictively
-func CreateSingleSOCKS(privateKey string, username string, ipv4 string, port int) error {
-	portString := strconv.Itoa(port)
-	cmd := exec.Command("ssh", "-N", "-D", portString, "-o", "StrictHostKeyChecking=no", "-i", privateKey, fmt.Sprintf(username+"@%s", ipv4))
-	if err := cmd.Start(); err != nil {
-		return err
+func PrintProxyChains(socksList string) (proxies string) {
+	socksArray := strings.Split(socksList, "\n")
+	for _, command := range socksArray {
+		args := strings.Split(command, " ")
+		for index, arg := range args {
+			var port string
+			if arg == "-D" {
+				port = args[index+1]
+				proxies = proxies + fmt.Sprintf("socks5 127.0.0.1 %s\n", port)
+			}
+		}
 	}
-	return nil
+	return
+}
+
+func PrintSocksd(socksList string) (proxies string) {
+	socksArray := strings.Split(socksList, "\n")
+	proxies = fmt.Sprintf("\"upstreams\": [\n")
+	for _, command := range socksArray {
+		var port string
+		var ip string
+		args := strings.Split(command, " ")
+		for index, arg := range args {
+
+			if arg == "-D" {
+				port = args[index+1]
+			}
+			if strings.Contains(arg, "@") {
+				ip = strings.Split(arg, "@")[1]
+			}
+		}
+		proxies = proxies + fmt.Sprintf("{\"type\": \"socks5\", \"address\": \"127.0.0.1:%s\", \"target\": \"%s\"}", port, ip)
+
+	}
+	proxies = proxies + fmt.Sprintf("\n]\n")
+	return
+}
+
+func DestroySOCKS(ip string) {
+	args := []string{"-f", "ssh.*-D [0-9]{4,}.*@" + ip}
+	cmd := exec.Command("pkill", args...)
+
+	cmd.Run()
+}
+
+//createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
+func CreateSingleSOCKS(privateKey string, username string, ipv4 string, port int) (err error) {
+	portString := strconv.Itoa(port)
+	args := []string{"-D", portString, "-o", "StrictHostKeyChecking=no", "-N", "-f", "-i", privateKey, username + "@" + ipv4}
+	cmd := exec.Command("ssh", args...)
+	err = cmd.Start()
+	if err != nil {
+		return
+	}
+	return
+
 }
 
 func (listStruct *ListStruct) String() string {
@@ -374,21 +421,21 @@ func ListProxies(instances []ListStruct) (output string) {
 		cmd := exec.Command("pgrep", args...)
 		out, err := cmd.Output()
 
-		if err != nil {
-			fmt.Println(err)
+		if len(out) > 0 {
+			pid := strings.TrimSpace(string(out))
+
+			args = []string{"-o", "command", pid}
+			cmd = exec.Command("ps", args...)
+			out, err = cmd.Output()
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			commandOutput := strings.Split(string(out), "COMMAND")[1]
+
+			output = output + "PID: " + pid + " Command: " + strings.TrimSpace(commandOutput) + "\n"
 		}
-		pid := strings.TrimSpace(string(out))
 
-		args = []string{"-o", "command", pid}
-		cmd = exec.Command("ps", args...)
-		out, err = cmd.Output()
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		commandOutput := strings.Split(string(out), "COMMAND")[1]
-
-		output = output + "PID: " + pid + "CMD: " + strings.TrimSpace(commandOutput) + "\n"
 	}
 	return
 }
@@ -452,7 +499,7 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 	for _, module := range state.Modules {
 		var tempOutput []ListStruct
 		if len(module.Path) > 1 {
-			username, privatekey := retrieveUserAndPrivateKey(module)
+			privatekey, username := retrieveUserAndPrivateKey(module)
 			for name, resource := range module.Resources {
 				fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
 				nameSlice := strings.Split(name, ".")
