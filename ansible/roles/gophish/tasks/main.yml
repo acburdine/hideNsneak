@@ -1,7 +1,3 @@
-- name: Change /etc/hostname
-  hostname:
-    name: "{{ hostname }}"
-
 - name: Allow TCP 22 for SSH.
   ufw:
     rule: allow

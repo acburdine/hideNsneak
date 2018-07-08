@@ -76,7 +76,7 @@
   delegate_to: 127.0.0.1
   become: no
   when:
-    - generate_self_signed_certs
+    # - generate_self_signed_certs
     - not existing_key.stat.exists
   tags:
     - tls
@@ -86,7 +86,7 @@
   delegate_to: 127.0.0.1
   become: no
   when:
-    - generate_self_signed_certs
+    # - generate_self_signed_certs
     - not existing_pkcs8_key.stat.exists
   tags:
     - tls
@@ -134,7 +134,7 @@
 - name: Copy Burp jar
   copy: src={{ item }} dest=/usr/share/burp/burpsuite_pro.jar
   with_fileglob:
-    - "{{ playbook_dir }}/burpsuite*.jar"
+    - "{{ burp_dir }}/burpsuite*.jar"
   tags:
     - installjar
     - setup
@@ -161,7 +161,7 @@
     - systemd
 
 - name: Generate configuration file
-  template: src={{ role_path }}/templates/collaborator.config.j2 dest=/etc/burp/collaborator.config
+  template: src={{ role_path }}/templates/burpcollaboratorconfig.jinja2 dest=/etc/burp/collaborator.config
   tags:
     - configure
 

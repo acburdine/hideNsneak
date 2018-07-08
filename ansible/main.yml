@@ -16,8 +16,8 @@
 #     service: name=httpd state=started
 
 - name: install all packages
-  hosts: targets
-  sudo: yes 
+  hosts: all
+  become: true
   gather_facts: false
   pre_tasks:
     - name: installing python
@@ -27,8 +27,8 @@
   roles:
     - common
     #everything down will be dynamic
-    # - burp
-    - cobaltstrike
+    - burp
+    # - cobaltstrike
     # - socat
     # - letsencrypt
     # - gophish
