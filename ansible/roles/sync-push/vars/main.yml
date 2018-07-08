@@ -1,4 +1,1 @@
 ---
-host_absolute_path: /some/absolute/path/
-remote_absolute_path: rsync://somehost.com/path/
-inventory_hostname: theIPaddress
