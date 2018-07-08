@@ -6,7 +6,7 @@ terraform/terraform.tfvars
 .terraform/
 deployer/secrets.go
 debug
-.vascode
+.vscode
 debug
 terraform/dynamodb/terraform.tfstate
 config/inboxa90-c672120ec335.json
