@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -88,22 +87,7 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroy",
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		marshalledState := deployer.TerraformStateMarshaller()
-
-		list := deployer.ListIPAddresses(marshalledState)
-		if !deployer.IsValidNumberInput(numberInput) {
-			return fmt.Errorf("invalid formatting specified: %s", numberInput)
-		}
-		numsToDestroy := deployer.ExpandNumberInput(numberInput)
-		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
-
-		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(list) < largestInstanceNumToDestroy {
-			return errors.New("The number you entered is too big. Try running `list` to see the number of instances you have.")
-		}
-
-		return nil
-
+		deployer.ValidateListOfInstances(numberInput)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
