@@ -3,19 +3,12 @@
 - include_vars: "../vars/main.yml"
 
 - name: Install packages for Debian based distros.
-  apt: name=g++ update_cache=yes
-  become: yes
-  become_user: root
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-
-- name: Install packages for Redhat based distros.
-  yum: pkg={{item}} state=latest
+  apt: name={{item}} update_cache=yes
   with_items:
-  - bzip2
-  - gcc-c++
+        - g++
+        - make
   become: yes
   become_user: root
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
 - name: download_nmap_source
   get_url: url={{ nmap_download_url }} dest=/tmp/nmap-{{ nmap_version }}.tar.bz2
