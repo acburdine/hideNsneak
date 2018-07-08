@@ -1,0 +1,6 @@
+
+# defaults file for socat
+---
+socat_version: 1.7.3.1
+socat_remove_distro_version: true
+socat_configure_options: []

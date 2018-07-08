@@ -1,0 +1,14 @@
+---
+- name: Download sqlmap
+  become: true
+  git:
+    repo: https://github.com/sqlmapproject/sqlmap.git
+    dest: "{{ sqlmap_git_location }}/sqlmap"
+    update: yes
+
+- name: Create symlink
+  become: true
+  file:
+    state: link
+    src: "{{ sqlmap_git_location }}/sqlmap/sqlmap.py"
+    path: /usr/local/bin/sqlmap
