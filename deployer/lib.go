@@ -182,6 +182,8 @@ func InitializeTerraformFiles() {
 		fmt.Println(err)
 	}
 
+	noEscapeSecrets := template.HTML(secretBuff.String())
+
 	mainFile, err := os.Create(tfMainFile)
 	checkErr(err)
 	defer mainFile.Close()
@@ -196,7 +198,7 @@ func InitializeTerraformFiles() {
 
 	mainFile.Write([]byte(backend))
 	varFile.Write([]byte(variables))
-	tfvarsFile.Write(secretBuff.Bytes())
+	tfvarsFile.Write([]byte(noEscapeSecrets))
 }
 
 //TerraformApply runs the init, plan, and apply commands for our
