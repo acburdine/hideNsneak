@@ -2,7 +2,9 @@
 # Synchronize two directories on one remote host (the inverse of push).
 - name: pull files from remote server to host
   synchronize:
-    src: "{{ host_absolute_path }}"
-    dest: "{{ remote_absolute_path }}"
     mode: pull
-  delegate_to: "{{ inventory_remotename }}" 
+    src: "{{ remote_absolute_path }}"
+    dest: "{{ host_absolute_path }}"
+    recursive: true
+    verify_host: false
+    
