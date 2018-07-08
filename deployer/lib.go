@@ -156,8 +156,6 @@ func execTerraform(args []string, filepath string) string {
 		fmt.Println(stderr.String())
 	}
 
-	fmt.Println(stderr.String())
-
 	return stdout.String()
 }
 
