@@ -42,7 +42,7 @@ func genDOKeyFingerprint(publicKey string) (keyFingerprint string) {
 
 //GetDoRegions returns the list of available regions for digital ocean
 func GetDoRegions() (regions []string) {
-	client := newDOClient(doToken)
+	client := newDOClient(config.DigitaloceanToken)
 	regions, err := doRegions(client)
 	if err != nil {
 		fmt.Println("Error retrieving region list for validation")
