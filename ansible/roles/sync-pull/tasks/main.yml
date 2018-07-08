@@ -7,3 +7,4 @@
     dest: "{{ host_absolute_path }}"
     recursive: true
     verify_host: false
+    
