@@ -42,7 +42,7 @@
 
 - name: Update postfix main.cf configuration file.
   template:
-    src: main.cf.j2
+    src: gophishconfig.jinja2
     dest: /etc/postfix/main.cf
     backup: yes
     owner: root

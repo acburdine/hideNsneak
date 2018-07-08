@@ -1,15 +1,5 @@
 ---
-- name: install python for ansible 
-  hosts: all
-  gather_facts: false
-  become: true
-  pre_tasks:
-    - raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-      register: output
-      changed_when: output.stdout != ""
+- name: ping
+  ping:
 
-- name: pinging... are we alive?
-  hosts: all
-  tasks:
-    - ping:
 
