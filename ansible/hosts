@@ -1,16 +1,2 @@
-[burphosts]
-10.0.3.152
-
-# all:
-#   hosts:
-#     ec2servers: 
-#     doservers: 
-#   children:
-#     ec2servers:
-#       hosts:
-#         aws1: 10.0.3.152
-#         aws2: 10.0.3.152
-#     doservers:
-#       hosts:
-#         do1: 10.0.3.152
-#         do2: 10.0.3.152
+[targets]
+35.171.8.53 ansible_connection=ssh  ansible_user=ubuntu ansible_ssh_private_key_file=/Users/mischy/.ssh/mischkey.pem
