@@ -9,7 +9,8 @@
   apt_repository:
     repo: 'ppa:webupd8team/java'
   become: yes
-  notify: apt update
+  notify: 
+  - apt update
 
 - name: pre-accept java license
   debconf:

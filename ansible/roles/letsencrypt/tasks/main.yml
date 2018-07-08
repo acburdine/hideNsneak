@@ -2,7 +2,7 @@
 ---
   - apt: update_cache=yes cache_valid_time=3600
     become: yes
-    when: ansible_pkg_mgr == "apt"
+    # when: ansible_pkg_mgr == "apt"
     tags: install
 
   - include_vars: "{{ item }}"
@@ -14,21 +14,21 @@
     when: virtualenv_package_name is not defined
     tags: install
 
-  - name: install certbot (Debian jessie)
-    include: debian-jessie.yml
-    when: ansible_distribution == "Debian" and ansible_distribution_release == "jessie"
+  # - name: install certbot (Debian jessie)
+  #   include: debian-jessie.yml
+  #   when: ansible_distribution == "Debian" and ansible_distribution_release == "jessie"
 
-  - name: install certbot (Debian stretch)
-    include: debian-stretch.yml
-    when: ansible_distribution == "Debian" and ansible_distribution_release == "stretch"
+  # - name: install certbot (Debian stretch)
+  #   include: debian-stretch.yml
+  #   when: ansible_distribution == "Debian" and ansible_distribution_release == "stretch"
 
   - name: install certbot (Ubuntu Xenial)
     include: ubuntu-xenial.yml
-    when: ansible_distribution == "Ubuntu" and ansible_distribution_release == "xenial"
+    # when: ansible_distribution == "Ubuntu" and ansible_distribution_release == "xenial"
 
-  - name: install certbot (using pip)
-    include: install-with-pip.yml
-    when: ansible_distribution != "Debian" and (ansible_distribution != "Ubuntu" or ansible_distribution_release != "xenial")
+  # - name: install certbot (using pip)
+  #   include: install-with-pip.yml
+  #   when: ansible_distribution != "Debian" and (ansible_distribution != "Ubuntu" or ansible_distribution_release != "xenial")
 
   - name: Ensure webroot exists
     file:

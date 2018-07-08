@@ -82,7 +82,7 @@
   command: ./configure {{ socat_configure_options | join(' ') }}
   args:
     chdir: "{{ socat_build_path }}/socat-{{ socat_version }}"
-  when: result | changed
+  when: result is changed
   tags:
     - configuration
     - socat
@@ -94,7 +94,7 @@
   command: make
   args:
     chdir: "{{ socat_build_path }}/socat-{{ socat_version }}"
-  when: result | changed
+  when: result is changed
   tags:
     - configuration
     - socat
@@ -106,7 +106,7 @@
   command: make install
   args:
     chdir: "{{ socat_build_path }}/socat-{{ socat_version }}"
-  when: result | changed
+  when: result is changed
   tags:
     - configuration
     - socat
