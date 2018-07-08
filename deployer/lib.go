@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 ////////////////////////
@@ -162,6 +162,36 @@ func execTerraform(args []string, filepath string) string {
 //InitializeTerraformFiles Creates the base templates for
 //the terraform infrastructure
 func InitializeTerraformFiles() {
+	var config configStruct
+
+	var configContents, _ = ioutil.ReadFile(configFile)
+
+	json.Unmarshal(configContents, &config)
+
+	secrets, err := template.New("secrets").Parse(templateSecrets)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	backendParsed, err := template.New("state").Parse(backend)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	secretBuff := new(bytes.Buffer)
+
+	backendBuff := new(bytes.Buffer)
+
+	err = secrets.Execute(secretBuff, &config)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = backendParsed.Execute(backendBuff, &config)
+
 	mainFile, err := os.Create(tfMainFile)
 	checkErr(err)
 	defer mainFile.Close()
@@ -174,9 +204,9 @@ func InitializeTerraformFiles() {
 	checkErr(err)
 	defer tfvarsFile.Close()
 
-	mainFile.Write([]byte(state))
+	mainFile.Write(backendBuff.Bytes())
 	varFile.Write([]byte(variables))
-	tfvarsFile.Write([]byte(templateSecrets))
+	tfvarsFile.Write(secretBuff.Bytes())
 }
 
 //TerraformApply runs the init, plan, and apply commands for our
@@ -191,72 +221,6 @@ func TerraformApply() {
 	args = []string{"apply", "-input=false", "-auto-approve"}
 	execTerraform(args, "terraform")
 
-}
-
-//Types for our destruction magic
-//TODO: Rename and put in correct place
-
-type ConcurrentSlice struct {
-	sync.RWMutex
-	items []interface{}
-}
-
-// Concurrent slice item
-type ConcurrentSliceItem struct {
-	Index int
-	Value interface{}
-}
-
-func (cs *ConcurrentSlice) Append(item interface{}) {
-	cs.Lock()
-	defer cs.Unlock()
-
-	cs.items = append(cs.items, item)
-}
-
-func (cs *ConcurrentSlice) Iter() <-chan ConcurrentSliceItem {
-	c := make(chan ConcurrentSliceItem)
-
-	f := func() {
-		cs.Lock()
-		defer cs.Unlock()
-		for index, value := range cs.items {
-			c <- ConcurrentSliceItem{index, value}
-		}
-		close(c)
-	}
-	go f()
-
-	return c
-}
-
-func NewConcurrentSlice() *ConcurrentSlice {
-	cs := &ConcurrentSlice{
-		items: make([]interface{}, 0),
-	}
-
-	return cs
-}
-
-func terraformRetrieveNames(IDList []string) (nameList []string) {
-	var wg sync.WaitGroup
-
-	concurrentSlice := NewConcurrentSlice()
-	for _, id := range IDList {
-		wg.Add(1)
-		go func(id string) {
-			defer wg.Done()
-			args := []string{"state", "list", "-id=" + id}
-			name := strings.TrimSpace(execTerraform(args, "terraform"))
-			concurrentSlice.Append(name)
-		}(id)
-	}
-	wg.Wait()
-	for i := range concurrentSlice.Iter() {
-		nameList = append(nameList, i.Value.(string))
-	}
-
-	return nameList
 }
 
 func TerraformDestroy(nameList []string) {
@@ -581,12 +545,12 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				//TODO: Add custom input
 				if regionCount > 0 {
 					//TODO: Ensure private key is the same
-					result := checkEC2KeyExistence(awsSecretKey, awsAccessKey, region, keyName)
+					result := checkEC2KeyExistence(config.AwsSecretKey, config.AwsAccessID, region, keyName)
 
 					if !result {
 						publicKeyBytes, _ := ioutil.ReadFile(pubKey)
 
-						err := importEC2Key(awsSecretKey, awsAccessKey, region, publicKeyBytes, pubKey)
+						err := importEC2Key(config.AwsSecretKey, config.AwsAccessID, region, publicKeyBytes, pubKey)
 						if err != nil {
 							fmt.Printf("There was an errror importing your key to EC2: %s", err)
 						}
@@ -745,7 +709,7 @@ func DomainFrontDeploy(provider string, origin string, wrappers ConfigWrappers) 
 //the specified cloudfront due to the problems with terraforms destruction process
 func AWSCloudFrontDestroy(output DomainFrontOutput) error {
 	//TODO catch the error here
-	err := deleteCloudFront(output.ID, output.Etag, awsSecretKey, awsAccessKey)
+	err := deleteCloudFront(output.ID, output.Etag, config.AwsAccessID, config.AwsSecretKey)
 	if err != nil {
 		return err
 	}

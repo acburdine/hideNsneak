@@ -6,5 +6,7 @@
     "azure_client_id": "",
     "azure_client_secret": "",
     "azure_location": "",
-    "azure_subscription_id": ""
+    "azure_subscription_id": "",
+    "public_key":"",
+    "private_key":""
 }
