@@ -79,9 +79,9 @@ func createCloudfrontFromState(modules []ModuleState) (cloudfrontConfigWrappers 
 						tempConfig.Status = resource.Primary.Attributes["status"]
 						tempConfig.Enabled = resource.Primary.Attributes["enabled"]
 					}
+					cloudfrontConfigWrappers = append(cloudfrontConfigWrappers, tempConfig)
 				}
 			}
-			cloudfrontConfigWrappers = append(cloudfrontConfigWrappers, tempConfig)
 		}
 	}
 	return
