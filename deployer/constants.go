@@ -1,18 +1,34 @@
 package deployer
 
+const configFile = "config/config.json"
 const tfMainFile = "terraform/main.tf"
 const tfVariablesFile = "terraform/variables.tf"
 const tfVarsFile = "terraform/terraform.tfvars"
-const state = `
-	terraform {
-		backend "s3" {
-		  bucket         = "hidensneak-terraform"
-		  key            = "filename.tfstate"
-		  dynamodb_table = "terraform-state-lock-dynamo"
-		  region         = "us-east-1"
-		  encrypt        = true
+const backend = `terraform {
+	backend "s3" {
+		bucket         = "hidensneak-terraform"
+		key            = "filename.tfstate"
+		dynamodb_table = "terraform-state-lock-dynamo"
+		region         = "us-east-1"
+		encrypt        = true
 		}
 	  }
+`
+
+const templateSecrets = `
+do_token = "{{.DigitaloceanToken}}"
+
+aws_access_key = "{{.AwsAccessID}}"
+
+aws_secret_key = "{{.AwsSecretKey}}"
+
+azure_tenant_id = "{{.AzureTenantID}}"
+
+azure_client_id = "{{.AzureClientID}}"
+
+azure_client_secret = "{{.AzureClientSecret}}"
+
+azure_subscription_id = "{{.AzureSubscriptionID}}"
 `
 
 const variables = `
@@ -21,17 +37,15 @@ variable "do_token" {}
 variable "aws_access_key" {}
 
 variable "aws_secret_key" {}
+
+variable "azure_tenant_id" {}
+
+variable "azure_client_id" {}
+
+variable "azure_client_secret" {}
+
+variable "azure_subscription_id" {}
 `
-
-//Removed for testing
-
-// variable "azure_tenant_id" {}
-
-// variable "azure_client_id" {}
-
-// variable "azure_client_secret" {}
-
-// variable "azure_subscription_id" {}
 
 const outputs = `output "providers" {
 	value = "${map(
@@ -104,27 +118,6 @@ const mainDropletModule = `
   }
 `
 
-// Deprecated
-// const ec2Module = `
-// 	module "aws-{{.Region}}" {
-// 		source         		 = "modules/ec2-deployment"
-// 		default_sg_name 	 = "{{.SecurityGroup}}"
-// 		aws_sg_id			 = "{{.SecurityGroupID}}"
-// 		region_count   		 = {{.Count}}
-// 		custom_ami 			 = "{{.CustomAmi}}"
-// 		aws_instance_type	 = "{{.InstanceType}}"
-// 		ec2_default_user	 = "{{.DefaultUser}}"
-// 		aws_access_key 		 = "${var.aws_access_key}"
-// 		aws_secret_key 		 = "${var.aws_secret_key}"
-// 		aws_region    		 = "{{.Region}}"
-// 		aws_new_keypair      = "{{.NewKeypair}}"
-// 		aws_keypair_name     = "{{.KeypairName}}"
-// 		aws_private_key_file = "{{.PrivateKeyFile}}"
-// 		aws_public_key_file  = "{{.PublicKeyFile}}"
-// 		ansible_groups       = "[]"
-// 	}
-// `
-
 const azureCdnModule = `
 	module "azure-cdn-{{.Endpoint}}" {
 		source                  = "modules/azure-cdn-deployment"
@@ -166,24 +159,6 @@ const cloudfrontModule = `
 		aws_region 		  = "{{.Region}}"
 	}
 `
-
-//Deprecated
-// const digitalOceanModule = `
-// 	module "digital-ocean-{{.Region}}" {
-// 		source           = "modules/droplet-deployment"
-// 		do_token         = "${var.do_token}"
-// 		do_image         = "{{.Image}}"
-// 		pvt_key          = "{{.PrivateKey}}"
-// 		ssh_fingerprint  = "{{.Fingerprint}}"
-// 		do_region        = "{{.Region}}"
-// 		do_size          = "{{.Size}}"
-// 		do_count         = {{.Count}}
-// 		do_default_user  = "{{.DefaultUser}}"
-// 		do_name 		 = "{{.Name}}"
-// 		do_firewall_name = "{{.FirewallName}}"
-// 		ansible_groups       = "[]"
-// 	}
-// `
 
 const googleCloudModule = `
 	module "google-cloud-{{.Region}}" {
