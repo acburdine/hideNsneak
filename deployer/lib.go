@@ -174,23 +174,13 @@ func InitializeTerraformFiles() {
 		fmt.Println(err)
 	}
 
-	backendParsed, err := template.New("state").Parse(backend)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	secretBuff := new(bytes.Buffer)
-
-	backendBuff := new(bytes.Buffer)
 
 	err = secrets.Execute(secretBuff, &config)
 
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	err = backendParsed.Execute(backendBuff, &config)
 
 	mainFile, err := os.Create(tfMainFile)
 	checkErr(err)
@@ -204,7 +194,7 @@ func InitializeTerraformFiles() {
 	checkErr(err)
 	defer tfvarsFile.Close()
 
-	mainFile.Write(backendBuff.Bytes())
+	mainFile.Write([]byte(backend))
 	varFile.Write([]byte(variables))
 	tfvarsFile.Write(secretBuff.Bytes())
 }
