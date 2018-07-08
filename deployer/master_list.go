@@ -19,6 +19,75 @@ func retrieveUserAndPrivateKey(module ModuleState) (privateKey string, user stri
 }
 
 ////////////
+//AWS API///
+////////////
+func createAWSAPIFromState(modules []ModuleState) (awsAPIConfigWrappers []AWSApiConfigWrapper, moduleCount int) {
+	for _, module := range modules {
+		if len(module.Path) > 1 && strings.Contains(module.Path[1], "awsAPIDeploy") {
+			moduleCountString := strings.Split(module.Path[1], "awsAPIDeploy")[1]
+			tempInt, _ := strconv.Atoi(moduleCountString)
+			if moduleCount < tempInt {
+				moduleCount = tempInt
+			}
+			var tempConfig AWSApiConfigWrapper
+			for _, resource := range module.Resources {
+				tempConfig.ModuleName = module.Path[1]
+				switch resource.Type {
+				case "aws_api_gateway_deployment":
+					tempConfig.InvokeURI = resource.Primary.Attributes["invoke_url"]
+				case "aws_api_gateway_integration":
+					tempConfig.TargetURI = resource.Primary.Attributes["uri"]
+				case "aws_api_gateway_rest_api":
+					tempConfig.Name = resource.Primary.Attributes["name"]
+				default:
+					continue
+				}
+			}
+		}
+	}
+	return
+}
+
+////////////////
+//AWS Cloudfront
+////////////////
+
+func createCloudfrontFromState(modules []ModuleState) (cloudfrontConfigWrappers []CloudfrontConfigWrapper, moduleCount int) {
+	for _, module := range modules {
+		if len(module.Path) > 1 && strings.Contains(module.Path[1], "cloudfrontDeploy") {
+			moduleCountString := strings.Split(module.Path[1], "cloudfrontDeploy")[1]
+			tempInt, _ := strconv.Atoi(moduleCountString)
+			if moduleCount < tempInt {
+				moduleCount = tempInt
+			}
+			var tempConfig CloudfrontConfigWrapper
+			tempConfig.ModuleName = module.Path[1]
+			for _, resource := range module.Resources {
+				if resource.Type == "aws_cloudfront_distribution" {
+					tempConfig.Status = resource.Primary.Attributes["status"]
+					tempConfig.ID = resource.Primary.Attributes["id"]
+					tempConfig.Etag = resource.Primary.Attributes["etag"]
+					for key, value := range resource.Primary.Attributes {
+						if strings.Contains(key, "domain_name") {
+							if strings.Contains(key, "origin") {
+								tempConfig.Origin = value
+							} else {
+								tempConfig.URL = value
+							}
+						}
+
+						tempConfig.Status = resource.Primary.Attributes["status"]
+						tempConfig.Enabled = resource.Primary.Attributes["enabled"]
+					}
+				}
+			}
+			cloudfrontConfigWrappers = append(cloudfrontConfigWrappers, tempConfig)
+		}
+	}
+	return
+}
+
+////////////
 //EC2///////
 ////////////
 func returnInitialEC2Config(module ModuleState) (tempConfig EC2ConfigWrapper) {
@@ -161,6 +230,14 @@ func createDOConfigFromState(modules []ModuleState) (doConfigs []DOConfigWrapper
 	return
 }
 
+func CreateWrappersFromState(state State) (wrappers ConfigWrappers) {
+	wrappers.DO, wrappers.DropletModuleCount = createDOConfigFromState(state.Modules)
+	wrappers.EC2, wrappers.EC2ModuleCount = createEC2ConfigFromState(state.Modules)
+	wrappers.AWSAPI, wrappers.AWSAPIModuleCount = createAWSAPIFromState(state.Modules)
+	wrappers.Cloudfront, wrappers.CloudfrontModuleCount = createCloudfrontFromState(state.Modules)
+	return
+}
+
 //CreateMasterList takes a MasterList object as input
 //and maps it to the corresponding templates, executes them,
 //then adds the resulting string to a complete string
@@ -178,6 +255,23 @@ func CreateMasterFile(wrappers ConfigWrappers) (masterString string) {
 	for _, config := range wrappers.DO {
 		templ := template.Must(template.New("droplet").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainDropletModule))
 
+		var templBuffer bytes.Buffer
+		err := templ.Execute(&templBuffer, config)
+		masterString = masterString + templBuffer.String()
+		checkErr(err)
+	}
+
+	for _, config := range wrappers.AWSAPI {
+		templ := template.Must(template.New("awsapi").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainAWSAPIModule))
+
+		var templBuffer bytes.Buffer
+		err := templ.Execute(&templBuffer, config)
+		masterString = masterString + templBuffer.String()
+		checkErr(err)
+	}
+
+	for _, config := range wrappers.Cloudfront {
+		templ := template.Must(template.New("cloudfront").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainCloudfrontModule))
 		var templBuffer bytes.Buffer
 		err := templ.Execute(&templBuffer, config)
 		masterString = masterString + templBuffer.String()
