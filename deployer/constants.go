@@ -12,8 +12,8 @@ terraform {
 		dynamodb_table = "terraform-state-lock-dynamo"
 		region         = "us-east-1"
 		encrypt        = true
-		access_key     = "{{.AwsAccessID}}"
-		secret_key     = "{{.AwsSecretKey}}"
+		access_key     = "{{var.aws_access_key}}"
+		secret_key     = "{{var.aws_secret_key}}"
 		}
 	  }
 `
