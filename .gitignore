@@ -6,3 +6,6 @@ terraform/terraform.tfvars
 .terraform/
 deployer/secrets.go
 debug
+.vascode
+debug
+terraform/dynamodb/terraform.tfstate
