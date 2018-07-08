@@ -9,18 +9,22 @@
 		}
 	  }
 
-	module "ec2Deploy1" {
-	source          = "modules/ec2-deployment"
+  module "doDropletDeploy1" {
+	  source              = "modules/droplet-deployment"
+	  do_region_count     = "${map("nyc1",1)}"
+	  do_token            = "${var.do_token}"
+	  do_image            = "ubuntu-16-04-x64"
+	  do_private_key      = "/Users/mike.hodges/.ssh/do_rsa"
+	  do_ssh_fingerprint  = "b3:b2:c7:b1:73:9e:28:c6:61:8d:15:e1:0e:61:7e:35"
+	  do_size             = "512mb"
+	  do_default_user     = "root"
+  }
+module "cloudfrontDeploy1" {
+	source = "modules/cloudfront-deployment"
   
-	default_sg           = ""
-	aws_sg_id            = ""
-
-	region_count         = "${map("us-east-1",4, "us-east-2",2, "us-west-1",1, "us-west-2",1)}"
-	aws_instance_type    = "t2.micro"
-	ec2_default_user     = "ubuntu"
-	aws_access_key       = "${var.aws_access_key}"
-	aws_secret_key       = "${var.aws_secret_key}"
-	aws_keypair_name     = ""
-	aws_private_key_file = "/Users/mike.hodges/.ssh/do_rsa"
-	aws_public_key_file  = ""
+	aws_access_key = "${var.aws_access_key}"
+	aws_secret_key = "${var.aws_secret_key}"
+  
+	cloudfront_origin = "google.com"
+	cloudfront_enabled = false
   }

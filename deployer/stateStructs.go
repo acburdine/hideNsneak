@@ -117,14 +117,47 @@ type InstanceState struct {
 }
 
 type ConfigWrappers struct {
-	EC2 []EC2ConfigWrapper
-	DO  []DOConfigWrapper
+	EC2                   []EC2ConfigWrapper
+	EC2ModuleCount        int
+	DO                    []DOConfigWrapper
+	DropletModuleCount    int
+	AWSAPI                []AWSApiConfigWrapper
+	AWSAPIModuleCount     int
+	Cloudfront            []CloudfrontConfigWrapper
+	CloudfrontModuleCount int
 }
 
 type ListStruct struct {
-	IP       string
+	IP         string
+	Provider   string
+	Region     string
+	Name       string
+	Place      int
+	Username   string
+	PrivateKey string
+}
+
+type APIOutput struct {
+	TargetURI string
+	InvokeURI string
+	Provider  string
+	Name      string
+}
+
+func (output APIOutput) String() string {
+	return " - Target: " + output.TargetURI + " - Invoke URI: " + output.InvokeURI + " - Provider: " + output.Provider + " - Name: " + output.Name
+}
+
+type DomainFrontOutput struct {
+	Origin   string
+	ID       string
+	Invoke   string
 	Provider string
-	Region   string
 	Name     string
-	Place    int
+	Etag     string
+	Status   string
+}
+
+func (output DomainFrontOutput) String() string {
+	return " - Orign: " + output.Origin + " - Invoke: " + output.Invoke + " - Status: " + output.Status + " - Provider: " + output.Provider + " - Name: " + output.Name
 }

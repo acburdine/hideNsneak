@@ -16,13 +16,18 @@ package cmd
 
 import (
 	"fmt"
+	"terraform-playground/deployer"
 
 	"github.com/spf13/cobra"
 )
 
+var domainFrontProvider string
+var domainFrontIndex int
+var domainFrontOrigin string
+
 // helloCmd represents the hello command
 var domainFront = &cobra.Command{
-	Use:   "domainFront",
+	Use:   "domainfront",
 	Short: "Domain Front Command",
 	Long:  `Domain Front Command`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -34,8 +39,22 @@ var domainFrontDeploy = &cobra.Command{
 	Use:   "deploy",
 	Short: "deploys a domain front",
 	Long:  `Initializes and Deploys a domain front`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if domainFrontProvider != "AWS" || domainFrontProvider != "AZURE" {
+			return fmt.Errorf("Unknown provider")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Deploy Called")
+		marshalledState := deployer.TerraformStateMarshaller()
+		wrappers := deployer.CreateWrappersFromState(marshalledState)
+		wrappers = deployer.DomainFrontDeploy(domainFrontProvider, domainFrontOrigin, wrappers)
+
+		mainFile := deployer.CreateMasterFile(wrappers)
+
+		deployer.CreateTerraformMain(mainFile)
+
+		deployer.TerraformApply()
 	},
 }
 
@@ -43,8 +62,113 @@ var domainFrontDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroy",
 	Long:  `Destroys an existing domain front`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		marshalledState := deployer.TerraformStateMarshaller()
+		list := deployer.ListDomainFronts(marshalledState)
+
+		if domainFrontIndex > len(list)-1 {
+			return fmt.Errorf("domainfront index not in bounds")
+		}
+		if list[domainFrontIndex].Provider == "AWS" {
+			if list[domainFrontIndex].Status == "Enabled" {
+				return fmt.Errorf("domainfront must be disabled to destroy")
+			}
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Destroy Called")
+		marshalledState := deployer.TerraformStateMarshaller()
+		list := deployer.ListDomainFronts(marshalledState)
+		currentDomainfront := list[domainFrontIndex]
+
+		if list[domainFrontIndex].Provider == "AWS" {
+			fmt.Println(deployer.AWSCloudFrontDestroy(currentDomainfront))
+		}
+	},
+}
+
+var domainFrontDisable = &cobra.Command{
+	Use:   "disable",
+	Short: "disable",
+	Long:  `Disables an enabled domain front`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		marshalledState := deployer.TerraformStateMarshaller()
+		list := deployer.ListDomainFronts(marshalledState)
+		if domainFrontIndex > len(list)-1 {
+			return fmt.Errorf("domainfront index not in bounds")
+		}
+
+		if list[domainFrontIndex].Provider == "AWS" {
+			if list[domainFrontIndex].Status == "Disabled" {
+				return fmt.Errorf("domainfront is already disabled")
+			}
+		}
+
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		marshalledState := deployer.TerraformStateMarshaller()
+		list := deployer.ListDomainFronts(marshalledState)
+		wrappers := deployer.CreateWrappersFromState(marshalledState)
+
+		if list[domainFrontIndex].Provider == "AWS" {
+			for index, front := range wrappers.Cloudfront {
+				if list[domainFrontIndex].ID == front.ID {
+					wrappers.Cloudfront[index].Enabled = "false"
+				}
+			}
+		} else if domainFrontProvider == "Azure" {
+
+		}
+
+		mainFile := deployer.CreateMasterFile(wrappers)
+
+		deployer.CreateTerraformMain(mainFile)
+
+		deployer.TerraformApply()
+
+	},
+}
+
+var domainFrontEnable = &cobra.Command{
+	Use:   "enable",
+	Short: "enable",
+	Long:  `Enables a disabled domain front`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		marshalledState := deployer.TerraformStateMarshaller()
+		list := deployer.ListDomainFronts(marshalledState)
+		if domainFrontIndex > len(list)-1 {
+			return fmt.Errorf("domainfront index not in bounds")
+		}
+
+		if list[domainFrontIndex].Provider == "AWS" {
+			if list[domainFrontIndex].Status == "Enabled" {
+				return fmt.Errorf("domainfront is already enabled")
+			}
+		}
+
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		marshalledState := deployer.TerraformStateMarshaller()
+		list := deployer.ListDomainFronts(marshalledState)
+		wrappers := deployer.CreateWrappersFromState(marshalledState)
+
+		if list[domainFrontIndex].Provider == "AWS" {
+			for index, front := range wrappers.Cloudfront {
+				if list[domainFrontIndex].ID == front.ID {
+					wrappers.Cloudfront[index].Enabled = "true"
+				}
+			}
+		} else if list[domainFrontIndex].Provider == "Azure" {
+
+		}
+
+		mainFile := deployer.CreateMasterFile(wrappers)
+
+		deployer.CreateTerraformMain(mainFile)
+
+		deployer.TerraformApply()
 	},
 }
 
@@ -53,7 +177,14 @@ var domainFrontList = &cobra.Command{
 	Short: "list domain fronts",
 	Long:  `list domain fronts`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("List called")
+		marshalledState := deployer.TerraformStateMarshaller()
+		list := deployer.ListDomainFronts(marshalledState)
+		for index, front := range list {
+			fmt.Print(index)
+			fmt.Println(front.String())
+		}
+
+		return
 	},
 }
 
@@ -68,15 +199,20 @@ var domainFrontInfo = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(domainFront)
-	domainFront.AddCommand(domainFrontDeploy, domainFrontDestroy, domainFrontInfo, domainFrontList)
+	domainFront.AddCommand(domainFrontDeploy, domainFrontDestroy, domainFrontInfo, domainFrontList, domainFrontEnable, domainFrontDisable)
 
-	// Here you will define your flags and configuration settings.
+	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontProvider, "provider", "p", "", "Specify the provider. i.e. AWS or Azure")
+	domainFrontDeploy.MarkPersistentFlagRequired("provider")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// helloCmd.PersistentFlags().String("foo", "", "A help for foo")
+	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontOrigin, "target", "t", "", "Specify the target domain. i.e. google.com")
+	domainFrontDeploy.MarkPersistentFlagRequired("target")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// helloCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	domainFrontEnable.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
+	domainFrontEnable.MarkPersistentFlagRequired("id")
+
+	domainFrontDisable.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
+	domainFrontDisable.MarkPersistentFlagRequired("id")
+
+	domainFrontDestroy.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
+	domainFrontDestroy.MarkPersistentFlagRequired("id")
 }

@@ -1,16 +1,14 @@
 package deployer
 
-type AWSApiConfigWrapper struct {
-	ModuleName string
-}
-
 type AWSDomainFront struct{}
 
 type AWSSecurityGroup struct{}
 
-type cloudFrontDeployer struct {
-	Origin string
-	Region string
+type AWSApiConfigWrapper struct {
+	ModuleName string
+	Name       string
+	TargetURI  string
+	InvokeURI  string
 }
 
 type EC2ConfigWrapper struct {
@@ -23,4 +21,15 @@ type EC2ConfigWrapper struct {
 	PublicKey    string
 	KeyPairName  string
 	RegionMap    map[string]int
+}
+
+type CloudfrontConfigWrapper struct {
+	ModuleName string
+	ID         string
+	Provider   string
+	URL        string
+	Origin     string
+	Status     string
+	Enabled    string
+	Etag       string
 }

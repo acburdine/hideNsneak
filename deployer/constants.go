@@ -70,6 +70,27 @@ const mainEc2Module = `
   }
 `
 
+const mainAWSAPIModule = `module "{{.ModuleName}}" {
+	source = "modules/aws-api-gateway"
+  
+	aws_access_key = "${var.aws_access_key}"
+	aws_secret_key = "${var.aws_secret_key}"
+  
+	aws_api_target_uri = "{{.TargetURI}}"
+  }
+  
+`
+
+const mainCloudfrontModule = `module "{{.ModuleName}}" {
+	source = "modules/cloudfront-deployment"
+  
+	aws_access_key = "${var.aws_access_key}"
+	aws_secret_key = "${var.aws_secret_key}"
+  
+	cloudfront_origin = "{{.Origin}}"
+	cloudfront_enabled = {{.Enabled}}
+  }`
+
 const mainDropletModule = `
   module "{{.ModuleName}}" {
 	  source              = "modules/droplet-deployment"

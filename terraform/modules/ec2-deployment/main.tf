@@ -51,7 +51,6 @@ module "aws-us-west-1" {
     "aws" = "aws.us-west-1"
   }
 
-  #TODO: Fix Security Groups
   default_sg = "${var.default_sg}"
 
   aws_sg_id            = "${var.aws_sg_id}"
