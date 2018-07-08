@@ -2,6 +2,6 @@
 # Synchronize two directories on one remote host.
 - name: push files from host to remote server
   synchronize:
-    src: /host/absolute/path
-    dest: /remote/absolute/path
-  delegate_to: "{{ inventory_hostname }}" 
+    src: "{{ host_absolute_path }}"
+    dest: "{{ remote_absolute_path }}"
+  delegate_to: "{{ inventory_howstname }}" 
