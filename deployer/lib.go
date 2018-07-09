@@ -464,11 +464,11 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 				count, err := strconv.Atoi(finalString)
 				if err == nil {
 
-					nameSlice[len(nameSlice)-1] = "[" + finalString + "]"
+					index := "[" + finalString + "]"
 
-					newName := strings.Join(nameSlice, ".")
+					newName := strings.Join(nameSlice[:len(nameSlice)-1], ".")
 
-					fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName
+					fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName + index
 				}
 				switch resource.Type {
 				case "digitalocean_droplet":
