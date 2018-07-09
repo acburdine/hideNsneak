@@ -12,6 +12,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 ////////////////////////
@@ -173,53 +175,47 @@ func ValidateListOfInstances(numberInput string) error {
 
 //GeneratePlaybookFile generates an ansible playbook
 func GeneratePlaybookFile(app string) string {
-	var playbookBase = `---
-- name: install all packages
-hosts: all
-become: true
-gather_facts: false
-pre_tasks:
-	- name: installing python
-	raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-	register: output
-	changed_when: output.stdout != ""
-	roles:
-		- common
-`
-	var append = "		- " + app + "\n"
-	playbook := playbookBase + append
-	return playbook
+	var playbookStruct ansiblePlaybook
+
+	playbookStruct.GenerateDefault()
+
+	playbookStruct.Roles = append(playbookStruct.Roles, app)
+
+	playbookList := []ansiblePlaybook{playbookStruct}
+
+	playbook, err := yaml.Marshal(playbookList)
+
+	if err != nil {
+		fmt.Println("Error marshalling playbook")
+	}
+
+	return string(playbook)
 }
 
 //GenerateHostsFile generates an ansible host file
-func GenerateHostFile(ipAddress string, user string, sshPrivKey string,
-	fqdn string, domain string) string {
-	hostTemplate := `---
-all:
-	hosts:
-		{{.ipAddress}}:
-			ansible_host: {{.ipAddress}}
-			ansible_user: {{.user}}
-			ansible_ssh_private_key_file: {{.sshPrivKey}}
-			ansible_fqdn: {{.fqdn}}
-			ansible_domain: {{.domain}}
-				`
-	tmpl, err := template.New("host").Parse(hostTemplate)
-	if err != nil {
-		log.Fatal(err)
+func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string) string {
+	var inventory ansibleInventory
+	inventory.All.Hosts = make(map[string]ansibleHost)
+	for _, instance := range instances {
+		inventory.All.Hosts[instance.IP] = ansibleHost{
+			AnsibleHost:       instance.IP,
+			AnsiblePrivateKey: instance.PrivateKey,
+			AnsibleUser:       instance.Username,
+			AnsibleFQDN:       fqdn,
+			AnsibleDomain:     domain,
+			BurpDir:           burpDir,
+			BurpLocalAddress:  "127.0.0.1",
+			BurpPublicAddress: instance.IP,
+		}
 	}
-	hostmap := map[string]interface{}{
-		"ipAddress":  ipAddress,
-		"user":       user,
-		"sshPrivKey": sshPrivKey,
-		"fqdn":       fqdn,
-		"domain":     domain,
-	}
-	hostBuff := new(bytes.Buffer)
-	tmpl.Execute(hostBuff, hostmap)
 
-	hostFile := hostBuff.String()
-	return hostFile
+	hostFile, err := yaml.Marshal(inventory)
+
+	if err != nil {
+		fmt.Println("problem marshalling inventory file")
+	}
+
+	return string(hostFile)
 }
 
 func ExecAnsible(hostsFile string, playbook string, filepath string) string {

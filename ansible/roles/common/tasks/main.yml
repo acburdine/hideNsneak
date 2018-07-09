@@ -1,5 +1,7 @@
 ---
 - name: ping
   ping:
+- name: Gathering facts
+  setup:
 
 

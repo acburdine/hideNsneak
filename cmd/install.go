@@ -27,6 +27,7 @@ var installIndex int
 var numberInput string
 var fqdn string
 var domain string
+var burpDir string
 
 var install = &cobra.Command{
 	Use:   "install",
@@ -52,9 +53,9 @@ var burpInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instance := list[installIndex]
+		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/ansible.yml", playbook)
@@ -89,9 +90,9 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instance := list[installIndex]
+		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("../ansible/main.yml", playbook)
@@ -115,9 +116,9 @@ var goPhishInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instance := list[installIndex]
+		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("../ansible/main.yml", playbook)
@@ -141,9 +142,9 @@ var letsEncryptInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instance := list[installIndex]
+		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("../ansible/main.yml", playbook)
@@ -167,9 +168,9 @@ var nmapInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instance := list[installIndex]
+		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("../ansible/main.yml", playbook)
@@ -193,9 +194,9 @@ var socatInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instance := list[installIndex]
+		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -219,9 +220,9 @@ var sqlMapInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instance := list[installIndex]
+		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("../ansible/main.yml", playbook)
@@ -240,6 +241,8 @@ func init() {
 	burpInstall.MarkPersistentFlagRequired("fqdn")
 	burpInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	burpInstall.MarkPersistentFlagRequired("domain")
+	burpInstall.PersistentFlags().StringVarP(&burpDir, "burpDir", "b", "", "Specify the directory where burp is located")
+	burpInstall.MarkPersistentFlagRequired("burpDir")
 
 	cobaltStrikeInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
 	cobaltStrikeInstall.MarkFlagRequired("id")
@@ -264,22 +267,10 @@ func init() {
 
 	nmapInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
 	nmapInstall.MarkFlagRequired("id")
-	nmapInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
-	nmapInstall.MarkPersistentFlagRequired("fqdn")
-	nmapInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
-	nmapInstall.MarkPersistentFlagRequired("domain")
 
 	socatInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
 	socatInstall.MarkFlagRequired("id")
-	socatInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
-	socatInstall.MarkPersistentFlagRequired("fqdn")
-	socatInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
-	socatInstall.MarkPersistentFlagRequired("domain")
 
 	sqlMapInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
 	sqlMapInstall.MarkFlagRequired("id")
-	sqlMapInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
-	sqlMapInstall.MarkPersistentFlagRequired("fqdn")
-	sqlMapInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
-	sqlMapInstall.MarkPersistentFlagRequired("domain")
 }
