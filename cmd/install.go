@@ -56,8 +56,8 @@ var burpInstall = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
 
-		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("../ansible/main.yml", playbook)
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/ansible.yml", playbook)
 
 		//run burp installation here
 
@@ -197,8 +197,8 @@ var socatInstall = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
 
-		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("../ansible/main.yml", playbook)
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
 
 		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
