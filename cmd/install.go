@@ -25,6 +25,8 @@ var installArgs string
 var burpCmd string
 var installIndex int
 var numberInput string
+var fqdn string
+var domain string
 
 var install = &cobra.Command{
 	Use:   "install",
@@ -41,10 +43,18 @@ var burpInstall = &cobra.Command{
 	Long:  `Installs Burp Suite to remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// generate host file
-		// generate playbook file
+		playbook := deployer.GeneratePlaybookFile("burp")
+		//TODO: right now we can only do one host, but need to do multiples
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instance := list[installIndex]
+
+		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
 
 		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("../ansible/main.yml", playbook)
@@ -64,17 +74,31 @@ var burpInstall = &cobra.Command{
 	},
 }
 
-// var cobaltStrikeInstall = &cobra.Command{
-// 	Use:   "cobaltstrike",
-// 	Short: "Installs Cobalt Strike",
-// 	Long:  `Installs Cobalt Strike to remote server`,
-// Args: func(cmd *cobra.Command, args []string) error {
-// 	deployer.ValidateListOfInstances(numberInput)
-// },
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		//run burp installation here
-// 	},
-// }
+var cobaltStrikeInstall = &cobra.Command{
+	Use:   "cobaltstrike",
+	Short: "Installs Cobalt Strike",
+	Long:  `Installs Cobalt Strike to remote server`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateListOfInstances(numberInput)
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		playbook := deployer.GeneratePlaybookFile("cobaltstrike")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instance := list[installIndex]
+
+		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+
+		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("../ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+	},
+}
 
 // var goPhishInstall = &cobra.Command{
 // 	Use:   "burp",
@@ -141,4 +165,9 @@ func init() {
 	install.AddCommand(burpInstall /*, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall*/)
 
 	burpInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	burpInstall.MarkPersistentFlagRequired("id")
+	burpInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
+	burpInstall.MarkPersistentFlagRequired("fqdn")
+	burpInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	burpInstall.MarkPersistentFlagRequired("domain")
 }

@@ -31,7 +31,6 @@ var regionAws []string
 var regionDo []string
 var regionAzure []string
 var regionGoogle []string
-var numberInput string
 
 var instance = &cobra.Command{
 	Use:   "instance",
@@ -88,6 +87,7 @@ var instanceDestroy = &cobra.Command{
 	Long:  `destroys an instance`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
+		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
