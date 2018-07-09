@@ -232,7 +232,7 @@ var sqlMapInstall = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(install)
-	install.AddCommand(burpInstall /*, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall*/)
+	install.AddCommand(burpInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall)
 
 	burpInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
 	burpInstall.MarkPersistentFlagRequired("id")
@@ -240,4 +240,46 @@ func init() {
 	burpInstall.MarkPersistentFlagRequired("fqdn")
 	burpInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	burpInstall.MarkPersistentFlagRequired("domain")
+
+	cobaltStrikeInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	cobaltStrikeInstall.MarkFlagRequired("id")
+	cobaltStrikeInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
+	cobaltStrikeInstall.MarkPersistentFlagRequired("fqdn")
+	cobaltStrikeInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	cobaltStrikeInstall.MarkPersistentFlagRequired("domain")
+
+	goPhishInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	goPhishInstall.MarkFlagRequired("id")
+	goPhishInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
+	goPhishInstall.MarkPersistentFlagRequired("fqdn")
+	goPhishInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	goPhishInstall.MarkPersistentFlagRequired("domain")
+
+	letsEncryptInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	letsEncryptInstall.MarkFlagRequired("id")
+	letsEncryptInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
+	letsEncryptInstall.MarkPersistentFlagRequired("fqdn")
+	letsEncryptInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	letsEncryptInstall.MarkPersistentFlagRequired("domain")
+
+	nmapInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	nmapInstall.MarkFlagRequired("id")
+	nmapInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
+	nmapInstall.MarkPersistentFlagRequired("fqdn")
+	nmapInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	nmapInstall.MarkPersistentFlagRequired("domain")
+
+	socatInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	socatInstall.MarkFlagRequired("id")
+	socatInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
+	socatInstall.MarkPersistentFlagRequired("fqdn")
+	socatInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	socatInstall.MarkPersistentFlagRequired("domain")
+
+	sqlMapInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	sqlMapInstall.MarkFlagRequired("id")
+	sqlMapInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
+	sqlMapInstall.MarkPersistentFlagRequired("fqdn")
+	sqlMapInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	sqlMapInstall.MarkPersistentFlagRequired("domain")
 }
