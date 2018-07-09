@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"terraform-playground/deployer"
 )
 
 ////////////////////////
@@ -149,14 +149,14 @@ func WriteToFile(path string, content string) {
 }
 
 //ValidateListOfInstances makes sure that the number input is actually available in our list of active instances
-func ValidateListOfInstances(numberInput string) {
-	marshalledState := deployer.TerraformStateMarshaller()
-	list := deployer.ListIPAddresses(marshalledState)
-	if !deployer.IsValidNumberInput(numberInput) {
+func ValidateListOfInstances(numberInput string) error {
+	marshalledState := TerraformStateMarshaller()
+	list := ListIPAddresses(marshalledState)
+	if !IsValidNumberInput(numberInput) {
 		return fmt.Errorf("invalid formatting specified: %s", numberInput)
 	}
-	numsToInstall := deployer.ExpandNumberInput(numberInput)
-	largestInstanceNumToInstall := deployer.FindLargestNumber(numsToInstall)
+	numsToInstall := ExpandNumberInput(numberInput)
+	largestInstanceNumToInstall := FindLargestNumber(numsToInstall)
 
 	//make sure the largestInstanceNumToInstall is not bigger than totalInstancesAvailable
 	if len(list) < largestInstanceNumToInstall {
@@ -193,7 +193,7 @@ func GeneratePlaybookFile(app string) string {
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(ipAddress string, user string, sshPrivKey string,
 	fqdn string, domain string) string {
-	hostFile := `
+	hostTemplate := `
 				---
 				all:
 				  hosts:
@@ -204,7 +204,42 @@ func GenerateHostFile(ipAddress string, user string, sshPrivKey string,
 				      ansible_fqdn: {{.fqdn}}
 				      ansible_domain: {{.domain}}
 				`
+	tmpl, err := template.New("host").Parse(hostTemplate)
+	if err != nil {
+		log.Fatal(err)
+	}
+	hostmap := map[string]interface{}{
+		"ipAddress":  ipAddress,
+		"user":       user,
+		"sshPrivKey": sshPrivKey,
+		"fqdn":       fqdn,
+		"domain":     domain,
+	}
+	hostBuff := new(bytes.Buffer)
+	tmpl.Execute(hostBuff, hostmap)
+
+	hostFile := hostBuff.String()
 	return hostFile
+}
+
+func ExecAnsible(hostsFile string, playbook string, filepath string) string {
+	var stdout, stderr bytes.Buffer
+	binary, err := exec.LookPath("ansible-playbook")
+
+	checkErr(err)
+
+	args := []string{"-i", hostsFile, playbook}
+	cmd := exec.Command(binary, args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = filepath
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(stderr.String())
+	}
+
+	return stdout.String()
 }
 
 /////////////////////
