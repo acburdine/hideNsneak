@@ -100,65 +100,135 @@ var cobaltStrikeInstall = &cobra.Command{
 	},
 }
 
-// var goPhishInstall = &cobra.Command{
-// 	Use:   "burp",
-// 	Short: "Installs burp suite",
-// 	Long:  `Installs burp suite to remote server`,
-// Args: func(cmd *cobra.Command, args []string) error {
-// 	deployer.ValidateListOfInstances(numberInput)
-// },
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		//run burp installation here
-// 	},
-// }
+var goPhishInstall = &cobra.Command{
+	Use:   "gophish",
+	Short: "Installs Gophish",
+	Long:  `Installs Gophish to remote server`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateListOfInstances(numberInput)
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		playbook := deployer.GeneratePlaybookFile("gophish")
 
-// var letsEncryptInstall = &cobra.Command{
-// 	Use:   "burp",
-// 	Short: "Installs burp suite",
-// 	Long:  `Installs burp suite to remote server`,
-// Args: func(cmd *cobra.Command, args []string) error {
-// 	deployer.ValidateListOfInstances(numberInput)
-// },
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		//run burp installation here
-// 	},
-// }
+		marshalledState := deployer.TerraformStateMarshaller()
 
-// var nmapInstall = &cobra.Command{
-// 	Use:   "burp",
-// 	Short: "Installs burp suite",
-// 	Long:  `Installs burp suite to remote server`,
-// Args: func(cmd *cobra.Command, args []string) error {
-// 	deployer.ValidateListOfInstances(numberInput)
-// },
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		//run burp installation here
-// 	},
-// }
+		list := deployer.ListIPAddresses(marshalledState)
 
-// var socatInstall = &cobra.Command{
-// 	Use:   "burp",
-// 	Short: "Installs burp suite",
-// 	Long:  `Installs burp suite to remote server`,
-// Args: func(cmd *cobra.Command, args []string) error {
-// 	deployer.ValidateListOfInstances(numberInput)
-// },
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		//run burp installation here
-// 	},
-// }
+		instance := list[installIndex]
 
-// var sqlMapInstall = &cobra.Command{
-// 	Use:   "burp",
-// 	Short: "Installs burp suite",
-// 	Long:  `Installs burp suite to remote server`,
-// Args: func(cmd *cobra.Command, args []string) error {
-// 	deployer.ValidateListOfInstances(numberInput)
-// },
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		//run burp installation here
-// 	},
-// }
+		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+
+		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("../ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+	},
+}
+
+var letsEncryptInstall = &cobra.Command{
+	Use:   "letsencrypt",
+	Short: "Installs Letsencrypt",
+	Long:  `Installs Letsencrypt to remote server`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateListOfInstances(numberInput)
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		playbook := deployer.GeneratePlaybookFile("letsencrypt")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instance := list[installIndex]
+
+		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+
+		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("../ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+	},
+}
+
+var nmapInstall = &cobra.Command{
+	Use:   "nmap",
+	Short: "Installs Nmap",
+	Long:  `Installs Nmap to remote server`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateListOfInstances(numberInput)
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		playbook := deployer.GeneratePlaybookFile("nmap")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instance := list[installIndex]
+
+		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+
+		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("../ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+	},
+}
+
+var socatInstall = &cobra.Command{
+	Use:   "socat",
+	Short: "Installs Socat",
+	Long:  `Installs Socat to remote server`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateListOfInstances(numberInput)
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		playbook := deployer.GeneratePlaybookFile("socat")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instance := list[installIndex]
+
+		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+
+		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("../ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+	},
+}
+
+var sqlMapInstall = &cobra.Command{
+	Use:   "sqlmap",
+	Short: "Installs SQLmap",
+	Long:  `Installs SQLmap to remote server`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateListOfInstances(numberInput)
+		return nil
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		playbook := deployer.GeneratePlaybookFile("sqlmap")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instance := list[installIndex]
+
+		hostFile := deployer.GenerateHostFile(instance.IP, instance.Username, instance.PrivateKey, fqdn, domain)
+
+		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("../ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+	},
+}
 
 func init() {
 	rootCmd.AddCommand(install)
