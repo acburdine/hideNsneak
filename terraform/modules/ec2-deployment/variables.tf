@@ -33,17 +33,15 @@ variable "aws_secret_key" {}
 
 variable "aws_public_key_file" {}
 
-variable "aws_keypair_name" {
-  default = "hidensneak"
-}
+variable "aws_keypair_name" {}
 
-variable "default_sg" {
-  default = "ssh_inbound"
-}
+# variable "default_sg" {
+#   default = "ssh_inbound"
+# }
 
-variable "aws_sg_id" {
-  default = ""
-}
+# variable "aws_sg_id" {
+#   default = ""
+# }
 
 variable "aws_instance_type" {
   default = "t2.micro"

@@ -5,14 +5,8 @@ const tfMainFile = "terraform/main.tf"
 const tfVariablesFile = "terraform/variables.tf"
 const tfVarsFile = "terraform/terraform.tfvars"
 const backend = `terraform {
-	backend "s3" {
-		bucket         = "hidensneak-terraform"
-		key            = "filename.tfstate"
-		dynamodb_table = "terraform-state-lock-dynamo"
-		region         = "us-east-1"
-		encrypt        = true
-		}
-	  }
+	backend "s3" {}
+}
 `
 
 const templateSecrets = `
@@ -69,9 +63,6 @@ const outputs = `output "providers" {
 const mainEc2Module = `
 	module "{{.ModuleName}}" {
 	source          = "modules/ec2-deployment"
-  
-	default_sg           = "{{.DefaultSG}}"
-	aws_sg_id            = "{{.SgID}}"
 
 	region_count         = "${map({{$c := counter}}{{range $key, $value := .RegionMap}}{{if call $c}}, {{end}}"{{$key}}",{{$value}}{{end}})}"
 	aws_instance_type    = "{{.InstanceType}}"

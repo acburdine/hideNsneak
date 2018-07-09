@@ -10,9 +10,9 @@ variable "aws_public_key_file" {}
 
 variable "aws_keypair_name" {}
 
-variable "default_sg" {}
+# variable "default_sg" {}
 
-variable "aws_sg_id" {}
+# variable "aws_sg_id" {}
 
 variable "aws_instance_type" {
   default = "t2.micro"

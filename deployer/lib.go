@@ -196,6 +196,8 @@ func InitializeTerraformFiles() {
 	checkErr(err)
 	defer tfvarsFile.Close()
 
+	fmt.Println("Creating Terraform Files...")
+
 	mainFile.Write([]byte(backend))
 	varFile.Write([]byte(variables))
 	tfvarsFile.Write([]byte(noEscapeSecrets))
@@ -206,10 +208,12 @@ func InitializeTerraformFiles() {
 func TerraformApply() {
 
 	//Initializing Terraform
+	fmt.Println("Initializing Terraform...")
 	args := []string{"init", "-backend-config=../config/backend.txt"}
 	execTerraform(args, "terraform")
 
 	//Applying Changes Identified in tfplan
+	fmt.Println("Applying Terraform Changes...")
 	args = []string{"apply", "-input=false", "-auto-approve"}
 	execTerraform(args, "terraform")
 
@@ -235,7 +239,6 @@ func TerraformDestroy(nameList []string) {
 //and marshalls the resulting JSON into a TerraformOutput struct
 func TerraformStateMarshaller() (outputStruct State) {
 
-	//Initializing Terraform
 	args := []string{"state", "pull"}
 	output := execTerraform(args, "terraform")
 
@@ -311,8 +314,8 @@ func PrintProxyChains(socksList string) (proxies string) {
 
 func PrintSocksd(socksList string) (proxies string) {
 	socksArray := strings.Split(socksList, "\n")
-	proxies = fmt.Sprintf("\"upstreams\": [\n")
-	for _, command := range socksArray {
+	proxies = "{\"proxies\":[\n\t\"upstreams\":["
+	for index, command := range socksArray {
 		var port string
 		var ip string
 		args := strings.Split(command, " ")
@@ -325,10 +328,14 @@ func PrintSocksd(socksList string) (proxies string) {
 				ip = strings.Split(arg, "@")[1]
 			}
 		}
-		proxies = proxies + fmt.Sprintf("{\"type\": \"socks5\", \"address\": \"127.0.0.1:%s\", \"target\": \"%s\"}", port, ip)
+		upstream := fmt.Sprintf("\t\t{\"type\": \"socks5\", \"address\": \"127.0.0.1:%s\", \"target\": \"%s\"}", port, ip)
+		if index != len(socksArray)-1 {
+			upstream = upstream + ","
+		}
+		proxies = proxies + "\n" + upstream
 
 	}
-	proxies = proxies + fmt.Sprintf("\n]\n")
+	proxies = proxies + "\n\t\t]\n\t}\n\t]\n}"
 	return
 }
 
