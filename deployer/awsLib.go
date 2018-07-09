@@ -109,7 +109,8 @@ func checkEC2SecurityGroupExistence(secret string, accessID string, region strin
 func compareEC2Config(instanceOne EC2ConfigWrapper, instanceTwo EC2ConfigWrapper) bool {
 	if instanceOne.DefaultUser == instanceTwo.DefaultUser &&
 		instanceOne.InstanceType == instanceTwo.InstanceType &&
-		instanceOne.PrivateKey == instanceTwo.PrivateKey {
+		instanceOne.PrivateKey == instanceTwo.PrivateKey &&
+		instanceOne.KeyPairName == instanceTwo.KeyPairName {
 		return true
 	}
 	return false
