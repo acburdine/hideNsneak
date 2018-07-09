@@ -140,10 +140,13 @@ func stringInSlice(a string, list []string) bool {
 
 //WriteToFile opens, clears and writes to file
 func WriteToFile(path string, content string) {
-	file, err := os.Open(path)
+	fmt.Println(path)
+	fmt.Println(content)
+	file, err := os.Create(path)
 	checkErr(err)
 
-	file.Write([]byte(content))
+	_, err = file.Write([]byte(content))
+	checkErr(err)
 	defer file.Close()
 }
 
@@ -170,21 +173,20 @@ func ValidateListOfInstances(numberInput string) error {
 
 //GeneratePlaybookFile generates an ansible playbook
 func GeneratePlaybookFile(app string) string {
-	var playbookBase = `
-				---
-				- name: install all packages
-				  hosts: all
-				  become: true
-				  gather_facts: false
-				  pre_tasks:
-					- name: installing python
-					  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-					  register: output
-					  changed_when: output.stdout != ""
-				  roles:
-					- common
-				`
-	var append = "    - " + app
+	var playbookBase = `---
+- name: install all packages
+hosts: all
+become: true
+gather_facts: false
+pre_tasks:
+	- name: installing python
+	raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+	register: output
+	changed_when: output.stdout != ""
+	roles:
+		- common
+`
+	var append = "		- " + app + "\n"
 	playbook := playbookBase + append
 	return playbook
 }
@@ -192,16 +194,15 @@ func GeneratePlaybookFile(app string) string {
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(ipAddress string, user string, sshPrivKey string,
 	fqdn string, domain string) string {
-	hostTemplate := `
-				---
-				all:
-				  hosts:
-				    {{.ipAddress}}:
-				      ansible_host: {{.ipAddress}}
-				      ansible_user: {{.user}}
-				      ansible_ssh_private_key_file: {{.sshPrivKey}}
-				      ansible_fqdn: {{.fqdn}}
-				      ansible_domain: {{.domain}}
+	hostTemplate := `---
+all:
+	hosts:
+		{{.ipAddress}}:
+			ansible_host: {{.ipAddress}}
+			ansible_user: {{.user}}
+			ansible_ssh_private_key_file: {{.sshPrivKey}}
+			ansible_fqdn: {{.fqdn}}
+			ansible_domain: {{.domain}}
 				`
 	tmpl, err := template.New("host").Parse(hostTemplate)
 	if err != nil {
