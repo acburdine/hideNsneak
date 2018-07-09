@@ -15,3 +15,6 @@ terraform/modules/gcp-deployment/inboxa90-f05affa600c1.json
 terraform/main.tf
 config/backend.txt
 terraform/terraform.tfstate*
+ansible/hosts.yml
+ansible/ansible.yml
+ansible/main.yml
