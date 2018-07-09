@@ -3,6 +3,7 @@ package deployer
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -75,6 +76,7 @@ func execCmd(binary string, args []string, filepath string) string {
 	return stdout.String()
 }
 
+//IsValidNumberInput takes in a string and checks if the numbers are valid
 func IsValidNumberInput(input string) bool {
 	sliceToParse := strings.Split(input, ",")
 
@@ -100,6 +102,7 @@ func IsValidNumberInput(input string) bool {
 	return true
 }
 
+//ExpandNumberInput expands input string and returns a list of ints
 func ExpandNumberInput(input string) []int {
 	var result []int
 	sliceToParse := strings.Split(input, ",")
@@ -133,6 +136,109 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+//WriteToFile opens, clears and writes to file
+func WriteToFile(path string, content string) {
+	file, err := os.Open(path)
+	checkErr(err)
+
+	file.Write([]byte(content))
+	defer file.Close()
+}
+
+//ValidateListOfInstances makes sure that the number input is actually available in our list of active instances
+func ValidateListOfInstances(numberInput string) error {
+	marshalledState := TerraformStateMarshaller()
+	list := ListIPAddresses(marshalledState)
+	if !IsValidNumberInput(numberInput) {
+		return fmt.Errorf("invalid formatting specified: %s", numberInput)
+	}
+	numsToInstall := ExpandNumberInput(numberInput)
+	largestInstanceNumToInstall := FindLargestNumber(numsToInstall)
+
+	//make sure the largestInstanceNumToInstall is not bigger than totalInstancesAvailable
+	if len(list) < largestInstanceNumToInstall {
+		return errors.New("the number you entered is too big; try running `list` to see the number of instances you have")
+	}
+	return nil
+}
+
+/////////////////////
+//Ansible Functions
+/////////////////////
+
+//GeneratePlaybookFile generates an ansible playbook
+func GeneratePlaybookFile(app string) string {
+	var playbookBase = `
+				---
+				- name: install all packages
+				  hosts: all
+				  become: true
+				  gather_facts: false
+				  pre_tasks:
+					- name: installing python
+					  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+					  register: output
+					  changed_when: output.stdout != ""
+				  roles:
+					- common
+				`
+	var append = "    - " + app
+	playbook := playbookBase + append
+	return playbook
+}
+
+//GenerateHostsFile generates an ansible host file
+func GenerateHostFile(ipAddress string, user string, sshPrivKey string,
+	fqdn string, domain string) string {
+	hostTemplate := `
+				---
+				all:
+				  hosts:
+				    {{.ipAddress}}:
+				      ansible_host: {{.ipAddress}}
+				      ansible_user: {{.user}}
+				      ansible_ssh_private_key_file: {{.sshPrivKey}}
+				      ansible_fqdn: {{.fqdn}}
+				      ansible_domain: {{.domain}}
+				`
+	tmpl, err := template.New("host").Parse(hostTemplate)
+	if err != nil {
+		log.Fatal(err)
+	}
+	hostmap := map[string]interface{}{
+		"ipAddress":  ipAddress,
+		"user":       user,
+		"sshPrivKey": sshPrivKey,
+		"fqdn":       fqdn,
+		"domain":     domain,
+	}
+	hostBuff := new(bytes.Buffer)
+	tmpl.Execute(hostBuff, hostmap)
+
+	hostFile := hostBuff.String()
+	return hostFile
+}
+
+func ExecAnsible(hostsFile string, playbook string, filepath string) string {
+	var stdout, stderr bytes.Buffer
+	binary, err := exec.LookPath("ansible-playbook")
+
+	checkErr(err)
+
+	args := []string{"-i", hostsFile, playbook}
+	cmd := exec.Command(binary, args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = filepath
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(stderr.String())
+	}
+
+	return stdout.String()
 }
 
 /////////////////////
