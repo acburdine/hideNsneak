@@ -333,7 +333,7 @@ func TerraformDestroy(nameList []string) {
 	for _, name := range nameList {
 		args = append(args, "-target", name)
 	}
-	fmt.Println(args)
+	fmt.Println("Destroying Terraform Targets...")
 
 	execTerraform(args, "terraform")
 }

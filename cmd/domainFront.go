@@ -188,18 +188,9 @@ var domainFrontList = &cobra.Command{
 	},
 }
 
-var domainFrontInfo = &cobra.Command{
-	Use:   "info",
-	Short: "info",
-	Long:  `provides information on specific domain front`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Info Called")
-	},
-}
-
 func init() {
 	rootCmd.AddCommand(domainFront)
-	domainFront.AddCommand(domainFrontDeploy, domainFrontDestroy, domainFrontInfo, domainFrontList, domainFrontEnable, domainFrontDisable)
+	domainFront.AddCommand(domainFrontDeploy, domainFrontDestroy, domainFrontList, domainFrontEnable, domainFrontDisable)
 
 	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontProvider, "provider", "p", "", "Specify the provider. i.e. AWS or Azure")
 	domainFrontDeploy.MarkPersistentFlagRequired("provider")

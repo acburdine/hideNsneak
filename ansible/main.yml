@@ -1,22 +1,13 @@
----
 - name: install all packages
   hosts: all
   become: true
   gather_facts: false
   pre_tasks:
-    - name: installing python
-      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-      register: output
-      changed_when: output.stdout != ""
+  - name: installing python
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+    register: output
+    changed_when: output.stdout != ""
   roles:
-    - common
-    #everything down will be dynamic
-    # - burp
-    # - cobaltstrike
-    # - socat
-    # - letsencrypt
-    # - gophish
-    # - nmap
-    # - sqlmap
-    # - sync-push
-    # - sync-pull
+  - common
+  - letsencrypt
+  - burp
