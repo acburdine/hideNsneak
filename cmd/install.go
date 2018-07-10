@@ -58,7 +58,7 @@ var burpInstall = &cobra.Command{
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("ansible/ansible.yml", playbook)
+		deployer.WriteToFile("ansible/main.yml", playbook)
 
 		//run burp installation here
 
@@ -94,10 +94,10 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
-		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("../ansible/main.yml", playbook)
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		// fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
 }
 
@@ -120,8 +120,8 @@ var goPhishInstall = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
-		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("../ansible/main.yml", playbook)
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
 
 		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
@@ -146,10 +146,10 @@ var letsEncryptInstall = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
-		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("../ansible/main.yml", playbook)
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		// fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
 }
 
@@ -172,8 +172,8 @@ var nmapInstall = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
-		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("../ansible/main.yml", playbook)
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
 
 		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
@@ -224,8 +224,8 @@ var sqlMapInstall = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
 
-		deployer.WriteToFile("../ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("../ansible/main.yml", playbook)
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
 
 		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
