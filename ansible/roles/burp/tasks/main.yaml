@@ -1,39 +1,46 @@
----   
-# First we check to see if there are existing TLS keys and certificates
-# I decided it was safer to just abort if there are rather than risk
-# overwriting an active key/cert.
+--- 
+- name: installing java
+  raw: test -e /usr/bin/java || (apt -y update && apt install -y default-jre)
+  register: output
+  changed_when: output.stdout != ""
 
-#to install packages, heres what you can do
-# - name: install random stuff
-#   hosts: all 
-#   remote_user: ubuntu 
-#   become: yes
 
-#   tasks:
-#   - name: install epel repo 
-#   apt: name=epel-release state=present
+- name: Check for letsencrypt private key
+  stat: path=/etc/letsencrypt/live/{{ ansible_domain_name }}/privkey.pem
+  become: yes
+  register: existing_letsencrypt_key
+  tags:
+    - tls
 
-#   - name: install python bindings 
-#   apt: name={{item}} state=present
-#   with_items: -->> THIS actually makes a for loop 
-#   - libselinux-python
-#   - libsemanage-python
+- name: Check for letsencrypt cert
+  stat: path=/etc/letsencrypt/live/{{ ansible_domain_name }}/cert.pem
+  become: yes
+  register: existing_letsencrypt_cert
+  tags:
+    - tls
 
-#   - name: test to see if SElinux is running 
-#     command: getenforce 
-#     register: sestatus -->> registering the output of this task into a variable, 
-#                             AND its being assigned to the var sestatus
-#     changed_when: false --> command module ALWAYS return changed even though nothing might 
-#                             have happened, so you gotta double check
-#   - name: install apache
-#     apt: name=htppd state=present
-  
-#   - name: start apache
-#     service: name=httpd state= started enabled=yes
+
+- name: Check for letsecnrypt upstream
+  stat: path=/etc/letsencrypt/live/{{ ansible_domain_name }}/fullchain.pem
+  become: yes
+  register: existing_letsencrypt_bundle
+  tags:
+    - tls
+
+
+- name: Set Geneation to false
+  set_fact:
+    generate_self_signed_certs: false
+  when: 
+    - existing_letsencrypt_key.stat.exists
+    - existing_letsencrypt_cert.stat.exists
+    - existing_letsencrypt_bundle.stat.exists
 
 - name: Check for existing private key
   stat: path=burp.key
   become: no
+  when:
+    - generate_self_signed_certs
   delegate_to: 127.0.0.1
   register: existing_key
   tags:
@@ -42,6 +49,8 @@
 - name: Check for existing PKCS8 private key
   stat: path={{ burp_key }}
   become: no
+  when:
+    - generate_self_signed_certs
   delegate_to: 127.0.0.1
   register: existing_pkcs8_key
   tags:
@@ -50,6 +59,8 @@
 - name: Check for existing CSR
   stat: path=burp.csr
   become: no
+  when:
+    - generate_self_signed_certs
   delegate_to: 127.0.0.1
   register: existing_csr
   tags:
@@ -58,6 +69,8 @@
 - name: Check for existing certificate
   stat: path={{ burp_cert }}
   become: no
+  when:
+    - generate_self_signed_certs
   delegate_to: 127.0.0.1
   register: existing_cert
   tags:
@@ -66,6 +79,8 @@
 - name: Check for existing intermediate certificate
   stat: path={{ burp_ca_bundle }}
   become: no
+  when:
+    - generate_self_signed_certs
   delegate_to: 127.0.0.1
   register: existing_ca_bundle
   tags:
@@ -76,7 +91,7 @@
   delegate_to: 127.0.0.1
   become: no
   when:
-    # - generate_self_signed_certs
+    - generate_self_signed_certs
     - not existing_key.stat.exists
   tags:
     - tls
@@ -86,16 +101,17 @@
   delegate_to: 127.0.0.1
   become: no
   when:
-    # - generate_self_signed_certs
+    - generate_self_signed_certs
     - not existing_pkcs8_key.stat.exists
   tags:
     - tls
 
 - name: Generate CSR
-  command: openssl req -new -key burp.key -out burp.csr -subj "/C={{ country }}/ST={{ state }}/L={{ locality }}/O={{ organisation }}/OU={{ organisational_unit }}/CN=*.{{ burp_server_domain }}"
+  command: openssl req -new -key burp.key -out burp.csr -subj "/C={{ country }}/ST={{ state }}/L={{ locality }}/O={{ organisation }}/OU={{ organisational_unit }}/CN=*.{{ ansible_domain_name }}"
   delegate_to: 127.0.0.1
   become: no
   when:
+    - generate_self_signed_certs
     - not existing_csr.stat.exists
   tags:
     - tls
@@ -106,6 +122,7 @@
   delegate_to: 127.0.0.1
   become: no
   when:
+    - generate_self_signed_certs
     - not existing_ca_bundle.stat.exists
   tags:
     - tls
@@ -141,18 +158,49 @@
 
 - name: Copy over server key
   copy: src={{ burp_key }} dest=/etc/burp/burp.pk8
+  when:
+    - generate_self_signed_certs
   tags:
     - setup
 
 - name: Copy over server cert
   copy: src={{ burp_cert }} dest=/etc/burp/burp.crt
+  when:
+    - generate_self_signed_certs
   tags:
     - setup
 
 - name: Copy over CA bundle certificates
   copy: src={{ burp_ca_bundle }} dest=/etc/burp/intermediate.crt
+  when:
+    - generate_self_signed_certs
   tags:
     - setup
+
+- name: Copy letsencrypt key
+  command: cp /etc/letsencrypt/live/{{ ansible_domain_name }}/privkey.pem /etc/burp/burp.pk8
+  become: yes
+  when:
+    - not generate_self_signed_certs
+  tags:
+    - setup
+
+- name: Copy letsencrypt cert
+  command: cp /etc/letsencrypt/live/{{ ansible_domain_name }}/cert.pem /etc/burp/burp.crt
+  become: yes
+  when:
+    - not generate_self_signed_certs
+  tags:
+    - setup
+
+- name: Copy letsencrypt ca certificates
+  command: cp /etc/letsencrypt/live/{{ ansible_domain_name }}/fullchain.pem /etc/burp/intermediate.crt
+  become: yes
+  when:
+    - not generate_self_signed_certs
+  tags:
+    - setup
+
 
 - name: Copy systemd job
   copy: src={{ role_path }}/files/burp.service dest=/etc/systemd/system/burp.service owner=root group=root

@@ -1,0 +1,47 @@
+package deployer
+
+type ansiblePretask struct {
+	Name        string `yaml:"name"`
+	Raw         string `yaml:"raw"`
+	Register    string `yaml:"register"`
+	ChangedWhen string `yaml:"changed_when"`
+}
+
+type ansiblePlaybook struct {
+	Name        string           `yaml:"name"`
+	Hosts       string           `yaml:"hosts"`
+	Become      bool             `yaml:"become"`
+	GatherFacts bool             `yaml:"gather_facts"`
+	PreTasks    []ansiblePretask `yaml:"pre_tasks"`
+	Roles       []string         `yaml:"roles"`
+}
+
+func (playbook *ansiblePlaybook) GenerateDefault() {
+	playbook.Name = "install all packages"
+	playbook.Hosts = "all"
+	playbook.Become = true
+	playbook.GatherFacts = false
+	playbook.PreTasks = append(playbook.PreTasks, ansiblePretask{
+		Name:        "installing python",
+		Raw:         "test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)",
+		Register:    "output",
+		ChangedWhen: `output.stdout != ""`,
+	})
+	playbook.Roles = []string{"common"}
+}
+
+type ansibleInventory struct {
+	All struct {
+		Hosts map[string]ansibleHost `yaml:"hosts"`
+	} `yaml:"all"`
+}
+
+type ansibleHost struct {
+	AnsibleHost       string `yaml:"ansible_host"`
+	AnsibleUser       string `yaml:"ansible_user"`
+	AnsiblePrivateKey string `yaml:"ansible_ssh_private_key_file"`
+	AnsibleFQDN       string `yaml:"ansible_fqdn"`
+	AnsibleDomain     string `yaml:"ansible_domain_name"`
+	BurpDir           string `yaml:"burp_dir"`
+	BurpLocalAddress  string `yaml:"ansible_host"`
+}
