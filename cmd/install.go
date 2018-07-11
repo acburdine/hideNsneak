@@ -66,8 +66,8 @@ var burpInstall = &cobra.Command{
 		//		get host IP address
 		//		get burp_dir: /Users/mischy/Downloads/
 		//		get burp_server_domain: swansonmedical.com
-		//		get burp_local_address: 127.0.0.1
-		//		get burp_public_address: 35.171.8.53
+		//		get ansible_host: 127.0.0.1
+		//		getansible_host: 35.171.8.53
 		//		close and save
 		//2. open up main.yml and add burp to roles
 		//instance index, look into how destroy was done
