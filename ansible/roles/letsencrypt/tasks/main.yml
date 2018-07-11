@@ -5,6 +5,7 @@
     # when: ansible_pkg_mgr == "apt"
     tags: install
 
+
   - include_vars: "{{ item }}"
     with_first_found:
       - "../vars/{{ ansible_distribution }}-{{ ansible_distribution_major_version | int }}.yml"
@@ -21,6 +22,7 @@
   # - name: install certbot (Debian stretch)
   #   include: debian-stretch.yml
   #   when: ansible_distribution == "Debian" and ansible_distribution_release == "stretch"
+      
 
   - name: install certbot (Ubuntu Xenial)
     include: ubuntu-xenial.yml

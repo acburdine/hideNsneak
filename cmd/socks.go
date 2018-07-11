@@ -115,6 +115,7 @@ var socksList = &cobra.Command{
 	Short: "List available SOCKS Proxies",
 	Long:  `List available SOCKS Proxies`,
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Pulling Terraform State...")
 		marshalledState := deployer.TerraformStateMarshaller()
 
 		list := deployer.ListIPAddresses(marshalledState)

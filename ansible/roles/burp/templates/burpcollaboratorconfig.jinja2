@@ -1,12 +1,10 @@
-#files that are filled in from variables from group_vars
-
 {
-  "serverDomain" : "{{ burp_server_domain }}",
+  "serverDomain" : "{{ ansible_domain_name }}",
   "workerThreads" : 10,
 
   "eventCapture": {
-      "localAddress" : "{{ burp_local_address }}",
-      "publicAddress" : "{{ burp_public_address }}",
+      "localAddress" : "{{ ansible_host }}",
+      "publicAddress" : "{{ ansible_host }}",
 
       "http": {
          "port" : {{ burp_http_port }}
@@ -30,8 +28,8 @@
   "dns": {
       "interfaces" : [{
         "name":"ns",
-	"localAddress" : "{{ burp_local_address }}",
-	"publicAddress" : "{{ burp_public_address }}",
+	"localAddress" : "{{ ansible_default_ipv4.address }}",
+	"publicAddress" : "{{ansible_host }}",
       }],
       "port" : {{ burp_dns_port }}
   }

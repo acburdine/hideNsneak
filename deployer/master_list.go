@@ -98,7 +98,7 @@ func returnInitialEC2Config(module ModuleState) (tempConfig EC2ConfigWrapper) {
 		if resource.Type == "aws_instance" {
 			availZone := resource.Primary.Attributes["availability_zone"]
 			region := availZone[:len(availZone)-1]
-
+			tempConfig.KeyPairName = resource.Primary.Attributes["key_name"]
 			tempConfig.ModuleName = module.Path[1]
 			tempConfig.InstanceType = resource.Primary.Attributes["instance_type"]
 			tempConfig.DefaultUser = user
@@ -131,6 +131,7 @@ func createEC2ConfigFromState(modules []ModuleState) (ec2Configs []EC2ConfigWrap
 
 						tempConfig := EC2ConfigWrapper{
 							ModuleName:   module.Path[1],
+							KeyPairName:  resource.Primary.Attributes["key_name"],
 							InstanceType: resource.Primary.Attributes["instance_type"],
 							DefaultUser:  user,
 							PrivateKey:   privateKey,

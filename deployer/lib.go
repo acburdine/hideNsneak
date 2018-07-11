@@ -12,6 +12,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 ////////////////////////
@@ -140,10 +142,13 @@ func stringInSlice(a string, list []string) bool {
 
 //WriteToFile opens, clears and writes to file
 func WriteToFile(path string, content string) {
-	file, err := os.Open(path)
+	fmt.Println(path)
+	fmt.Println(content)
+	file, err := os.Create(path)
 	checkErr(err)
 
-	file.Write([]byte(content))
+	_, err = file.Write([]byte(content))
+	checkErr(err)
 	defer file.Close()
 }
 
@@ -170,55 +175,45 @@ func ValidateListOfInstances(numberInput string) error {
 
 //GeneratePlaybookFile generates an ansible playbook
 func GeneratePlaybookFile(app string) string {
-	var playbookBase = `
-				---
-				- name: install all packages
-				  hosts: all
-				  become: true
-				  gather_facts: false
-				  pre_tasks:
-					- name: installing python
-					  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-					  register: output
-					  changed_when: output.stdout != ""
-				  roles:
-					- common
-				`
-	var append = "    - " + app
-	playbook := playbookBase + append
-	return playbook
+	var playbookStruct ansiblePlaybook
+
+	playbookStruct.GenerateDefault()
+
+	playbookStruct.Roles = append(playbookStruct.Roles, app)
+
+	playbookList := []ansiblePlaybook{playbookStruct}
+
+	playbook, err := yaml.Marshal(playbookList)
+
+	if err != nil {
+		fmt.Println("Error marshalling playbook")
+	}
+
+	return string(playbook)
 }
 
 //GenerateHostsFile generates an ansible host file
-func GenerateHostFile(ipAddress string, user string, sshPrivKey string,
-	fqdn string, domain string) string {
-	hostTemplate := `
-				---
-				all:
-				  hosts:
-				    {{.ipAddress}}:
-				      ansible_host: {{.ipAddress}}
-				      ansible_user: {{.user}}
-				      ansible_ssh_private_key_file: {{.sshPrivKey}}
-				      ansible_fqdn: {{.fqdn}}
-				      ansible_domain: {{.domain}}
-				`
-	tmpl, err := template.New("host").Parse(hostTemplate)
-	if err != nil {
-		log.Fatal(err)
+func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string) string {
+	var inventory ansibleInventory
+	inventory.All.Hosts = make(map[string]ansibleHost)
+	for _, instance := range instances {
+		inventory.All.Hosts[instance.IP] = ansibleHost{
+			AnsibleHost:       instance.IP,
+			AnsiblePrivateKey: instance.PrivateKey,
+			AnsibleUser:       instance.Username,
+			AnsibleFQDN:       fqdn,
+			AnsibleDomain:     domain,
+			BurpDir:           burpDir,
+		}
 	}
-	hostmap := map[string]interface{}{
-		"ipAddress":  ipAddress,
-		"user":       user,
-		"sshPrivKey": sshPrivKey,
-		"fqdn":       fqdn,
-		"domain":     domain,
-	}
-	hostBuff := new(bytes.Buffer)
-	tmpl.Execute(hostBuff, hostmap)
 
-	hostFile := hostBuff.String()
-	return hostFile
+	hostFile, err := yaml.Marshal(inventory)
+
+	if err != nil {
+		fmt.Println("problem marshalling inventory file")
+	}
+
+	return string(hostFile)
 }
 
 func ExecAnsible(hostsFile string, playbook string, filepath string) string {
@@ -302,6 +297,8 @@ func InitializeTerraformFiles() {
 	checkErr(err)
 	defer tfvarsFile.Close()
 
+	fmt.Println("Creating Terraform Files...")
+
 	mainFile.Write([]byte(backend))
 	varFile.Write([]byte(variables))
 	tfvarsFile.Write([]byte(noEscapeSecrets))
@@ -312,10 +309,12 @@ func InitializeTerraformFiles() {
 func TerraformApply() {
 
 	//Initializing Terraform
+	fmt.Println("Initializing Terraform...")
 	args := []string{"init", "-backend-config=../config/backend.txt"}
 	execTerraform(args, "terraform")
 
 	//Applying Changes Identified in tfplan
+	fmt.Println("Applying Terraform Changes...")
 	args = []string{"apply", "-input=false", "-auto-approve"}
 	execTerraform(args, "terraform")
 
@@ -332,7 +331,7 @@ func TerraformDestroy(nameList []string) {
 	for _, name := range nameList {
 		args = append(args, "-target", name)
 	}
-	fmt.Println(args)
+	fmt.Println("Destroying Terraform Targets...")
 
 	execTerraform(args, "terraform")
 }
@@ -341,7 +340,6 @@ func TerraformDestroy(nameList []string) {
 //and marshalls the resulting JSON into a TerraformOutput struct
 func TerraformStateMarshaller() (outputStruct State) {
 
-	//Initializing Terraform
 	args := []string{"state", "pull"}
 	output := execTerraform(args, "terraform")
 
@@ -417,8 +415,8 @@ func PrintProxyChains(socksList string) (proxies string) {
 
 func PrintSocksd(socksList string) (proxies string) {
 	socksArray := strings.Split(socksList, "\n")
-	proxies = fmt.Sprintf("\"upstreams\": [\n")
-	for _, command := range socksArray {
+	proxies = "{\"proxies\":[\n\t\"upstreams\":["
+	for index, command := range socksArray {
 		var port string
 		var ip string
 		args := strings.Split(command, " ")
@@ -431,10 +429,14 @@ func PrintSocksd(socksList string) (proxies string) {
 				ip = strings.Split(arg, "@")[1]
 			}
 		}
-		proxies = proxies + fmt.Sprintf("{\"type\": \"socks5\", \"address\": \"127.0.0.1:%s\", \"target\": \"%s\"}", port, ip)
+		upstream := fmt.Sprintf("\t\t{\"type\": \"socks5\", \"address\": \"127.0.0.1:%s\", \"target\": \"%s\"}", port, ip)
+		if index != len(socksArray)-1 {
+			upstream = upstream + ","
+		}
+		proxies = proxies + "\n" + upstream
 
 	}
-	proxies = proxies + fmt.Sprintf("\n]\n")
+	proxies = proxies + "\n\t\t]\n\t}\n\t]\n}"
 	return
 }
 
