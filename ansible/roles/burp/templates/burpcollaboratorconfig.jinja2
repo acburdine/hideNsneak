@@ -3,8 +3,8 @@
   "workerThreads" : 10,
 
   "eventCapture": {
-      "localAddress" : "{{ ansible_default_ipv4.address }}",
-      "publicAddress" : "{{ burp_public_address }}",
+      "localAddress" : "{{ ansible_host }}",
+      "publicAddress" : "{{ ansible_host }}",
 
       "http": {
          "port" : {{ burp_http_port }}
@@ -29,7 +29,7 @@
       "interfaces" : [{
         "name":"ns",
 	"localAddress" : "{{ ansible_default_ipv4.address }}",
-	"publicAddress" : "{{ burp_public_address }}",
+	"publicAddress" : "{{ansible_host }}",
       }],
       "port" : {{ burp_dns_port }}
   }

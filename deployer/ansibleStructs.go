@@ -43,6 +43,5 @@ type ansibleHost struct {
 	AnsibleFQDN       string `yaml:"ansible_fqdn"`
 	AnsibleDomain     string `yaml:"ansible_domain_name"`
 	BurpDir           string `yaml:"burp_dir"`
-	BurpLocalAddress  string `yaml:"burp_local_address"`
-	BurpPublicAddress string `yaml:"burp_public_address"`
+	BurpLocalAddress  string `yaml:"ansible_host"`
 }

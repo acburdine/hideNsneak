@@ -204,8 +204,6 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			AnsibleFQDN:       fqdn,
 			AnsibleDomain:     domain,
 			BurpDir:           burpDir,
-			BurpLocalAddress:  "127.0.0.1",
-			BurpPublicAddress: instance.IP,
 		}
 	}
 
