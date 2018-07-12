@@ -18,16 +18,16 @@ Overview
 ---------
 hideNsneak provides a simple interface that allows penetration testers to build ephemeral infrastructure -- one that requires minimal overhead. 
 
-hideNsneak can:
+* hideNsneak can:
 --> *`deploy`, `destroy`, and `list`*
 1. Cloud instances via EC2, Google Cloud, Digital Ocean, Azure, and Alibaba Cloud
 2. API Gateway (AWS)
 3. Domain fronts via CloudFront and Azure Cloudfront
 
---> *Proxy into said infrastructure*
---> *Send and receive files*
---> *Port scanning via NMAP*
---> *Remote installations of Burp Collab, Cobalt Strike, Socat, LetsEncrypt, GoPhish, and SQLMAP*
+* --> *Proxy into said infrastructure*
+* --> *Send and receive files*
+* --> *Port scanning via NMAP*
+* --> *Remote installations of Burp Collab, Cobalt Strike, Socat, LetsEncrypt, GoPhish, and SQLMAP*
 
 
 Running locally
@@ -37,9 +37,9 @@ At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're h
 1. install [go](https://golang.org/dl/)
 2. install [terraform](https://www.terraform.io/intro/getting-started/install.html)
 3. install [ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-4. install [custom providers](https://github.com/nbering/terraform-provider-ansible/)
+4. download zip file [custom providers](https://github.com/nbering/terraform-provider-ansible/) --> then, `cd $HOME/.terraform.d/` and `mkdir plugins`--> then, download the executable for your platform here `https://github.com/nbering/terraform-provider-ansible/releases` and unzip it in `$HOME/.terraform.d/plugins` (make sure you move the binary into the /plugins/ directory)
 5. `git clone https://github.com/rmikehodges/hideNsneak.git`
-6. `go run main.go` --> make this an executable
+6. `cd hideNsneak`
 7. `go get -u github.com/spf13/cobra/cobra`
 8. `go get -u github.com/aws/aws-sdk-go/aws`
 9. Fill in values in `config.yaml` with your keys and filepaths for the cloud providers you'd like to use:
@@ -52,7 +52,8 @@ At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're h
 		azure_client_secret = "YOUR_SECRET_KEY"
 		azure_subscription_id = "YOUR_SECRET_KEY"
 		```
-10. run `hidensneak`
+10. run `go build -o hidensneak main.go` to build the hidensneak executable
+11. now you can use with `hidensneak [command]`
 
 
 Commands
