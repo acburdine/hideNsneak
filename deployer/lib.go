@@ -10,6 +10,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -195,11 +197,17 @@ func GeneratePlaybookFile(app string) string {
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string) string {
 	var inventory ansibleInventory
+
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	inventory.All.Hosts = make(map[string]ansibleHost)
 	for _, instance := range instances {
 		inventory.All.Hosts[instance.IP] = ansibleHost{
 			AnsibleHost:       instance.IP,
-			AnsiblePrivateKey: instance.PrivateKey,
+			AnsiblePrivateKey: usr.HomeDir + "/.ssh/" + instance.PrivateKey,
 			AnsibleUser:       instance.Username,
 			AnsibleFQDN:       fqdn,
 			AnsibleDomain:     domain,
@@ -617,6 +625,11 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 	doModuleCount := wrappers.DropletModuleCount
 	awsModuleCount := wrappers.EC2ModuleCount
 
+	//Strip Directories from key name
+	//Identical Keypairs must be named the same
+	privKey = filepath.Base(privKey)
+	pubKey = filepath.Base(pubKey)
+
 	//Gather the count per provider and the remainder
 	countPerProvider := count / len(providers)
 
@@ -645,16 +658,17 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				//TODO: Add custom input
 				if regionCount > 0 {
 					//TODO: Ensure private key is the same
-					result := checkEC2KeyExistence(config.AwsSecretKey, config.AwsAccessID, region, keyName)
+					//Check this functionality between two clients
+					// result := checkEC2KeyExistence(config.AwsSecretKey, config.AwsAccessID, region, keyName)
 
-					if !result {
-						publicKeyBytes, _ := ioutil.ReadFile(pubKey)
+					// if !result {
+					// 	publicKeyBytes, _ := ioutil.ReadFile(pubKey)
 
-						err := importEC2Key(config.AwsSecretKey, config.AwsAccessID, region, publicKeyBytes, pubKey)
-						if err != nil {
-							fmt.Printf("There was an errror importing your key to EC2: %s", err)
-						}
-					}
+					// 	err := importEC2Key(config.AwsSecretKey, config.AwsAccessID, region, publicKeyBytes, pubKey)
+					// 	if err != nil {
+					// 		fmt.Printf("There was an errror importing your key to EC2: %s", err)
+					// 	}
+					// }
 
 					newEC2RegionConfig := EC2ConfigWrapper{
 						InstanceType: "t2.micro",
