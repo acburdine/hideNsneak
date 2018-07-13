@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"terraform-playground/deployer"
+	"hideNsneak/deployer"
 
 	"github.com/spf13/cobra"
 )

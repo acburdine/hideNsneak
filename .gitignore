@@ -6,6 +6,7 @@ terraform.tfvars
 **/terraform.tfvars
 **/terraform.tfstate*
 config/
+config/backend.txt
 terraform/modules/gcp-deployment/inboxa90-f05affa600c1.json
 terraform/main.tf
 ansible/hosts.yml

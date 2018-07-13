@@ -175,3 +175,45 @@ const apiGatewayModule = `
 		aws_api_stage_name	 = "{{.StageName}}"
   	}
 `
+
+const googleDomainFrontCode = `
+let httpProxy = require('http-proxy'),
+    ip = require('ip');
+
+let proxy = httpProxy.createProxyServer({secure: false});
+
+let host = "{{.Host}}"
+let target = "{{.HostURL}}"
+
+
+let frontedDomain = "{{.FrontedDomain}}"
+let restrictUA = "{{.RestrictUA}}"
+let restrictSubnet = "{{.RestrictSubnet}}"
+let restrictHeader = "{{.RestrictHeader}}"
+let restrictValue = "{{.RestrictHeaderValue}}"
+
+
+exports.redirector = (req, res) => {
+  	let requestIP = req.connection.remoteAddress
+ 
+
+    if ((req.Method == "GET") || (req.Method == "POST")) {
+        if ((restrictUA != "") && (restrictUA != req.getHeader('User-Agent'))) {
+            res.redirect(frontedDomain)
+            return
+        }
+        if ((restrictSubnet != "") && (!ip.cidrSubnet(restrictSubnet).Contains(requestIP))) {
+            res.redirect(frontedDomain) 
+            return
+        }
+        if ((restrictHeader != "") && (req.getHeader(restrictHeader) != restrictValue)){
+          res.redirect(frontedDomain)
+          return
+        }
+    
+        req.host = host
+        proxy.web(req, res, { target: target });
+    } else {
+        res.redirect(frontedDomain)
+    }
+};`

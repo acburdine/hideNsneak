@@ -18,6 +18,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var config configStruct
+
+var configContents, _ = ioutil.ReadFile(configFile)
+
+var catchErr = json.Unmarshal(configContents, &config)
+
 ////////////////////////
 //Miscellaneous Functions
 ////////////////////////

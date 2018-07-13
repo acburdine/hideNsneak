@@ -1,11 +1,12 @@
 package deployer
 
-type GoogleProvider struct {
-	Instances []GoogleInstance `json:"instances"`
-}
-
-type GoogleInstance struct {
-	Count int
+type googleDomainFront struct {
+	Host                string
+	HostURL             string
+	RestrictUA          string
+	RestrictSubnet      string
+	RestrictHeader      string
+	RestrictHeaderValue string
 }
 
 //Deprecated
