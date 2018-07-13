@@ -159,5 +159,5 @@ type DomainFrontOutput struct {
 }
 
 func (output DomainFrontOutput) String() string {
-	return " - Orign: " + output.Origin + " - Invoke: " + output.Invoke + " - Status: " + output.Status + " - Provider: " + output.Provider + " - Name: " + output.Name
+	return " - Origin: " + output.Origin + " - Invoke: " + output.Invoke + " - Status: " + output.Status + " - Provider: " + output.Provider + " - Name: " + output.Name
 }

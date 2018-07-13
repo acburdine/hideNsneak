@@ -40,8 +40,8 @@ var install = &cobra.Command{
 
 var burpInstall = &cobra.Command{
 	Use:   "burp",
-	Short: "Installs Burp Suite",
-	Long:  `Installs Burp Suite to remote server`,
+	Short: "Installs Burp Suite Collaborator Server",
+	Long:  `Installs and starts a Burp Suite collaborator with the specified domain on the specified remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
 		return nil
@@ -78,7 +78,7 @@ var burpInstall = &cobra.Command{
 var cobaltStrikeInstall = &cobra.Command{
 	Use:   "cobaltstrike",
 	Short: "Installs Cobalt Strike",
-	Long:  `Installs Cobalt Strike to remote server`,
+	Long:  `Installs,starts, and optionally licenses Cobaltstrike on the remote server with the specified malleable C2 profile and password`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
 		return nil
@@ -104,7 +104,7 @@ var cobaltStrikeInstall = &cobra.Command{
 var goPhishInstall = &cobra.Command{
 	Use:   "gophish",
 	Short: "Installs Gophish",
-	Long:  `Installs Gophish to remote server`,
+	Long:  `Installs and starts Gophish on the remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
 		return nil
@@ -130,7 +130,7 @@ var goPhishInstall = &cobra.Command{
 var letsEncryptInstall = &cobra.Command{
 	Use:   "letsencrypt",
 	Short: "Installs Letsencrypt",
-	Long:  `Installs Letsencrypt to remote server`,
+	Long:  `Installs Letsencrypt with the specified domain on the specified server`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
 		return nil

@@ -20,28 +20,36 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// helloCmd represents the hello command
 var exec = &cobra.Command{
 	Use:   "exec",
-	Short: "exec",
-	Long:  `exec`,
+	Short: "execute custom command",
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("file called")
 	},
 }
 
-var execCommand = &cobra.Command{
-	Use:   "exec command ",
-	Short: "Send a file",
-	Long:  `file`,
+var execCmd = &cobra.Command{
+	Use:   "exec",
+	Short: "execute custom command",
+	Long:  `executes the specified command on the specified remote system and returns both stdout and stderr`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("file send called")
+		fmt.Println("file called")
+	},
+}
+
+var execNmap = &cobra.Command{
+	Use:   "exec",
+	Short: "execute nmap",
+	Long:  `executes nmap and splits up the job between all of the specified hosts returning the xml files to the specified directory`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("file called")
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(exec)
-	exec.AddCommand(execCommand)
+	exec.AddCommand(execCmd, execNmap)
 
 	// Here you will define your flags and configuration settings.
 

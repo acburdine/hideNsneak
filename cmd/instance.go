@@ -35,7 +35,7 @@ var regionGoogle []string
 var instance = &cobra.Command{
 	Use:   "instance",
 	Short: "instance parent command",
-	Long:  `parent command for deploying instances, via parameters for number of instances, regions, and providers`,
+	Long:  `parent command for managing instances`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Run 'instance --help' for usage.")
 	},
@@ -45,7 +45,7 @@ var instanceDeploy = &cobra.Command{
 	//TODO: need to trim spaces
 	Use:   "deploy",
 	Short: "deploys instances",
-	Long:  `you can deploy instances for AWS, Azure, Digital Ocean, or Google Cloud`,
+	Long:  `deploys instances for AWS, Azure, Digital Ocean, or Google Cloud`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if !deployer.ProviderCheck(instanceProviders) {
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
@@ -84,7 +84,7 @@ var instanceDeploy = &cobra.Command{
 var instanceDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroys instances",
-	Long:  `destroys instances by choosing a specific number in an array list`,
+	Long:  `destroys instances by choosing an index`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
 		return nil

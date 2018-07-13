@@ -30,7 +30,7 @@ var targetURI string
 var api = &cobra.Command{
 	Use:   "api",
 	Short: "API Gateway parent command",
-	Long:  `API Gateway parent command`,
+	Long:  `parent command for deploying API gateways, via a target parameter`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Run 'api --help' for usage.")
 	},
@@ -40,7 +40,7 @@ var apiDeploy = &cobra.Command{
 	//TODO: need to trim spaces
 	Use:   "deploy",
 	Short: "deploys an API Gateway",
-	Long:  `deploys an API Gateway`,
+	Long:  `deploys an API Gateway for AWS only at this time`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.InitializeTerraformFiles()
 		if !deployer.ProviderCheck(instanceProviders) {
@@ -71,7 +71,7 @@ var apiDeploy = &cobra.Command{
 var apiDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroys an API Gateway",
-	Long:  `destroys an API Gateway`,
+	Long:  `destroys an API Gateway by choosing an index`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		marshalledState := deployer.TerraformStateMarshaller()
 		apiList := deployer.ListAPIs(marshalledState)
