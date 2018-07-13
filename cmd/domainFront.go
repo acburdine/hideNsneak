@@ -28,17 +28,17 @@ var domainFrontOrigin string
 // helloCmd represents the hello command
 var domainFront = &cobra.Command{
 	Use:   "domainfront",
-	Short: "Domain Front Command",
-	Long:  `Domain Front Command`,
+	Short: "domain front parent command",
+	Long:  `domain front parent command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Domain Front Called")
+		fmt.Println("Run 'domainfront --help' for usage.")
 	},
 }
 
 var domainFrontDeploy = &cobra.Command{
 	Use:   "deploy",
 	Short: "deploys a domain front",
-	Long:  `Initializes and Deploys a domain front`,
+	Long:  `initializes and deploys a domain front to either AWS Cloudfront or Azure where origin is the your target C2`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if domainFrontProvider != "AWS" || domainFrontProvider != "AZURE" {
 			return fmt.Errorf("Unknown provider")
@@ -61,7 +61,7 @@ var domainFrontDeploy = &cobra.Command{
 var domainFrontDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroy",
-	Long:  `Destroys an existing domain front`,
+	Long:  `destroys an existing domain front`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		marshalledState := deployer.TerraformStateMarshaller()
 		list := deployer.ListDomainFronts(marshalledState)
@@ -89,8 +89,8 @@ var domainFrontDestroy = &cobra.Command{
 
 var domainFrontDisable = &cobra.Command{
 	Use:   "disable",
-	Short: "disable",
-	Long:  `Disables an enabled domain front`,
+	Short: "disable domainfront",
+	Long:  `disables an enabled Cloudfront domainfront`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		marshalledState := deployer.TerraformStateMarshaller()
 		list := deployer.ListDomainFronts(marshalledState)
@@ -133,7 +133,7 @@ var domainFrontDisable = &cobra.Command{
 var domainFrontEnable = &cobra.Command{
 	Use:   "enable",
 	Short: "enable",
-	Long:  `Enables a disabled domain front`,
+	Long:  `enables a disabled Cloudfront domain front`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		marshalledState := deployer.TerraformStateMarshaller()
 		list := deployer.ListDomainFronts(marshalledState)
@@ -175,7 +175,7 @@ var domainFrontEnable = &cobra.Command{
 var domainFrontList = &cobra.Command{
 	Use:   "list",
 	Short: "list domain fronts",
-	Long:  `list domain fronts`,
+	Long:  `list all domain fronts and their index, origin domain, invoke url, provider, and terraform name`,
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 		list := deployer.ListDomainFronts(marshalledState)
@@ -195,15 +195,9 @@ func init() {
 	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontProvider, "provider", "p", "", "Specify the provider. i.e. AWS or Azure")
 	domainFrontDeploy.MarkPersistentFlagRequired("provider")
 
-	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontOrigin, "target", "t", "", "Specify the target domain. i.e. google.com")
+	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontOrigin, "target", "t", "", "Specify the target domain or IP. i.e. yourc2example.com")
 	domainFrontDeploy.MarkPersistentFlagRequired("target")
 
 	domainFrontEnable.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
 	domainFrontEnable.MarkPersistentFlagRequired("id")
-
-	domainFrontDisable.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
-	domainFrontDisable.MarkPersistentFlagRequired("id")
-
-	domainFrontDestroy.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
-	domainFrontDestroy.MarkPersistentFlagRequired("id")
 }

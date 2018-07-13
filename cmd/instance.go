@@ -35,7 +35,7 @@ var regionGoogle []string
 var instance = &cobra.Command{
 	Use:   "instance",
 	Short: "instance parent command",
-	Long:  `Domain Front Command`,
+	Long:  `parent command for managing instances`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Run 'instance --help' for usage.")
 	},
@@ -44,8 +44,8 @@ var instance = &cobra.Command{
 var instanceDeploy = &cobra.Command{
 	//TODO: need to trim spaces
 	Use:   "deploy",
-	Short: "deploys an instance",
-	Long:  `deploys an instance`,
+	Short: "deploys instances",
+	Long:  `deploys instances for AWS, Azure, Digital Ocean, or Google Cloud`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if !deployer.ProviderCheck(instanceProviders) {
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
@@ -83,8 +83,8 @@ var instanceDeploy = &cobra.Command{
 
 var instanceDestroy = &cobra.Command{
 	Use:   "destroy",
-	Short: "destroy",
-	Long:  `destroys an instance`,
+	Short: "destroys instances",
+	Long:  `destroys instances by choosing an index`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.ValidateListOfInstances(numberInput)
 		return nil
@@ -108,8 +108,8 @@ var instanceDestroy = &cobra.Command{
 
 var instanceList = &cobra.Command{
 	Use:   "list",
-	Short: "list instances",
-	Long:  `list instances`,
+	Short: "detailed list of instances",
+	Long:  `list instances and shows their index, IP, provider, region, and name`,
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -122,18 +122,9 @@ var instanceList = &cobra.Command{
 	},
 }
 
-var instanceInfo = &cobra.Command{
-	Use:   "info",
-	Short: "info",
-	Long:  `provides information on specific instance`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Info Called")
-	},
-}
-
 func init() {
 	rootCmd.AddCommand(instance)
-	instance.AddCommand(instanceDeploy, instanceDestroy, instanceInfo, instanceList)
+	instance.AddCommand(instanceDeploy, instanceDestroy, instanceList)
 
 	instanceDeploy.PersistentFlags().StringSliceVarP(&instanceProviders, "providers", "p", nil, "list of providers to enter")
 	instanceDeploy.MarkPersistentFlagRequired("providers")
