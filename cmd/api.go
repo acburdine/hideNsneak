@@ -29,8 +29,8 @@ var targetURI string
 
 var api = &cobra.Command{
 	Use:   "api",
-	Short: "api child command",
-	Long:  `API Gateway Command`,
+	Short: "API Gateway parent command",
+	Long:  `API Gateway parent command`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Run 'api --help' for usage.")
 	},
@@ -39,8 +39,8 @@ var api = &cobra.Command{
 var apiDeploy = &cobra.Command{
 	//TODO: need to trim spaces
 	Use:   "deploy",
-	Short: "deploys an api gateway",
-	Long:  `deploys an api gateway`,
+	Short: "deploys an API Gateway",
+	Long:  `deploys an API Gateway`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.InitializeTerraformFiles()
 		if !deployer.ProviderCheck(instanceProviders) {
@@ -69,9 +69,9 @@ var apiDeploy = &cobra.Command{
 }
 
 var apiDestroy = &cobra.Command{
-	// 	Use:   "destroy",
-	Short: "destroy",
-	Long:  `destroys an instance`,
+	Use:   "destroy",
+	Short: "destroys an API Gateway",
+	Long:  `destroys an API Gateway`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		marshalledState := deployer.TerraformStateMarshaller()
 		apiList := deployer.ListAPIs(marshalledState)
@@ -104,8 +104,8 @@ var apiDestroy = &cobra.Command{
 
 var apiList = &cobra.Command{
 	Use:   "list",
-	Short: "list api gateways",
-	Long:  `list api gateways`,
+	Short: "detailed list of API Gateways",
+	Long:  `list API Gateways and show their target URIs, invoke URIs, providers and names`,
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -121,8 +121,7 @@ var apiList = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(api)
-	// instance.AddCommand(instanceDeploy, instanceDestroy, instanceInfo, instanceList)
-	api.AddCommand(apiDeploy, apiList)
+	api.AddCommand(apiDeploy, apiList, apiDestroy)
 
 	apiDeploy.PersistentFlags().StringVarP(&apiProvider, "provider", "p", "", "the provider to use: i.e. AWS")
 	apiDeploy.MarkPersistentFlagRequired("providers")
@@ -130,25 +129,6 @@ func init() {
 	apiDeploy.PersistentFlags().StringVarP(&apiProvider, "target", "t", "", "the target URI: i.e. https://google.com/")
 	apiDeploy.MarkPersistentFlagRequired("target")
 
-	// instanceDeploy.PersistentFlags().StringSliceVarP(&instanceProviders, "providers", "p", nil, "list of providers to enter")
-	// instanceDeploy.MarkPersistentFlagRequired("providers")
-
-	// instanceDeploy.PersistentFlags().IntVarP(&instanceCount, "count", "c", 0, "number of instances to deploy")
-	// instanceDeploy.MarkPersistentFlagRequired("count")
-
-	// instanceDeploy.PersistentFlags().StringVarP(&instancePrivateKey, "privatekey", "v", "", "full path to private key to connect to instances")
-	// instanceDeploy.MarkPersistentFlagRequired("privatekey")
-
-	// instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
-	// instanceDeploy.MarkPersistentFlagRequired("publickey")
-
-	// instanceDestroy.PersistentFlags().StringVarP(&numberInput, "input", "i", "", "number of instances to destroy")
-	// instanceDestroy.MarkPersistentFlagRequired("input")
-
-	// //TODO: default all regions
-	// rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "ap-south-1", "sa-east-1"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	// rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
-	// rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
-	// rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
-
+	apiDestroy.PersistentFlags().StringVarP(&numberInput, "input", "i", "", "number of instances to destroy")
+	apiDestroy.MarkPersistentFlagRequired("input")
 }

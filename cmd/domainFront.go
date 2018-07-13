@@ -31,7 +31,7 @@ var domainFront = &cobra.Command{
 	Short: "Domain Front Command",
 	Long:  `Domain Front Command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Domain Front Called")
+		fmt.Println("Run 'domainfront --help' for usage.")
 	},
 }
 
