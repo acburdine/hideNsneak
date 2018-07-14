@@ -24,6 +24,11 @@ import (
 var domainFrontProvider string
 var domainFrontIndex int
 var domainFrontOrigin string
+var restrictUA string
+var restrictSubnet string
+var restrictHeader string
+var restrictHeaderValue string
+var functionName string
 
 // helloCmd represents the hello command
 var domainFront = &cobra.Command{
@@ -48,7 +53,8 @@ var domainFrontDeploy = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
-		wrappers = deployer.DomainFrontDeploy(domainFrontProvider, domainFrontOrigin, wrappers)
+		wrappers = deployer.DomainFrontDeploy(domainFrontProvider, domainFrontOrigin,
+			restrictUA, restrictSubnet, restrictHeader, restrictHeaderValue, wrappers, functionName)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 

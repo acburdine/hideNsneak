@@ -556,26 +556,29 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 				} else if strings.Contains(module.Path[1], "azurefrontDeploy") {
 					domainFrontOutput.Provider = "AZURE"
 					// domainFronts = append(domainFronts, domainFrontOutput)
-				} else if strings.Contains(module.Path[1], "googlefrontDeploy") {
-					labels := resource.Primary.Attributes["labels"].(map[string]string)
+				} else if strings.Contains(module.Path[1], "googleDomainFrontDeploy") {
+					if resource.Type == "google_cloudfunctions_function" {
 
-					domainFrontOutput.Provider = "GOOGLE"
-					domainFrontOutput.Origin = labels["target"]
-					domainFrontOutput.Invoke = resource.Primary.Attributes["https_trigger_url"].(string)
+						labels := resource.Primary.Attributes["labels"].(map[string]string)
 
-					result, _ := strconv.ParseBool(resource.Primary.Attributes["trigger_http"].(string))
-					if result {
-						domainFrontOutput.Status = "Enabled"
-					} else {
-						domainFrontOutput.Status = "Disabled"
+						domainFrontOutput.Provider = "GOOGLE"
+						domainFrontOutput.Origin = labels["target"]
+						domainFrontOutput.Invoke = resource.Primary.Attributes["https_trigger_url"].(string)
+
+						result, _ := strconv.ParseBool(resource.Primary.Attributes["trigger_http"].(string))
+						if result {
+							domainFrontOutput.Status = "Enabled"
+						} else {
+							domainFrontOutput.Status = "Disabled"
+						}
+						domainFrontOutput.Name = resource.Primary.Attributes["name"].(string)
+						domainFrontOutput.RestrictUA = labels["restrictUA"]
+						domainFrontOutput.RestrictSubnet = labels["restrictSubnet"]
+						domainFrontOutput.RestrictHeader = labels["restrictHeader"]
+						domainFrontOutput.RestrictHeaderValue = labels["restrictHeaderValue"]
+
+						domainFronts = append(domainFronts, domainFrontOutput)
 					}
-					domainFrontOutput.Name = resource.Primary.Attributes["name"].(string)
-					domainFrontOutput.RestrictUA = labels["restrictUA"]
-					domainFrontOutput.RestrictSubnet = labels["restrictSubnet"]
-					domainFrontOutput.RestrictHeader = labels["restrictHeader"]
-					domainFrontOutput.RestrictHeaderValue = labels["restrictHeaderValue"]
-
-					domainFronts = append(domainFronts, domainFrontOutput)
 
 				}
 			}
