@@ -253,14 +253,6 @@ func ExecAnsible(hostsFile string, playbook string, filepath string) string {
 	return stdout.String()
 }
 
-func ValidateHostFilePathExists(input string) error {
-	return nil
-}
-
-func ValidateRemoteFilePathExists(input string) error {
-
-}
-
 /////////////////////
 //Terraform Functions
 /////////////////////

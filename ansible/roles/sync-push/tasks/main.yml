@@ -1,5 +1,16 @@
 ---
 # Synchronize two directories on one remote host.
+
+- name: check if remote file exists 
+  stat: path={{ remote_absolute_path }}
+  become: yes
+  register: remote_file_exists
+
+- name: check if local host exists
+  local_action: stat path={{ host_absolute_path }}
+  become: no
+  register: host_file_exists
+
 - name: push files from host to remote server
   synchronize:
     mode: push
@@ -7,3 +18,7 @@
     dest: "{{ remote_absolute_path }}"
     recursive: true
     verify_host: false
+  when:
+    - remote_file_exists.stat.exists
+    - host_file_exists.stat.exists
+  

@@ -41,11 +41,6 @@ var filePush = &cobra.Command{
 	Use:   "push",
 	Short: "send a file",
 	Long:  `send a file from your local host to a remote server via absolute filepath`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateHostFilePathExists(hostFilePath)
-		deployer.ValidateRemoteFilePathExists(remoteFilePath)
-		return nil
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		playbook := deployer.GeneratePlaybookFile("sync-push")
 
@@ -55,7 +50,7 @@ var filePush = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -68,11 +63,6 @@ var filePull = &cobra.Command{
 	Use:   "pull",
 	Short: "get a file",
 	Long:  `get a file from your remote server to your local host via absolute filepath`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateHostFilePathExists(hostFilePath)
-		deployer.ValidateRemoteFilePathExists(remoteFilePath)
-		return nil
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		playbook := deployer.GeneratePlaybookFile("sync-pull")
 
@@ -82,7 +72,7 @@ var filePull = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)

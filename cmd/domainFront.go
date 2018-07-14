@@ -45,7 +45,7 @@ var domainFrontDeploy = &cobra.Command{
 	Short: "deploys a domain front",
 	Long:  `initializes and deploys a domain front to either AWS Cloudfront or Azure where origin is the your target C2`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if domainFrontProvider != "AWS" || domainFrontProvider != "AZURE" {
+		if domainFrontProvider != "AWS" && domainFrontProvider != "AZURE" {
 			return fmt.Errorf("Unknown provider")
 		}
 		return nil

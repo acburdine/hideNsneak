@@ -25,11 +25,6 @@ var installArgs string
 var burpCmd string
 var installIndex int
 var numberInput string
-var fqdn string
-var domain string
-var burpDir string
-var hostFilePath string
-var remoteFilePath string
 
 var install = &cobra.Command{
 	Use:   "install",
