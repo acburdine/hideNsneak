@@ -65,16 +65,14 @@ func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrapper
 			for _, resource := range module.Resources {
 				if resource.Type == "google_cloudfunctions_function" {
 
-					labels := resource.Primary.Attributes["labels"].(map[string]string)
-
 					tempConfig.Enabled, _ = strconv.ParseBool(resource.Primary.Attributes["trigger_http"].(string))
 					tempConfig.InvokeURI = resource.Primary.Attributes["https_trigger_url"].(string)
 					tempConfig.FunctionName = resource.Primary.Attributes["name"].(string)
-					tempConfig.HostURL = labels["target"]
-					tempConfig.RestrictUA = labels["restrictua"]
-					tempConfig.RestrictSubnet = labels["restrictsubnet"]
-					tempConfig.RestrictHeader = labels["restrictheader"]
-					tempConfig.RestrictHeaderValue = labels["restrictheadervalue"]
+					tempConfig.HostURL = resource.Primary.Attributes["labels.target"].(string)
+					tempConfig.RestrictUA = resource.Primary.Attributes["labels.restrictua"].(string)
+					tempConfig.RestrictSubnet = resource.Primary.Attributes["labels.restrictsubnet"].(string)
+					tempConfig.RestrictHeader = resource.Primary.Attributes["labels.restrictheader"].(string)
+					tempConfig.RestrictHeaderValue = resource.Primary.Attributes["labels.restrictheadervalue"].(string)
 
 					googlefrontConfigWrappers = append(googlefrontConfigWrappers, tempConfig)
 				}
