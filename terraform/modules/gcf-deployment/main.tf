@@ -45,9 +45,11 @@ resource "google_cloudfunctions_function" "hidensneak" {
   timeout               = 61
   project               = "${var.gcp_project}"
   region                = "${var.region}"
-  trigger_http          = true
+  trigger_http          = "${var.enabled}"
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
+
+  labels = "${var.labels}"
 
   depends_on = ["google_storage_bucket_object.archive"]
 }

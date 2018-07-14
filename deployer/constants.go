@@ -198,6 +198,10 @@ module "{.Module}" {
 
   gcp_project = "${var.google_project}"
 
+  enabled = {.Enabled}
+
+  labels = "${map("target",{.HostURL} ,"restrictUA",{.RestrictUA},"restrictSubnet",{.RestrictSubnet},"restrictHeader",{.RestrictHeader},"restrictHeaderValue", {.RestrictHeaderValue})}"
+
   google_credentials_path = "${var.google_credentials_path}"
 }`
 
@@ -242,3 +246,12 @@ exports.redirector = (req, res) => {
         res.redirect(frontedDomain)
     }
 };`
+
+const googlefrontPackage = `{
+	"name": "sample-http",
+	"version": "0.0.1",
+	"dependencies": {
+		 "http-proxy": "1.17.0", 
+	  "ip": "1.1.5"
+	}
+  }`

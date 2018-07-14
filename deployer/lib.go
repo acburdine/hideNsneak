@@ -380,6 +380,23 @@ func CreateTerraformMain(masterString string) {
 	checkErr(err)
 }
 
+func writeGoogleFrontFiles(googleFront GooglefrontConfigWrapper) (indexFilePath string, packageFilePath string) {
+	indexFilePath = "/tmp/index.js"
+	packageFilePath = "/tmp/package.json"
+
+	indexFile, err := os.Create(indexFilePath)
+	checkErr(err)
+	packageFile, err := os.Create(packageFilePath)
+	checkErr(err)
+
+	t, err := template.New("index").Parse(googleDomainFrontCode)
+	t.Execute(indexFile, googleFront)
+
+	packageFile.WriteString(googlefrontPackage)
+
+	return
+}
+
 //ProviderCheck takes in a user-defined array of
 //providers and validates they are supported
 func ProviderCheck(providerArray []string) bool {
@@ -474,10 +491,6 @@ func CreateSingleSOCKS(privateKey string, username string, ipv4 string, port int
 
 }
 
-func (listStruct *ListStruct) String() string {
-	return ("IP: " + listStruct.IP + " - Provider: " + listStruct.Provider + " - Region: " + listStruct.Region + " - Name: " + listStruct.Name)
-}
-
 //listStructSOrt takes a list of listStructs and goes ahead and
 //sorts them based on position. This is important because it will
 //ensure that the order of the elements remain the same on each list call
@@ -526,16 +539,16 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 			for name, resource := range module.Resources {
 				if strings.Contains(module.Path[1], "cloudfrontDeploy") {
 					domainFrontOutput.Provider = "AWS"
-					domainFrontOutput.ID = resource.Primary.Attributes["id"]
-					domainFrontOutput.Etag = resource.Primary.Attributes["etag"]
-					domainFrontOutput.Status = resource.Primary.Attributes["status"]
+					domainFrontOutput.ID = resource.Primary.Attributes["id"].(string)
+					domainFrontOutput.Etag = resource.Primary.Attributes["etag"].(string)
+					domainFrontOutput.Status = resource.Primary.Attributes["status"].(string)
 					domainFrontOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
 					for key, value := range resource.Primary.Attributes {
 						if strings.Contains(key, "domain_name") {
 							if strings.Contains(key, "origin") {
-								domainFrontOutput.Origin = value
+								domainFrontOutput.Origin = value.(string)
 							} else {
-								domainFrontOutput.Invoke = value
+								domainFrontOutput.Invoke = value.(string)
 							}
 						}
 					}
@@ -544,6 +557,25 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 					domainFrontOutput.Provider = "AZURE"
 					// domainFronts = append(domainFronts, domainFrontOutput)
 				} else if strings.Contains(module.Path[1], "googlefrontDeploy") {
+					labels := resource.Primary.Attributes["labels"].(map[string]string)
+
+					domainFrontOutput.Provider = "GOOGLE"
+					domainFrontOutput.Origin = labels["target"]
+					domainFrontOutput.Invoke = resource.Primary.Attributes["https_trigger_url"].(string)
+
+					result, _ := strconv.ParseBool(resource.Primary.Attributes["trigger_http"].(string))
+					if result {
+						domainFrontOutput.Status = "Enabled"
+					} else {
+						domainFrontOutput.Status = "Disabled"
+					}
+					domainFrontOutput.Name = resource.Primary.Attributes["name"].(string)
+					domainFrontOutput.RestrictUA = labels["restrictUA"]
+					domainFrontOutput.RestrictSubnet = labels["restrictSubnet"]
+					domainFrontOutput.RestrictHeader = labels["restrictHeader"]
+					domainFrontOutput.RestrictHeaderValue = labels["restrictHeaderValue"]
+
+					domainFronts = append(domainFronts, domainFrontOutput)
 
 				}
 			}
@@ -561,9 +593,9 @@ func ListAPIs(state State) (apiOutputs []APIOutput) {
 			for name, resource := range module.Resources {
 				switch resource.Type {
 				case "aws_api_gateway_deployment":
-					apiOutput.InvokeURI = resource.Primary.Attributes["invoke_url"]
+					apiOutput.InvokeURI = resource.Primary.Attributes["invoke_url"].(string)
 				case "aws_api_gateway_integration":
-					apiOutput.TargetURI = resource.Primary.Attributes["uri"]
+					apiOutput.TargetURI = resource.Primary.Attributes["uri"].(string)
 				case "aws_api_gateway_rest_api":
 					apiOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
 				default:
@@ -597,9 +629,9 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 				switch resource.Type {
 				case "digitalocean_droplet":
 					tempOutput = append(tempOutput, ListStruct{
-						IP:         resource.Primary.Attributes["ipv4_address"],
+						IP:         resource.Primary.Attributes["ipv4_address"].(string),
 						Provider:   "DigitalOcean",
-						Region:     resource.Primary.Attributes["region"],
+						Region:     resource.Primary.Attributes["region"].(string),
 						Name:       fullName,
 						Place:      count,
 						PrivateKey: privatekey,
@@ -607,9 +639,9 @@ func ListIPAddresses(state State) (hostOutput []ListStruct) {
 					})
 				case "aws_instance":
 					tempOutput = append(tempOutput, ListStruct{
-						IP:         resource.Primary.Attributes["public_ip"],
+						IP:         resource.Primary.Attributes["public_ip"].(string),
 						Provider:   "AWS",
-						Region:     resource.Primary.Attributes["availability_zone"],
+						Region:     resource.Primary.Attributes["availability_zone"].(string),
 						Name:       fullName,
 						Place:      count,
 						PrivateKey: privatekey,
@@ -801,7 +833,7 @@ func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) Confi
 }
 
 func DomainFrontDeploy(provider string, origin string, restrictUA string, restrictSubnet string,
-	restrictHeader string, restrictHeaderValue string, wrappers ConfigWrappers) ConfigWrappers {
+	restrictHeader string, restrictHeaderValue string, wrappers ConfigWrappers, functionName string) ConfigWrappers {
 	cloudfrontmMduleCount := wrappers.CloudfrontModuleCount
 
 	googlefrontModuleCount := wrappers.GooglefrontModuleCount
@@ -826,12 +858,13 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 			})
 		}
 	} else if strings.ToUpper(provider) == "GOOGLE" {
+
 		if len(wrappers.Googlefront) > 0 {
 			for _, wrapper := range wrappers.Googlefront {
 				if origin == wrapper.HostURL {
 					continue
 				}
-				wrappers.Googlefront = append(wrappers.Googlefront, GooglefrontConfigWrapper{
+				tempConfig := GooglefrontConfigWrapper{
 					ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
 					HostURL:             origin,
 					Host:                strings.Split(origin, "//")[1],
@@ -839,10 +872,17 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 					RestrictHeader:      restrictHeader,
 					RestrictHeaderValue: restrictHeaderValue,
 					RestrictSubnet:      restrictSubnet,
-				})
+					FunctionName:        functionName,
+				}
+				indexFile, packageFile := writeGoogleFrontFiles(tempConfig)
+
+				tempConfig.SourceFile = indexFile
+				tempConfig.PackageFile = packageFile
+
+				wrappers.Googlefront = append(wrappers.Googlefront)
 			}
 		} else {
-			wrappers.Googlefront = append(wrappers.Googlefront, GooglefrontConfigWrapper{
+			tempConfig := GooglefrontConfigWrapper{
 				ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
 				HostURL:             origin,
 				Host:                strings.Split(origin, "//")[1],
@@ -850,7 +890,14 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 				RestrictHeader:      restrictHeader,
 				RestrictHeaderValue: restrictHeaderValue,
 				RestrictSubnet:      restrictSubnet,
-			})
+				FunctionName:        functionName,
+			}
+			indexFile, packageFile := writeGoogleFrontFiles(tempConfig)
+
+			tempConfig.SourceFile = indexFile
+			tempConfig.PackageFile = packageFile
+
+			wrappers.Googlefront = append(wrappers.Googlefront)
 		}
 	}
 

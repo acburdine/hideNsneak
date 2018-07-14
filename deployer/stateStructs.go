@@ -104,7 +104,7 @@ type InstanceState struct {
 	// Attributes are basic information about the resource. Any keys here
 	// are accessible in variable format within Terraform configurations:
 	// ${resourcetype.name.attribute}.
-	Attributes map[string]string `json:"attributes"`
+	Attributes map[string]interface{} `json:"attributes"`
 
 	// Meta is a simple K/V map that is persisted to the State but otherwise
 	// ignored by Terraform core. It's meant to be used for accounting by
@@ -137,6 +137,10 @@ type ListStruct struct {
 	Place      int
 	Username   string
 	PrivateKey string
+}
+
+func (listStruct *ListStruct) String() string {
+	return ("IP: " + listStruct.IP + " - Provider: " + listStruct.Provider + " - Region: " + listStruct.Region + " - Name: " + listStruct.Name)
 }
 
 type APIOutput struct {

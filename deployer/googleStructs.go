@@ -2,6 +2,7 @@ package deployer
 
 type GooglefrontConfigWrapper struct {
 	ModuleName          string
+	InvokeURI           string
 	Host                string
 	HostURL             string
 	FunctionName        string
@@ -11,6 +12,7 @@ type GooglefrontConfigWrapper struct {
 	RestrictSubnet      string
 	RestrictHeader      string
 	RestrictHeaderValue string
+	Enabled             bool
 }
 
 //Deprecated
