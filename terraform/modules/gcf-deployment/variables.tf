@@ -10,6 +10,8 @@ variable gcp_project {}
 
 variable enabled {}
 
-variable labels {}
+variable labels {
+  type = "map"
+}
 
 variable "google_credentials_path" {}
