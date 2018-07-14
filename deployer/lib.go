@@ -543,6 +543,8 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 				} else if strings.Contains(module.Path[1], "azurefrontDeploy") {
 					domainFrontOutput.Provider = "AZURE"
 					// domainFronts = append(domainFronts, domainFrontOutput)
+				} else if strings.Contains(module.Path[1], "googlefrontDeploy") {
+
 				}
 			}
 
@@ -798,8 +800,11 @@ func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) Confi
 	return wrappers
 }
 
-func DomainFrontDeploy(provider string, origin string, wrappers ConfigWrappers) ConfigWrappers {
-	moduleCount := wrappers.CloudfrontModuleCount
+func DomainFrontDeploy(provider string, origin string, restrictUA string, restrictSubnet string,
+	restrictHeader string, restrictHeaderValue string, wrappers ConfigWrappers) ConfigWrappers {
+	cloudfrontmMduleCount := wrappers.CloudfrontModuleCount
+
+	googlefrontModuleCount := wrappers.GooglefrontModuleCount
 
 	if strings.ToUpper(provider) == "AWS" {
 		if len(wrappers.Cloudfront) > 0 {
@@ -808,16 +813,43 @@ func DomainFrontDeploy(provider string, origin string, wrappers ConfigWrappers) 
 					continue
 				}
 				wrappers.Cloudfront = append(wrappers.Cloudfront, CloudfrontConfigWrapper{
-					ModuleName: "cloudfrontDeploy" + strconv.Itoa(moduleCount+1),
+					ModuleName: "cloudfrontDeploy" + strconv.Itoa(cloudfrontmMduleCount+1),
 					Origin:     origin,
 					Enabled:    "true",
 				})
 			}
 		} else {
 			wrappers.Cloudfront = append(wrappers.Cloudfront, CloudfrontConfigWrapper{
-				ModuleName: "cloudfrontDeploy" + strconv.Itoa(moduleCount+1),
+				ModuleName: "cloudfrontDeploy" + strconv.Itoa(cloudfrontmMduleCount+1),
 				Origin:     origin,
 				Enabled:    "true",
+			})
+		}
+	} else if strings.ToUpper(provider) == "GOOGLE" {
+		if len(wrappers.Googlefront) > 0 {
+			for _, wrapper := range wrappers.Googlefront {
+				if origin == wrapper.HostURL {
+					continue
+				}
+				wrappers.Googlefront = append(wrappers.Googlefront, GooglefrontConfigWrapper{
+					ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
+					HostURL:             origin,
+					Host:                strings.Split(origin, "//")[1],
+					RestrictUA:          restrictUA,
+					RestrictHeader:      restrictHeader,
+					RestrictHeaderValue: restrictHeaderValue,
+					RestrictSubnet:      restrictSubnet,
+				})
+			}
+		} else {
+			wrappers.Googlefront = append(wrappers.Googlefront, GooglefrontConfigWrapper{
+				ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
+				HostURL:             origin,
+				Host:                strings.Split(origin, "//")[1],
+				RestrictUA:          restrictUA,
+				RestrictHeader:      restrictHeader,
+				RestrictHeaderValue: restrictHeaderValue,
+				RestrictSubnet:      restrictSubnet,
 			})
 		}
 	}

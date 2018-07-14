@@ -12,3 +12,5 @@ variable "azure_client_id" {}
 variable "azure_client_secret" {}
 
 variable "azure_subscription_id" {}
+
+variable "google_credentials_path" {}

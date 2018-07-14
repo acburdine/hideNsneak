@@ -117,14 +117,16 @@ type InstanceState struct {
 }
 
 type ConfigWrappers struct {
-	EC2                   []EC2ConfigWrapper
-	EC2ModuleCount        int
-	DO                    []DOConfigWrapper
-	DropletModuleCount    int
-	AWSAPI                []AWSApiConfigWrapper
-	AWSAPIModuleCount     int
-	Cloudfront            []CloudfrontConfigWrapper
-	CloudfrontModuleCount int
+	EC2                    []EC2ConfigWrapper
+	EC2ModuleCount         int
+	DO                     []DOConfigWrapper
+	DropletModuleCount     int
+	AWSAPI                 []AWSApiConfigWrapper
+	AWSAPIModuleCount      int
+	Cloudfront             []CloudfrontConfigWrapper
+	CloudfrontModuleCount  int
+	Googlefront            []GooglefrontConfigWrapper
+	GooglefrontModuleCount int
 }
 
 type ListStruct struct {
@@ -149,13 +151,17 @@ func (output APIOutput) String() string {
 }
 
 type DomainFrontOutput struct {
-	Origin   string
-	ID       string
-	Invoke   string
-	Provider string
-	Name     string
-	Etag     string
-	Status   string
+	Origin              string
+	ID                  string
+	Invoke              string
+	Provider            string
+	Name                string
+	Etag                string
+	Status              string
+	RestrictUA          string
+	RestrictSubnet      string
+	RestrictHeader      string
+	RestrictHeaderValue string
 }
 
 func (output DomainFrontOutput) String() string {

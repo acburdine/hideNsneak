@@ -23,6 +23,10 @@ azure_client_id = "{{.AzureClientID}}"
 azure_client_secret = "{{.AzureClientSecret}}"
 
 azure_subscription_id = "{{.AzureSubscriptionID}}"
+
+google_credentials_path = "{{.GoogleCredentialsPath}}"
+
+google_project = "{{.GoogleProject}}"
 `
 
 const variables = `
@@ -39,6 +43,10 @@ variable "azure_client_id" {}
 variable "azure_client_secret" {}
 
 variable "azure_subscription_id" {}
+
+variable "google_credentials_path" {}
+
+variable "google_project" {}
 `
 
 const outputs = `output "providers" {
@@ -175,6 +183,23 @@ const apiGatewayModule = `
 		aws_api_stage_name	 = "{{.StageName}}"
   	}
 `
+
+const googleDomainFrontModule = `
+module "{.Module}" {
+  source = "modules/gcf-deployment"
+
+  package_file = "{.PackageFile}"
+
+  redirector_file = "{.SourceFile}"
+
+  function_name = "{.FunctionName}"
+
+  region = "us-central1"
+
+  gcp_project = "${var.google_project}"
+
+  google_credentials_path = "${var.google_credentials_path}"
+}`
 
 const googleDomainFrontCode = `
 let httpProxy = require('http-proxy'),

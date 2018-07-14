@@ -1,8 +1,12 @@
 package deployer
 
-type googleDomainFront struct {
+type GooglefrontConfigWrapper struct {
+	ModuleName          string
 	Host                string
 	HostURL             string
+	FunctionName        string
+	SourceFile          string
+	PackageFile         string
 	RestrictUA          string
 	RestrictSubnet      string
 	RestrictHeader      string
