@@ -28,13 +28,15 @@ var numberInput string
 var fqdn string
 var domain string
 var burpDir string
+var hostFilePath string
+var remoteFilePath string
 
 var install = &cobra.Command{
 	Use:   "install",
 	Short: "Main install command",
 	Long:  `Main install command, with subcommands for Burp, Cobalt Strike, GoPhish, LetsEncrypt, Nmap, Socat, SQLMap`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Install called")
+		fmt.Println("Run 'install --help' for usage.")
 	},
 }
 
@@ -48,30 +50,19 @@ var burpInstall = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		playbook := deployer.GeneratePlaybookFile("burp")
-		//TODO: right now we can only do one host, but need to do multiples
+
 		marshalledState := deployer.TerraformStateMarshaller()
 
 		list := deployer.ListIPAddresses(marshalledState)
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		//run burp installation here
-
-		//1. open up hostFile and edit
-		//		get host IP address
-		//		get burp_dir: /Users/mischy/Downloads/
-		//		get burp_server_domain: swansonmedical.com
-		//		get ansible_host: 127.0.0.1
-		//		getansible_host: 35.171.8.53
-		//		close and save
-		//2. open up main.yml and add burp to roles
-		//instance index, look into how destroy was done
-		//all the stuff they need for butp
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
 }
 
@@ -92,12 +83,12 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		// fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
 }
 
@@ -118,7 +109,7 @@ var goPhishInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -144,12 +135,12 @@ var letsEncryptInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		// fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
 }
 
@@ -170,7 +161,7 @@ var nmapInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -196,7 +187,7 @@ var socatInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -222,7 +213,7 @@ var sqlMapInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)

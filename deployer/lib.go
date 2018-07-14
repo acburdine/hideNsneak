@@ -201,7 +201,8 @@ func GeneratePlaybookFile(app string) string {
 }
 
 //GenerateHostsFile generates an ansible host file
-func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string) string {
+func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
+	hostFilePath string, remoteFilePath string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -218,6 +219,8 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			AnsibleFQDN:       fqdn,
 			AnsibleDomain:     domain,
 			BurpDir:           burpDir,
+			HostAbsPath:       hostFilePath,
+			RemoteAbsPath:     remoteFilePath,
 		}
 	}
 
@@ -248,6 +251,14 @@ func ExecAnsible(hostsFile string, playbook string, filepath string) string {
 	}
 
 	return stdout.String()
+}
+
+func ValidateHostFilePathExists(input string) error {
+	return nil
+}
+
+func ValidateRemoteFilePathExists(input string) error {
+
 }
 
 /////////////////////

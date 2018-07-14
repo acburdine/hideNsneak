@@ -82,6 +82,8 @@ Commands
 * `hidensneak install gophish`
 * `hidensneak install nmap`
 * `hidensneak install sqlmap`
+* `hidensneak file push`
+* `hidensneak file pull`
 
 For all commands, you can run `--help` after any of them to get guidance on what flags to use.
 

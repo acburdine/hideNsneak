@@ -25,7 +25,7 @@ var exec = &cobra.Command{
 	Short: "execute custom command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("file called")
+		fmt.Println("Run 'exec --help' for usage.")
 	},
 }
 

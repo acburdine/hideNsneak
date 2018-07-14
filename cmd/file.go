@@ -16,9 +16,16 @@ package cmd
 
 import (
 	"fmt"
+	"hideNsneak/deployer"
 
 	"github.com/spf13/cobra"
 )
+
+var hostFilePath string
+var remoteFilePath string
+var fqdn string
+var domain string
+var burpDir string
 
 // helloCmd represents the hello command
 var file = &cobra.Command{
@@ -26,39 +33,79 @@ var file = &cobra.Command{
 	Short: "file",
 	Long:  `file`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("file called")
+		fmt.Println("Run 'file --help' for usage.")
 	},
 }
 
-var fileSend = &cobra.Command{
-	Use:   "send",
-	Short: "Send a file",
-	Long:  `file`,
+var filePush = &cobra.Command{
+	Use:   "push",
+	Short: "send a file",
+	Long:  `send a file from your local host to a remote server via absolute filepath`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateHostFilePathExists(hostFilePath)
+		deployer.ValidateRemoteFilePathExists(remoteFilePath)
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("file send called")
+		playbook := deployer.GeneratePlaybookFile("sync-push")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instances := list[installIndex : installIndex+1]
+
+		hostFile := GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
 }
 
-var fileGet = &cobra.Command{
-	Use:   "get",
-	Short: "Get a file",
-	Long:  `file`,
+var filePull = &cobra.Command{
+	Use:   "pull",
+	Short: "get a file",
+	Long:  `get a file from your remote server to your local host via absolute filepath`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		deployer.ValidateHostFilePathExists(hostFilePath)
+		deployer.ValidateRemoteFilePathExists(remoteFilePath)
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("file get called")
+		playbook := deployer.GeneratePlaybookFile("sync-pull")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instances := list[installIndex : installIndex+1]
+
+		hostFile := GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
+
+		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(file)
-	file.AddCommand(fileSend, fileGet)
+	file.AddCommand(filePush, filePull)
 
-	// Here you will define your flags and configuration settings.
+	filePush.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	filePush.MarkFlagRequired("id")
+	filePush.PersistentFlags().StringVarP(&fqdn, "host", "h", "", "Specify the host file's absolute path")
+	filePush.MarkPersistentFlagRequired("host")
+	filePush.PersistentFlags().StringVarP(&domain, "remote", "r", "", "Specify the remote file's absolute path")
+	filePush.MarkPersistentFlagRequired("remote")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// helloCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// helloCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	filePull.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	filePull.MarkFlagRequired("id")
+	filePull.PersistentFlags().StringVarP(&hostFilePath, "host", "h", "", "Specify the host file's absolute path")
+	filePull.MarkPersistentFlagRequired("host")
+	filePull.PersistentFlags().StringVarP(&remoteFilePath, "remote", "r", "", "Specify the remote file's absolute path")
+	filePull.MarkPersistentFlagRequired("remote")
 }

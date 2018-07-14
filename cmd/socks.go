@@ -32,7 +32,7 @@ var socks = &cobra.Command{
 	Short: "socks",
 	Long:  `socks`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("socks called")
+		fmt.Println("Run 'socks --help' for usage.")
 	},
 }
 
