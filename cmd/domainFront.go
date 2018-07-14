@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"hideNsneak/deployer"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -45,7 +46,22 @@ var domainFrontDeploy = &cobra.Command{
 	Short: "deploys a domain front",
 	Long:  `initializes and deploys a domain front to either AWS Cloudfront or Azure where origin is the your target C2`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		if domainFrontProvider != "AWS" || domainFrontProvider != "AZURE" {
+		switch strings.ToUpper(domainFrontProvider) {
+		case "AWS":
+		case "GOOGLE":
+			headerArray := strings.Split(restrictHeader, ":")
+			if len(headerArray) > 1 {
+				restrictHeader = strings.TrimSpace(headerArray[0])
+				restrictHeaderValue = strings.TrimSpace(headerArray[1])
+			} else {
+				restrictHeader = ""
+				restrictHeaderValue = ""
+			}
+			if functionName == "" {
+				return fmt.Errorf("Google Domain Fronts must have a function name (-n)")
+			}
+		case "AZURE":
+		default:
 			return fmt.Errorf("Unknown provider")
 		}
 		return nil
@@ -85,10 +101,13 @@ var domainFrontDestroy = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 		list := deployer.ListDomainFronts(marshalledState)
+
 		currentDomainfront := list[domainFrontIndex]
 
 		if list[domainFrontIndex].Provider == "AWS" {
 			fmt.Println(deployer.AWSCloudFrontDestroy(currentDomainfront))
+		} else {
+			deployer.TerraformDestroy([]string{list[domainFrontIndex].Name})
 		}
 	},
 }
@@ -116,17 +135,22 @@ var domainFrontDisable = &cobra.Command{
 		marshalledState := deployer.TerraformStateMarshaller()
 		list := deployer.ListDomainFronts(marshalledState)
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
-
-		if list[domainFrontIndex].Provider == "AWS" {
+		switch list[domainFrontIndex].Provider {
+		case "AWS":
 			for index, front := range wrappers.Cloudfront {
 				if list[domainFrontIndex].ID == front.ID {
 					wrappers.Cloudfront[index].Enabled = "false"
 				}
 			}
-		} else if domainFrontProvider == "Azure" {
-
+		case "AZURE":
+		case "GOOGLE":
+			for index, front := range wrappers.Cloudfront {
+				if list[domainFrontIndex].ID == front.ID {
+					wrappers.Cloudfront[index].Enabled = "false"
+				}
+			}
+		default:
 		}
-
 		mainFile := deployer.CreateMasterFile(wrappers)
 
 		deployer.CreateTerraformMain(mainFile)
@@ -160,14 +184,21 @@ var domainFrontEnable = &cobra.Command{
 		list := deployer.ListDomainFronts(marshalledState)
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
 
-		if list[domainFrontIndex].Provider == "AWS" {
+		switch list[domainFrontIndex].Provider {
+		case "AWS":
 			for index, front := range wrappers.Cloudfront {
 				if list[domainFrontIndex].ID == front.ID {
 					wrappers.Cloudfront[index].Enabled = "true"
 				}
 			}
-		} else if list[domainFrontIndex].Provider == "Azure" {
-
+		case "AZURE":
+		case "GOOGLE":
+			for index, front := range wrappers.Cloudfront {
+				if list[domainFrontIndex].ID == front.ID {
+					wrappers.Cloudfront[index].Enabled = "true"
+				}
+			}
+		default:
 		}
 
 		mainFile := deployer.CreateMasterFile(wrappers)
@@ -204,6 +235,18 @@ func init() {
 	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontOrigin, "target", "t", "", "Specify the target domain or IP. i.e. yourc2example.com")
 	domainFrontDeploy.MarkPersistentFlagRequired("target")
 
+	domainFrontDeploy.PersistentFlags().StringVarP(&functionName, "name", "n", "", "Specify the function name of the Google Domain front i.e /functionname1")
+	domainFrontDeploy.PersistentFlags().StringVar(&restrictUA, "restrictua", "", "Specify the User Agent header to filter on for Google Domain Front")
+	domainFrontDeploy.PersistentFlags().StringVar(&restrictHeader, "restrictheader", "", "Specify the custer header to filter on for Google Domain Front i.e. Test:test")
+	domainFrontDeploy.PersistentFlags().StringVar(&restrictSubnet, "restrictsubnet", "", "Specify the subnet to allow to your Google Domain Front")
+
 	domainFrontEnable.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
 	domainFrontEnable.MarkPersistentFlagRequired("id")
+
+	domainFrontDisable.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
+	domainFrontDisable.MarkPersistentFlagRequired("id")
+
+	domainFrontDestroy.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
+	domainFrontDestroy.MarkPersistentFlagRequired("id")
+
 }

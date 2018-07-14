@@ -10,8 +10,14 @@ variable gcp_project {}
 
 variable enabled {}
 
-variable labels {
-  type = "map"
-}
+variable target {}
+
+variable restrictua {}
+
+variable restrictsubnet {}
+
+variable restrictheader {}
+
+variable restrictheadervalue {}
 
 variable "google_credentials_path" {}

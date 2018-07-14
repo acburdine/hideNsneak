@@ -49,7 +49,13 @@ resource "google_cloudfunctions_function" "hidensneak" {
   source_archive_bucket = "${google_storage_bucket.bucket.name}"
   source_archive_object = "${google_storage_bucket_object.archive.name}"
 
-  labels = "${var.labels}"
+  labels {
+    target              = "${var.target}"
+    restrictua          = "${var.restrictua}"
+    restrictsubnet      = "${var.restrictsubnet}"
+    restrictheader      = "${var.restrictheader}"
+    restrictheadervalue = "${var.restrictheadervalue}"
+  }
 
   depends_on = ["google_storage_bucket_object.archive"]
 }

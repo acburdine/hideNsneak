@@ -48,6 +48,10 @@ func createAWSAPIFromState(modules []ModuleState) (awsAPIConfigWrappers []AWSApi
 	return
 }
 
+/////////////////////
+//Google Domain Front
+/////////////////////
+
 func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrappers []GooglefrontConfigWrapper, moduleCount int) {
 	for _, module := range modules {
 		if len(module.Path) > 1 && strings.Contains(module.Path[1], "googlefrontDeploy") {
@@ -67,10 +71,10 @@ func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrapper
 					tempConfig.InvokeURI = resource.Primary.Attributes["https_trigger_url"].(string)
 					tempConfig.FunctionName = resource.Primary.Attributes["name"].(string)
 					tempConfig.HostURL = labels["target"]
-					tempConfig.RestrictUA = labels["restrictUA"]
-					tempConfig.RestrictSubnet = labels["restrictSubnet"]
-					tempConfig.RestrictHeader = labels["restrictHeader"]
-					tempConfig.RestrictHeaderValue = labels["restrictHeaderValue"]
+					tempConfig.RestrictUA = labels["restrictua"]
+					tempConfig.RestrictSubnet = labels["restrictsubnet"]
+					tempConfig.RestrictHeader = labels["restrictheader"]
+					tempConfig.RestrictHeaderValue = labels["restrictheadervalue"]
 
 					googlefrontConfigWrappers = append(googlefrontConfigWrappers, tempConfig)
 				}
