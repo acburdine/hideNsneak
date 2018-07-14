@@ -200,7 +200,15 @@ module "{.Module}" {
 
   enabled = {.Enabled}
 
-  labels = "${map("target",{.HostURL} ,"restrictUA",{.RestrictUA},"restrictSubnet",{.RestrictSubnet},"restrictHeader",{.RestrictHeader},"restrictHeaderValue", {.RestrictHeaderValue})}"
+  target = "{.HostURL}"
+
+  restrictua = "{.RestrictUA}"
+  
+  restrictsubnet = "{.RestrictSubnet}"
+  
+  restrictheader = "{.RestrictHeader}"
+  
+  restrictheadervalue = "{.RestrictHeaderValue}"
 
   google_credentials_path = "${var.google_credentials_path}"
 }`
@@ -215,7 +223,7 @@ let host = "{{.Host}}"
 let target = "{{.HostURL}}"
 
 
-let frontedDomain = "{{.FrontedDomain}}"
+let frontedDomain = "https://{{.FrontedDomain}}"
 let restrictUA = "{{.RestrictUA}}"
 let restrictSubnet = "{{.RestrictSubnet}}"
 let restrictHeader = "{{.RestrictHeader}}"

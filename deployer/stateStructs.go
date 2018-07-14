@@ -155,13 +155,14 @@ func (output APIOutput) String() string {
 }
 
 type DomainFrontOutput struct {
+	Name                string
 	Origin              string
 	ID                  string
 	Invoke              string
 	Provider            string
-	Name                string
 	Etag                string
 	Status              string
+	FunctionName        string
 	RestrictUA          string
 	RestrictSubnet      string
 	RestrictHeader      string

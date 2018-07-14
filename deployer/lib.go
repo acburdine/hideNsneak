@@ -559,13 +559,11 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 				} else if strings.Contains(module.Path[1], "azurefrontDeploy") {
 					domainFrontOutput.Provider = "AZURE"
 					// domainFronts = append(domainFronts, domainFrontOutput)
-				} else if strings.Contains(module.Path[1], "googleDomainFrontDeploy") {
+				} else if strings.Contains(module.Path[1], "googlefrontDeploy") {
 					if resource.Type == "google_cloudfunctions_function" {
 
-						labels := resource.Primary.Attributes["labels"].(map[string]string)
-
 						domainFrontOutput.Provider = "GOOGLE"
-						domainFrontOutput.Origin = labels["target"]
+						domainFrontOutput.Origin = resource.Primary.Attributes["labels.target"].(string)
 						domainFrontOutput.Invoke = resource.Primary.Attributes["https_trigger_url"].(string)
 
 						result, _ := strconv.ParseBool(resource.Primary.Attributes["trigger_http"].(string))
@@ -574,11 +572,12 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 						} else {
 							domainFrontOutput.Status = "Disabled"
 						}
-						domainFrontOutput.Name = resource.Primary.Attributes["name"].(string)
-						domainFrontOutput.RestrictUA = labels["restrictUA"]
-						domainFrontOutput.RestrictSubnet = labels["restrictSubnet"]
-						domainFrontOutput.RestrictHeader = labels["restrictHeader"]
-						domainFrontOutput.RestrictHeaderValue = labels["restrictHeaderValue"]
+						domainFrontOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+						domainFrontOutput.FunctionName = resource.Primary.Attributes["name"].(string)
+						domainFrontOutput.RestrictUA = resource.Primary.Attributes["labels.restrictua"].(string)
+						domainFrontOutput.RestrictSubnet = resource.Primary.Attributes["labels.restrictsubnet"].(string)
+						domainFrontOutput.RestrictHeader = resource.Primary.Attributes["labels.restrictheader"].(string)
+						domainFrontOutput.RestrictHeaderValue = resource.Primary.Attributes["labels.restrictheadervalue"].(string)
 
 						domainFronts = append(domainFronts, domainFrontOutput)
 					}
@@ -839,7 +838,7 @@ func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) Confi
 }
 
 func DomainFrontDeploy(provider string, origin string, restrictUA string, restrictSubnet string,
-	restrictHeader string, restrictHeaderValue string, wrappers ConfigWrappers, functionName string) ConfigWrappers {
+	restrictHeader string, restrictHeaderValue string, functionName string, frontedDomain string, wrappers ConfigWrappers) ConfigWrappers {
 	cloudfrontmMduleCount := wrappers.CloudfrontModuleCount
 
 	googlefrontModuleCount := wrappers.GooglefrontModuleCount
@@ -872,6 +871,7 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 				}
 				tempConfig := GooglefrontConfigWrapper{
 					ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
+					FrontedDomain:       frontedDomain,
 					HostURL:             origin,
 					Host:                strings.Split(origin, "//")[1],
 					RestrictUA:          restrictUA,
