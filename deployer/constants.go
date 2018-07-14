@@ -223,7 +223,7 @@ let host = "{{.Host}}"
 let target = "{{.HostURL}}"
 
 
-let frontedDomain = "{{.FrontedDomain}}"
+let frontedDomain = "https://{{.FrontedDomain}}"
 let restrictUA = "{{.RestrictUA}}"
 let restrictSubnet = "{{.RestrictSubnet}}"
 let restrictHeader = "{{.RestrictHeader}}"

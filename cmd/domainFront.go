@@ -30,6 +30,7 @@ var restrictSubnet string
 var restrictHeader string
 var restrictHeaderValue string
 var functionName string
+var frontedDomain string
 
 // helloCmd represents the hello command
 var domainFront = &cobra.Command{
@@ -53,9 +54,8 @@ var domainFrontDeploy = &cobra.Command{
 			if len(headerArray) > 1 {
 				restrictHeader = strings.TrimSpace(headerArray[0])
 				restrictHeaderValue = strings.TrimSpace(headerArray[1])
-			} else {
-				restrictHeader = ""
-				restrictHeaderValue = ""
+			} else if len(headerArray) == 1 {
+				return fmt.Errorf("Header key value pairs must be seperated by a colon 'key:value'")
 			}
 			if functionName == "" {
 				return fmt.Errorf("Google Domain Fronts must have a function name (-n)")
@@ -70,7 +70,7 @@ var domainFrontDeploy = &cobra.Command{
 		marshalledState := deployer.TerraformStateMarshaller()
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
 		wrappers = deployer.DomainFrontDeploy(domainFrontProvider, domainFrontOrigin,
-			restrictUA, restrictSubnet, restrictHeader, restrictHeaderValue, wrappers, functionName)
+			restrictUA, restrictSubnet, restrictHeader, restrictHeaderValue, functionName, frontedDomain, wrappers)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
@@ -235,6 +235,7 @@ func init() {
 	domainFrontDeploy.PersistentFlags().StringVarP(&domainFrontOrigin, "target", "t", "", "Specify the target domain or IP. i.e. yourc2example.com")
 	domainFrontDeploy.MarkPersistentFlagRequired("target")
 
+	domainFrontDeploy.PersistentFlags().StringVarP(&frontedDomain, "frontedDomain", "d", "", "Specify the Google domain to front i.e inbox.google.com")
 	domainFrontDeploy.PersistentFlags().StringVarP(&functionName, "name", "n", "", "Specify the function name of the Google Domain front i.e /functionname1")
 	domainFrontDeploy.PersistentFlags().StringVar(&restrictUA, "restrictua", "", "Specify the User Agent header to filter on for Google Domain Front")
 	domainFrontDeploy.PersistentFlags().StringVar(&restrictHeader, "restrictheader", "", "Specify the custer header to filter on for Google Domain Front i.e. Test:test")

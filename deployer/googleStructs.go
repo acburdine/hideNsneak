@@ -2,6 +2,7 @@ package deployer
 
 type GooglefrontConfigWrapper struct {
 	ModuleName          string
+	FrontedDomain       string
 	InvokeURI           string
 	Host                string
 	HostURL             string

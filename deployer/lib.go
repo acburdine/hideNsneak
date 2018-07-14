@@ -835,7 +835,7 @@ func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) Confi
 }
 
 func DomainFrontDeploy(provider string, origin string, restrictUA string, restrictSubnet string,
-	restrictHeader string, restrictHeaderValue string, wrappers ConfigWrappers, functionName string) ConfigWrappers {
+	restrictHeader string, restrictHeaderValue string, functionName string, frontedDomain string, wrappers ConfigWrappers) ConfigWrappers {
 	cloudfrontmMduleCount := wrappers.CloudfrontModuleCount
 
 	googlefrontModuleCount := wrappers.GooglefrontModuleCount
@@ -868,6 +868,7 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 				}
 				tempConfig := GooglefrontConfigWrapper{
 					ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
+					FrontedDomain:       frontedDomain,
 					HostURL:             origin,
 					Host:                strings.Split(origin, "//")[1],
 					RestrictUA:          restrictUA,
