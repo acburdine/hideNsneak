@@ -180,12 +180,14 @@ func ValidateListOfInstances(numberInput string) error {
 /////////////////////
 
 //GeneratePlaybookFile generates an ansible playbook
-func GeneratePlaybookFile(app string) string {
+func GeneratePlaybookFile(apps []string) string {
 	var playbookStruct ansiblePlaybook
 
 	playbookStruct.GenerateDefault()
 
-	playbookStruct.Roles = append(playbookStruct.Roles, app)
+	for _, app := range apps {
+		playbookStruct.Roles = append(playbookStruct.Roles, app)
+	}
 
 	playbookList := []ansiblePlaybook{playbookStruct}
 

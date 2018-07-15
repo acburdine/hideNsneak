@@ -47,7 +47,9 @@ var burpInstall = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("burp")
+		apps := []string{"burp"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -73,7 +75,9 @@ var cobaltStrikeInstall = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("cobaltstrike")
+		apps := []string{"cobalstrike"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -99,7 +103,9 @@ var goPhishInstall = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("gophish")
+		apps := []string{"gophish"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -125,7 +131,9 @@ var letsEncryptInstall = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("letsencrypt")
+		apps := []string{"letsencrypt"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -151,7 +159,9 @@ var nmapInstall = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("nmap")
+		apps := []string{"nmap"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -177,7 +187,9 @@ var socatInstall = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("socat")
+		apps := []string{"socat"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -203,7 +215,9 @@ var sqlMapInstall = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("sqlmap")
+		apps := []string{"sqlmap"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 

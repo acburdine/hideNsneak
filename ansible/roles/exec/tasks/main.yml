@@ -7,17 +7,8 @@
     executable: /bin/bash
   register: command
 
-- name: outputs a success message, if the command succeeded
-  shell: echo "your command ran succesfully"
-  when: command is succeeded
-
 - debug: msg="{{ command.stdout_lines }}"
   when: command is succeeded
-
-  
-- name: outputs an error message, if the command failed
-  shell: echo "your command failed"
-  when: command is failed
 
 - debug: msg="{{ command.stderr_lines }}"
   when: command is failed
