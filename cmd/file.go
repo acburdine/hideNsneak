@@ -26,6 +26,7 @@ var remoteFilePath string
 var fqdn string
 var domain string
 var burpDir string
+var execCommand string
 
 // helloCmd represents the hello command
 var file = &cobra.Command{
@@ -50,7 +51,7 @@ var filePush = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -72,7 +73,7 @@ var filePull = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)

@@ -52,7 +52,7 @@ var burpInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -78,7 +78,7 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -104,7 +104,7 @@ var goPhishInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -130,7 +130,7 @@ var letsEncryptInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -156,7 +156,7 @@ var nmapInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -182,7 +182,7 @@ var socatInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -208,7 +208,7 @@ var sqlMapInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)

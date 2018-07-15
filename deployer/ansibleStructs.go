@@ -44,6 +44,7 @@ type ansibleHost struct {
 	AnsibleDomain     string `yaml:"ansible_domain_name"`
 	BurpDir           string `yaml:"burp_dir"`
 	BurpLocalAddress  string `yaml:"ansible_host"`
-	HostAbsPath       string `yaml:host_absolute_path`
-	RemoteAbsPath     string `yaml:remote_absolute_path`
+	HostAbsPath       string `yaml:"host_absolute_path"`
+	RemoteAbsPath     string `yaml:"remote_absolute_path"`
+	ExecCommand       string `yaml:"remote_command"`
 }
