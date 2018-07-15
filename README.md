@@ -18,16 +18,17 @@ Overview
 ---------
 hideNsneak provides a simple interface that allows penetration testers to build ephemeral infrastructure -- one that requires minimal overhead. 
 
-* hideNsneak can:
---> *`deploy`, `destroy`, and `list`*
-1. Cloud instances via EC2, Google Cloud, Digital Ocean, Azure, and Alibaba Cloud
-2. API Gateway (AWS)
-3. Domain fronts via CloudFront and Azure Cloudfront
+* hideNsneak can 
 
-* --> *Proxy into said infrastructure*
-* --> *Send and receive files*
-* --> *Port scanning via NMAP*
-* --> *Remote installations of Burp Collab, Cobalt Strike, Socat, LetsEncrypt, GoPhish, and SQLMAP*
+* *`deploy`, `destroy`, and `list`*
+	1. Cloud instances via EC2, Google Cloud, Digital Ocean, Azure, and Alibaba Cloud
+	2. API Gateway (AWS)
+	3. Domain fronts via CloudFront and Azure Cloudfront
+
+* *Proxy into said infrastructure*
+* *Send and receive files*
+* *Port scanning via NMAP*
+* *Remote installations of Burp Collab, Cobalt Strike, Socat, LetsEncrypt, GoPhish, and SQLMAP*
 
 
 Running locally
@@ -82,6 +83,8 @@ Commands
 * `hidensneak install gophish`
 * `hidensneak install nmap`
 * `hidensneak install sqlmap`
+* `hidensneak file push`
+* `hidensneak file pull`
 
 For all commands, you can run `--help` after any of them to get guidance on what flags to use.
 

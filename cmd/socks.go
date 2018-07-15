@@ -32,7 +32,7 @@ var socks = &cobra.Command{
 	Short: "socks",
 	Long:  `socks`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("socks called")
+		fmt.Println("Run 'socks --help' for usage.")
 	},
 }
 
@@ -52,7 +52,7 @@ var socksDeploy = &cobra.Command{
 
 		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
 		if len(list) < largestInstanceNumToDestroy {
-			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have.")
+			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
 		}
 		return nil
 
@@ -90,7 +90,7 @@ var socksDestroy = &cobra.Command{
 
 		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
 		if len(list) < largestInstanceNumToDestroy {
-			return errors.New("The number you entered is too big. Try running `list` to see the number of instances you have.")
+			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
 		}
 
 		return nil

@@ -16,30 +16,46 @@ package cmd
 
 import (
 	"fmt"
+	"hideNsneak/deployer"
 
 	"github.com/spf13/cobra"
 )
+
+var execCommand string
 
 var exec = &cobra.Command{
 	Use:   "exec",
 	Short: "execute custom command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("file called")
+		fmt.Println("Run 'exec --help' for usage.")
 	},
 }
 
-var execCmd = &cobra.Command{
-	Use:   "exec",
+var command = &cobra.Command{
+	Use:   "command",
 	Short: "execute custom command",
 	Long:  `executes the specified command on the specified remote system and returns both stdout and stderr`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("file called")
+		playbook := deployer.GeneratePlaybookFile("exec")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instances := list[installIndex : installIndex+1]
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand)
+
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
+
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
-var execNmap = &cobra.Command{
-	Use:   "exec",
+var nmap = &cobra.Command{
+	Use:   "nmap",
 	Short: "execute nmap",
 	Long:  `executes nmap and splits up the job between all of the specified hosts returning the xml files to the specified directory`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -49,15 +65,15 @@ var execNmap = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(exec)
-	exec.AddCommand(execCmd, execNmap)
+	exec.AddCommand(command, nmap)
 
-	// Here you will define your flags and configuration settings.
+	command.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	command.MarkFlagRequired("id")
+	command.PersistentFlags().StringVarP(&execCommand, "command", "c", "", "Specify the command you want to execute")
+	command.MarkPersistentFlagRequired("command")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// helloCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// helloCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// nmap.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	// nmap.MarkFlagRequired("id")
+	// nmap.PersistentFlags().StringVarP(&fqdn, "command", "c", "", "Specify the command you want to execute")
+	// nmap.MarkPersistentFlagRequired("command")
 }

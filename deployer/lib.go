@@ -150,8 +150,6 @@ func stringInSlice(a string, list []string) bool {
 
 //WriteToFile opens, clears and writes to file
 func WriteToFile(path string, content string) {
-	fmt.Println(path)
-	fmt.Println(content)
 	file, err := os.Create(path)
 	checkErr(err)
 
@@ -201,7 +199,8 @@ func GeneratePlaybookFile(app string) string {
 }
 
 //GenerateHostsFile generates an ansible host file
-func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string) string {
+func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
+	hostFilePath string, remoteFilePath string, execCommand string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -218,6 +217,9 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			AnsibleFQDN:       fqdn,
 			AnsibleDomain:     domain,
 			BurpDir:           burpDir,
+			HostAbsPath:       hostFilePath,
+			RemoteAbsPath:     remoteFilePath,
+			ExecCommand:       execCommand,
 		}
 	}
 
@@ -230,24 +232,24 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 	return string(hostFile)
 }
 
-func ExecAnsible(hostsFile string, playbook string, filepath string) string {
-	var stdout, stderr bytes.Buffer
+func ExecAnsible(hostsFile string, playbook string, filepath string) {
+	// var stdout, stderr bytes.Buffer
 	binary, err := exec.LookPath("ansible-playbook")
 
 	checkErr(err)
 
 	args := []string{"-i", hostsFile, playbook}
 	cmd := exec.Command(binary, args...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	cmd.Dir = filepath
 
 	err = cmd.Run()
 	if err != nil {
-		fmt.Println(stderr.String())
+		fmt.Println(err)
 	}
 
-	return stdout.String()
+	return
 }
 
 /////////////////////
