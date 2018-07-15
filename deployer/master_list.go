@@ -10,8 +10,8 @@ import (
 func retrieveUserAndPrivateKey(module ModuleState) (privateKey string, user string) {
 	for _, resource := range module.Resources {
 		if resource.Type == "ansible_host" {
-			privateKey = resource.Primary.Attributes["vars.ansible_ssh_private_key_file"]
-			user = resource.Primary.Attributes["vars.ansible_user"]
+			privateKey = resource.Primary.Attributes["vars.ansible_ssh_private_key_file"].(string)
+			user = resource.Primary.Attributes["vars.ansible_user"].(string)
 			break
 		}
 	}
@@ -34,13 +34,47 @@ func createAWSAPIFromState(modules []ModuleState) (awsAPIConfigWrappers []AWSApi
 				tempConfig.ModuleName = module.Path[1]
 				switch resource.Type {
 				case "aws_api_gateway_deployment":
-					tempConfig.InvokeURI = resource.Primary.Attributes["invoke_url"]
+					tempConfig.InvokeURI = resource.Primary.Attributes["invoke_url"].(string)
 				case "aws_api_gateway_integration":
-					tempConfig.TargetURI = resource.Primary.Attributes["uri"]
+					tempConfig.TargetURI = resource.Primary.Attributes["uri"].(string)
 				case "aws_api_gateway_rest_api":
-					tempConfig.Name = resource.Primary.Attributes["name"]
+					tempConfig.Name = resource.Primary.Attributes["name"].(string)
 				default:
 					continue
+				}
+			}
+		}
+	}
+	return
+}
+
+/////////////////////
+//Google Domain Front
+/////////////////////
+
+func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrappers []GooglefrontConfigWrapper, moduleCount int) {
+	for _, module := range modules {
+		if len(module.Path) > 1 && strings.Contains(module.Path[1], "googlefrontDeploy") {
+			moduleCountString := strings.Split(module.Path[1], "googlefrontDeploy")[1]
+			tempInt, _ := strconv.Atoi(moduleCountString)
+			if moduleCount < tempInt {
+				moduleCount = tempInt
+			}
+			var tempConfig GooglefrontConfigWrapper
+			tempConfig.ModuleName = module.Path[1]
+			for _, resource := range module.Resources {
+				if resource.Type == "google_cloudfunctions_function" {
+					tempConfig.ModuleName = module.Path[1]
+					tempConfig.Enabled, _ = strconv.ParseBool(resource.Primary.Attributes["trigger_http"].(string))
+					tempConfig.InvokeURI = resource.Primary.Attributes["https_trigger_url"].(string)
+					tempConfig.FunctionName = resource.Primary.Attributes["name"].(string)
+					tempConfig.HostURL = resource.Primary.Attributes["labels.target"].(string)
+					tempConfig.RestrictUA = resource.Primary.Attributes["labels.restrictua"].(string)
+					tempConfig.RestrictSubnet = resource.Primary.Attributes["labels.restrictsubnet"].(string)
+					tempConfig.RestrictHeader = resource.Primary.Attributes["labels.restrictheader"].(string)
+					tempConfig.RestrictHeaderValue = resource.Primary.Attributes["labels.restrictheadervalue"].(string)
+
+					googlefrontConfigWrappers = append(googlefrontConfigWrappers, tempConfig)
 				}
 			}
 		}
@@ -64,20 +98,20 @@ func createCloudfrontFromState(modules []ModuleState) (cloudfrontConfigWrappers 
 			tempConfig.ModuleName = module.Path[1]
 			for _, resource := range module.Resources {
 				if resource.Type == "aws_cloudfront_distribution" {
-					tempConfig.Status = resource.Primary.Attributes["status"]
-					tempConfig.ID = resource.Primary.Attributes["id"]
-					tempConfig.Etag = resource.Primary.Attributes["etag"]
+					tempConfig.Status = resource.Primary.Attributes["status"].(string)
+					tempConfig.ID = resource.Primary.Attributes["id"].(string)
+					tempConfig.Etag = resource.Primary.Attributes["etag"].(string)
 					for key, value := range resource.Primary.Attributes {
 						if strings.Contains(key, "domain_name") {
 							if strings.Contains(key, "origin") {
-								tempConfig.Origin = value
+								tempConfig.Origin = value.(string)
 							} else {
-								tempConfig.URL = value
+								tempConfig.URL = value.(string)
 							}
 						}
 
-						tempConfig.Status = resource.Primary.Attributes["status"]
-						tempConfig.Enabled = resource.Primary.Attributes["enabled"]
+						tempConfig.Status = resource.Primary.Attributes["status"].(string)
+						tempConfig.Enabled = resource.Primary.Attributes["enabled"].(string)
 					}
 					cloudfrontConfigWrappers = append(cloudfrontConfigWrappers, tempConfig)
 				}
@@ -96,11 +130,11 @@ func returnInitialEC2Config(module ModuleState) (tempConfig EC2ConfigWrapper) {
 	tempConfig.RegionMap = make(map[string]int)
 	for _, resource := range module.Resources {
 		if resource.Type == "aws_instance" {
-			availZone := resource.Primary.Attributes["availability_zone"]
+			availZone := resource.Primary.Attributes["availability_zone"].(string)
 			region := availZone[:len(availZone)-1]
-			tempConfig.KeyPairName = resource.Primary.Attributes["key_name"]
+			tempConfig.KeyPairName = resource.Primary.Attributes["key_name"].(string)
 			tempConfig.ModuleName = module.Path[1]
-			tempConfig.InstanceType = resource.Primary.Attributes["instance_type"]
+			tempConfig.InstanceType = resource.Primary.Attributes["instance_type"].(string)
 			tempConfig.DefaultUser = user
 			tempConfig.PrivateKey = privateKey
 			tempConfig.RegionMap[region] = 1
@@ -115,7 +149,7 @@ func createEC2ConfigFromState(modules []ModuleState) (ec2Configs []EC2ConfigWrap
 		if len(module.Path) > 2 && strings.Contains(module.Path[1], "ec2Deploy") {
 			for _, resource := range module.Resources {
 				if resource.Type == "aws_instance" {
-					availZone := resource.Primary.Attributes["availability_zone"]
+					availZone := resource.Primary.Attributes["availability_zone"].(string)
 					region := availZone[:len(availZone)-1]
 
 					countString := strings.Split(module.Path[1], "ec2Deploy")[1]
@@ -131,8 +165,8 @@ func createEC2ConfigFromState(modules []ModuleState) (ec2Configs []EC2ConfigWrap
 
 						tempConfig := EC2ConfigWrapper{
 							ModuleName:   module.Path[1],
-							KeyPairName:  resource.Primary.Attributes["key_name"],
-							InstanceType: resource.Primary.Attributes["instance_type"],
+							KeyPairName:  resource.Primary.Attributes["key_name"].(string),
+							InstanceType: resource.Primary.Attributes["instance_type"].(string),
 							DefaultUser:  user,
 							PrivateKey:   privateKey,
 							RegionMap:    make(map[string]int),
@@ -170,13 +204,13 @@ func returnInitialDOConfig(module ModuleState) (tempConfig DOConfigWrapper) {
 	for _, resource := range module.Resources {
 		if resource.Type == "digitalocean_droplet" {
 			tempConfig.ModuleName = module.Path[1]
-			tempConfig.Image = resource.Primary.Attributes["image"]
-			tempConfig.Fingerprint = resource.Primary.Attributes["ssh_keys.0"]
-			tempConfig.Size = resource.Primary.Attributes["size"]
+			tempConfig.Image = resource.Primary.Attributes["image"].(string)
+			tempConfig.Fingerprint = resource.Primary.Attributes["ssh_keys.0"].(string)
+			tempConfig.Size = resource.Primary.Attributes["size"].(string)
 			tempConfig.RegionMap = make(map[string]int)
 			tempConfig.PrivateKey = privateKey
 			tempConfig.DefaultUser = user
-			tempConfig.RegionMap[resource.Primary.Attributes["region"]] = 1
+			tempConfig.RegionMap[resource.Primary.Attributes["region"].(string)] = 1
 			break
 		}
 	}
@@ -200,20 +234,20 @@ func createDOConfigFromState(modules []ModuleState) (doConfigs []DOConfigWrapper
 						privateKey, user := retrieveUserAndPrivateKey(module)
 						tempConfig := DOConfigWrapper{
 							ModuleName:  module.Path[1],
-							Image:       resource.Primary.Attributes["image"],
-							Fingerprint: resource.Primary.Attributes["ssh_keys.0"],
-							Size:        resource.Primary.Attributes["size"],
+							Image:       resource.Primary.Attributes["image"].(string),
+							Fingerprint: resource.Primary.Attributes["ssh_keys.0"].(string),
+							Size:        resource.Primary.Attributes["size"].(string),
 							DefaultUser: user,
 							PrivateKey:  privateKey,
 							RegionMap:   make(map[string]int),
 						}
-						tempConfig.RegionMap[resource.Primary.Attributes["region"]] = 1
+						tempConfig.RegionMap[resource.Primary.Attributes["region"].(string)] = 1
 						for index, config := range doConfigs {
 							if compareDOConfig(config, tempConfig) {
-								if config.RegionMap[resource.Primary.Attributes["region"]] != 0 {
-									config.RegionMap[resource.Primary.Attributes["region"]] = config.RegionMap[resource.Primary.Attributes["region"]] + 1
+								if config.RegionMap[resource.Primary.Attributes["region"].(string)] != 0 {
+									config.RegionMap[resource.Primary.Attributes["region"].(string)] = config.RegionMap[resource.Primary.Attributes["region"].(string)] + 1
 								} else {
-									config.RegionMap[resource.Primary.Attributes["region"]] = 1
+									config.RegionMap[resource.Primary.Attributes["region"].(string)] = 1
 								}
 							} else if index == len(doConfigs)-1 {
 								doConfigs = append(doConfigs, tempConfig)
@@ -236,6 +270,7 @@ func CreateWrappersFromState(state State) (wrappers ConfigWrappers) {
 	wrappers.EC2, wrappers.EC2ModuleCount = createEC2ConfigFromState(state.Modules)
 	wrappers.AWSAPI, wrappers.AWSAPIModuleCount = createAWSAPIFromState(state.Modules)
 	wrappers.Cloudfront, wrappers.CloudfrontModuleCount = createCloudfrontFromState(state.Modules)
+	wrappers.Googlefront, wrappers.GooglefrontModuleCount = createGooglefrontFromState(state.Modules)
 	return
 }
 
@@ -273,6 +308,15 @@ func CreateMasterFile(wrappers ConfigWrappers) (masterString string) {
 
 	for _, config := range wrappers.Cloudfront {
 		templ := template.Must(template.New("cloudfront").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainCloudfrontModule))
+		var templBuffer bytes.Buffer
+		err := templ.Execute(&templBuffer, config)
+		masterString = masterString + templBuffer.String()
+		checkErr(err)
+	}
+
+	for _, config := range wrappers.Googlefront {
+		config.Host = strings.Replace(config.Host, ".", "_", -1)
+		templ := template.Must(template.New("googlefront").Funcs(template.FuncMap{"counter": templateCounter}).Parse(googlefrontModule))
 		var templBuffer bytes.Buffer
 		err := templ.Execute(&templBuffer, config)
 		masterString = masterString + templBuffer.String()

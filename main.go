@@ -14,7 +14,7 @@
 
 package main
 
-import "terraform-playground/cmd"
+import "hideNsneak/cmd"
 
 func main() {
 	cmd.Execute()

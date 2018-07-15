@@ -7,6 +7,8 @@
     "azure_client_secret": "",
     "azure_location": "",
     "azure_subscription_id": "",
+    "google_credentials_path": "",
+    "google_project": "",
     "public_key":"",
     "private_key":""
 }

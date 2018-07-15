@@ -23,6 +23,10 @@ azure_client_id = "{{.AzureClientID}}"
 azure_client_secret = "{{.AzureClientSecret}}"
 
 azure_subscription_id = "{{.AzureSubscriptionID}}"
+
+google_credentials_path = "{{.GoogleCredentialsPath}}"
+
+google_project = "{{.GoogleProject}}"
 `
 
 const variables = `
@@ -39,6 +43,10 @@ variable "azure_client_id" {}
 variable "azure_client_secret" {}
 
 variable "azure_subscription_id" {}
+
+variable "google_credentials_path" {}
+
+variable "google_project" {}
 `
 
 const outputs = `output "providers" {
@@ -175,3 +183,83 @@ const apiGatewayModule = `
 		aws_api_stage_name	 = "{{.StageName}}"
   	}
 `
+
+const googlefrontModule = `
+module "{{.ModuleName}}" {
+  source = "modules/gcf-deployment"
+
+  package_file = "{{.PackageFile}}"
+
+  redirector_file = "{{.SourceFile}}"
+
+  function_name = "{{.FunctionName}}"
+
+  region = "us-central1"
+
+  gcp_project = "${var.google_project}"
+
+  enabled = {{.Enabled}}
+
+  target = "{{.Host}}"
+
+  restrictua = "{{.RestrictUA}}"
+  
+  restrictsubnet = "{{.RestrictSubnet}}"
+  
+  restrictheader = "{{.RestrictHeader}}"
+  
+  restrictheadervalue = "{{.RestrictHeaderValue}}"
+
+  google_credentials_path = "${var.google_credentials_path}"
+}`
+
+const googleDomainFrontCode = `
+let httpProxy = require('http-proxy'),
+    ip = require('ip');
+
+let proxy = httpProxy.createProxyServer({secure: false});
+
+let host = "{{.Host}}"
+let target = "{{.HostURL}}"
+
+
+let frontedDomain = "https://{{.FrontedDomain}}"
+let restrictUA = "{{.RestrictUA}}"
+let restrictSubnet = "{{.RestrictSubnet}}"
+let restrictHeader = "{{.RestrictHeader}}"
+let restrictValue = "{{.RestrictHeaderValue}}"
+
+
+exports.redirector = (req, res) => {
+  	let requestIP = req.ip
+ 
+
+    if (req.method == "GET" || req.method == "POST") {
+        if (restrictUA != "" && restrictUA != req.getHeader('User-Agent') {
+            res.redirect(frontedDomain)
+            return
+        }
+        if (restrictSubnet != "" && !ip.cidrSubnet(restrictSubnet).Contains(requestIP)) {
+            res.redirect(frontedDomain) 
+            return
+        }
+        if (restrictHeader != "" && req.getHeader(restrictHeader) != restrictValue){
+          res.redirect(frontedDomain)
+          return
+        }
+    
+        req.host = host
+        proxy.web(req, res, { target: target });
+    } else {
+        res.redirect(frontedDomain)
+    }
+};`
+
+const googlefrontPackage = `{
+	"name": "sample-http",
+	"version": "0.0.1",
+	"dependencies": {
+		 "http-proxy": "1.17.0", 
+	  "ip": "1.1.5"
+	}
+  }`

@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"terraform-playground/deployer"
+	"hideNsneak/deployer"
 
 	"github.com/spf13/cobra"
 )

@@ -17,8 +17,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"hideNsneak/deployer"
 	"strings"
-	"terraform-playground/deployer"
 
 	"github.com/spf13/cobra"
 )
