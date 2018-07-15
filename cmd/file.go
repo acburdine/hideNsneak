@@ -23,10 +23,6 @@ import (
 
 var hostFilePath string
 var remoteFilePath string
-var fqdn string
-var domain string
-var burpDir string
-var execCommand string
 
 // helloCmd represents the hello command
 var file = &cobra.Command{
@@ -56,7 +52,7 @@ var filePush = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -78,7 +74,7 @@ var filePull = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 

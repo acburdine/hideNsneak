@@ -21,6 +21,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var execCommand string
+
 var exec = &cobra.Command{
 	Use:   "exec",
 	Short: "execute custom command",
@@ -48,7 +50,7 @@ var command = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -67,7 +69,7 @@ func init() {
 
 	command.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
 	command.MarkFlagRequired("id")
-	command.PersistentFlags().StringVarP(&fqdn, "command", "c", "", "Specify the command you want to execute")
+	command.PersistentFlags().StringVarP(&execCommand, "command", "c", "", "Specify the command you want to execute")
 	command.MarkPersistentFlagRequired("command")
 
 	// nmap.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")

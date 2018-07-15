@@ -25,6 +25,9 @@ var installArgs string
 var burpCmd string
 var installIndex int
 var numberInput string
+var fqdn string
+var domain string
+var burpDir string
 
 var install = &cobra.Command{
 	Use:   "install",
@@ -57,7 +60,7 @@ var burpInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -83,7 +86,7 @@ var cobaltStrikeInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -109,7 +112,7 @@ var goPhishInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -135,7 +138,7 @@ var letsEncryptInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -161,7 +164,7 @@ var nmapInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -187,7 +190,7 @@ var socatInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
@@ -213,7 +216,7 @@ var sqlMapInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		fmt.Println(deployer.ExecAnsible("hosts.yml", "main.yml", "../ansible"))
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
 
