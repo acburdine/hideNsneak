@@ -107,4 +107,4 @@ We would love to have you contribute to hideNsneak. Feel free to fork the repo a
 
 License 
 -------
-MIT/BSD
+MIT
