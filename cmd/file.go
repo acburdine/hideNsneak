@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var hostFilePath string
+var localFilePath string
 var remoteFilePath string
 
 // helloCmd represents the hello command
@@ -47,7 +47,7 @@ var filePush = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -69,7 +69,7 @@ var filePull = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, hostFilePath, remoteFilePath, execCommand)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -84,15 +84,15 @@ func init() {
 
 	filePush.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
 	filePush.MarkFlagRequired("id")
-	filePush.PersistentFlags().StringVarP(&fqdn, "host", "h", "", "Specify the host file's absolute path")
+	filePush.PersistentFlags().StringVarP(&localFilePath, "local", "l", "", "Specify the local file's absolute path")
 	filePush.MarkPersistentFlagRequired("host")
-	filePush.PersistentFlags().StringVarP(&domain, "remote", "r", "", "Specify the remote file's absolute path")
+	filePush.PersistentFlags().StringVarP(&remoteFilePath, "remote", "r", "", "Specify the remote file's absolute path")
 	filePush.MarkPersistentFlagRequired("remote")
 
 	filePull.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
 	filePull.MarkFlagRequired("id")
-	filePull.PersistentFlags().StringVarP(&hostFilePath, "host", "h", "", "Specify the host file's absolute path")
+	filePull.PersistentFlags().StringVarP(&localFilePath, "local", "l", "", "Specify the local file or directory's absolute path")
 	filePull.MarkPersistentFlagRequired("host")
-	filePull.PersistentFlags().StringVarP(&remoteFilePath, "remote", "r", "", "Specify the remote file's absolute path")
+	filePull.PersistentFlags().StringVarP(&remoteFilePath, "remote", "r", "", "Specify the remote file or directory's absolute path")
 	filePull.MarkPersistentFlagRequired("remote")
 }
