@@ -1,0 +1,14 @@
+---
+# Executes socat redirector
+
+- name: execute socat redirector to remote server
+  shell: socat TCP4-LISTEN:"{{ socat_port }}", fork TCP4:"{{ socat_ip }}":"{{ socat_port }}""
+  args:
+    executable: /bin/bash
+  register: socat_exec_command
+
+- debug: msg="{{ socat_exec_command.stdout_lines }}"
+  when: socat_exec_command is succeeded
+
+- debug: msg="{{ socat_exec_command.stderr_lines }}"
+  when: socat_exec_command is failed
