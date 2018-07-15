@@ -28,6 +28,8 @@ var nmapHostFile string
 var nmapCommand string
 var nmapOutput string
 var nmapIndex string
+var nmapEvasive bool
+var nmapCommands map[int][]string
 
 var exec = &cobra.Command{
 	Use:   "exec",
@@ -53,7 +55,7 @@ var command = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, nmapOutput, nmapCommands)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -82,11 +84,12 @@ var nmap = &cobra.Command{
 		if !deployer.IsValidNumberInput(nmapIndex) {
 			return fmt.Errorf("invalid formatting specified: %s", nmapIndex)
 		}
+		listOfNums := deployer.ExpandNumberInput(numberInput)
 
-		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDeploy)
+		largestInstanceNum := deployer.FindLargestNumber(listOfNums)
 
 		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(list) < largestInstanceNumToDestroy {
+		if len(list) < largestInstanceNum {
 			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
 		}
 		return nil
@@ -102,13 +105,15 @@ var nmap = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		var instances []ListStruct
+		var instances []deployer.ListStruct
 
 		for _, num := range numsToDeploy {
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand)
+		nmapCommands := deployer.SplitNmapCommand(nmapPorts, nmapHostFile, nmapCommand, len(instances), nmapEvasive)
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, nmapOutput, nmapCommands)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -126,7 +131,7 @@ func init() {
 	command.PersistentFlags().StringVarP(&execCommand, "command", "c", "", "Specify the command you want to execute")
 	command.MarkPersistentFlagRequired("command")
 
-	nmap.PersistentFlags().IntVarP(&nmapIndex, "id", "i", 0, "Specify the ids for the scanning servers")
+	nmap.PersistentFlags().StringVarP(&nmapIndex, "ids", "i", "", "Specify the ids for the scanning servers")
 	nmap.MarkPersistentFlagRequired("id")
 	nmap.PersistentFlags().StringVarP(&nmapHostFile, "hostFile", "f", "", "Specify filepath of the file containing the scope/hosts")
 	nmap.MarkPersistentFlagRequired("hostFile")
@@ -136,5 +141,6 @@ func init() {
 	nmap.MarkPersistentFlagRequired("nmapCommand")
 	nmap.PersistentFlags().StringVarP(&nmapOutput, "nmapOutput", "o", "", "Specify the local directory for output to be saved")
 	nmap.MarkPersistentFlagRequired("nmapOutput")
+	nmap.PersistentFlags().BoolVarP(&nmapEvasive, "nmapEvasion", "e", false, "Specify whether or not you want nmap to be evasive i.e. true or false")
 
 }

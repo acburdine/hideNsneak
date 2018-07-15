@@ -202,7 +202,7 @@ func GeneratePlaybookFile(apps []string) string {
 
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
-	hostFilePath string, remoteFilePath string, execCommand string) string {
+	hostFilePath string, remoteFilePath string, execCommand string, nmapOutput string, nmapCommands map[int][]string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -211,17 +211,20 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 	}
 
 	inventory.All.Hosts = make(map[string]ansibleHost)
-	for _, instance := range instances {
+	for index, instance := range instances {
 		inventory.All.Hosts[instance.IP] = ansibleHost{
-			AnsibleHost:       instance.IP,
-			AnsiblePrivateKey: usr.HomeDir + "/.ssh/" + instance.PrivateKey,
-			AnsibleUser:       instance.Username,
-			AnsibleFQDN:       fqdn,
-			AnsibleDomain:     domain,
-			BurpDir:           burpDir,
-			HostAbsPath:       hostFilePath,
-			RemoteAbsPath:     remoteFilePath,
-			ExecCommand:       execCommand,
+			AnsibleHost:           instance.IP,
+			AnsiblePrivateKey:     usr.HomeDir + "/.ssh/" + instance.PrivateKey,
+			AnsibleUser:           instance.Username,
+			AnsibleAdditionalOpts: "-o StrictHostKeyChecking=no",
+			AnsibleFQDN:           fqdn,
+			AnsibleDomain:         domain,
+			BurpDir:               burpDir,
+			HostAbsPath:           hostFilePath,
+			RemoteAbsPath:         remoteFilePath,
+			ExecCommand:           execCommand,
+			NmapCommands:          nmapCommands[index],
+			NmapOutput:            nmapOutput,
 		}
 	}
 

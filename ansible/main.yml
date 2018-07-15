@@ -3,10 +3,11 @@
   become: true
   gather_facts: false
   pre_tasks:
-  - name: installing python
+  - name: initialization steps
     raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
     register: output
     changed_when: output.stdout != ""
   roles:
   - common
-  - exec
+  - nmap
+  - nmap-exec

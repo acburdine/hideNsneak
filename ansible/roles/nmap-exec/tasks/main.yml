@@ -1,0 +1,29 @@
+---
+#Executes set of nmap commands on the server
+
+- name: Creates nmap directory
+  file: path=/tmp/nmap state=directory
+
+
+- name: execute command to remote server
+  shell: "{{ item }}"
+  become: yes
+  args:
+    executable: /bin/bash
+  loop: "{{ nmap_commands }}"
+
+- name: check if localhost filepath exists
+  local_action: stat path={{ nmap_output }}
+  become: no
+  register: host_file_exists
+
+- name: bring all nmap files back
+  synchronize:
+    mode: pull
+    src: "/tmp/nmap"
+    dest: "{{ nmap_output }}"
+    recursive: true
+    verify_host: false
+  when:
+    - host_file_exists.stat.exists
+

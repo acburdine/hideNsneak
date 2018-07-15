@@ -51,7 +51,6 @@ func ParseIPFile(path string) ([]string, error) {
 	for _, ip := range lines {
 		ip = strings.TrimSpace(ip)
 		if _, _, err := net.ParseCIDR(ip); err == nil {
-			fmt.Println(err)
 			cidrList, _ = cidrHosts(ip)
 			ipList = append(ipList, cidrList...)
 		} else if net.ParseIP(ip) != nil {
@@ -136,8 +135,9 @@ func generateIPPortList(targets []string, ports []string) []string {
 	return ipPortList
 }
 
-func splitNmapCommand(ports string, hostFile string, command string, count int, evasive bool) (commandList []string) {
+func SplitNmapCommand(ports string, hostFile string, command string, count int, evasive bool) (commandList map[int][]string) {
 	hosts, _ := ParseIPFile(hostFile)
+	commandList = make(map[int][]string)
 
 	if evasive {
 		fmt.Println("Dividing hosts and ports for evasion...")
@@ -163,10 +163,10 @@ func splitNmapCommand(ports string, hostFile string, command string, count int, 
 
 			tempSlice = append(tempSlice[:tempIndex], tempSlice[tempIndex+1:]...)
 		}
-		for _, portIP := range targetMap {
+		for index, portIP := range targetMap {
 			for port, ips := range portIP {
-				tempCommand := command + " -p " + port + " " + normalizeTargets(ips)
-				commandList = append(commandList, tempCommand)
+				tempCommand := command + " -p " + port + " -oA " + "/tmp/nmap/{{ ansible_host }}_$(date +\"%m%d%y_%H%M%S\") " + normalizeTargets(ips)
+				commandList[index] = append(commandList[index], tempCommand)
 			}
 		}
 
@@ -187,8 +187,8 @@ func splitNmapCommand(ports string, hostFile string, command string, count int, 
 				targetHosts = hosts[hostsPerServer*i : hostsPerServer*(i+1)+remainder]
 			}
 
-			tempCommand := command + " -p " + ports + " " + normalizeTargets(targetHosts)
-			commandList = append(commandList, tempCommand)
+			tempCommand := command + " -p " + ports + " -oA " + "/tmp/nmap/{{ ansible_host }}_$(date +\"%m%d%y_%H%M%S\") " + normalizeTargets(targetHosts)
+			commandList[i] = append(commandList[i], tempCommand)
 		}
 	}
 	return
