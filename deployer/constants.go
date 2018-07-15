@@ -184,31 +184,31 @@ const apiGatewayModule = `
   	}
 `
 
-const googleDomainFrontModule = `
-module "{.Module}" {
+const googlefrontModule = `
+module "{{.ModuleName}}" {
   source = "modules/gcf-deployment"
 
-  package_file = "{.PackageFile}"
+  package_file = "{{.PackageFile}}"
 
-  redirector_file = "{.SourceFile}"
+  redirector_file = "{{.SourceFile}}"
 
-  function_name = "{.FunctionName}"
+  function_name = "{{.FunctionName}}"
 
   region = "us-central1"
 
   gcp_project = "${var.google_project}"
 
-  enabled = {.Enabled}
+  enabled = {{.Enabled}}
 
-  target = "{.HostURL}"
+  target = "{{.Host}}"
 
-  restrictua = "{.RestrictUA}"
+  restrictua = "{{.RestrictUA}}"
   
-  restrictsubnet = "{.RestrictSubnet}"
+  restrictsubnet = "{{.RestrictSubnet}}"
   
-  restrictheader = "{.RestrictHeader}"
+  restrictheader = "{{.RestrictHeader}}"
   
-  restrictheadervalue = "{.RestrictHeaderValue}"
+  restrictheadervalue = "{{.RestrictHeaderValue}}"
 
   google_credentials_path = "${var.google_credentials_path}"
 }`
@@ -231,19 +231,19 @@ let restrictValue = "{{.RestrictHeaderValue}}"
 
 
 exports.redirector = (req, res) => {
-  	let requestIP = req.connection.remoteAddress
+  	let requestIP = req.ip
  
 
-    if ((req.Method == "GET") || (req.Method == "POST")) {
-        if ((restrictUA != "") && (restrictUA != req.getHeader('User-Agent'))) {
+    if (req.method == "GET" || req.method == "POST") {
+        if (restrictUA != "" && restrictUA != req.getHeader('User-Agent') {
             res.redirect(frontedDomain)
             return
         }
-        if ((restrictSubnet != "") && (!ip.cidrSubnet(restrictSubnet).Contains(requestIP))) {
+        if (restrictSubnet != "" && !ip.cidrSubnet(restrictSubnet).Contains(requestIP)) {
             res.redirect(frontedDomain) 
             return
         }
-        if ((restrictHeader != "") && (req.getHeader(restrictHeader) != restrictValue)){
+        if (restrictHeader != "" && req.getHeader(restrictHeader) != restrictValue){
           res.redirect(frontedDomain)
           return
         }

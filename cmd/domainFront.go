@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"hideNsneak/deployer"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -51,14 +52,18 @@ var domainFrontDeploy = &cobra.Command{
 		case "AWS":
 		case "GOOGLE":
 			headerArray := strings.Split(restrictHeader, ":")
+			match, _ := regexp.MatchString("^[a-zA-Z][a-zA-Z0-9]+", functionName)
+
 			if len(headerArray) > 1 {
 				restrictHeader = strings.TrimSpace(headerArray[0])
 				restrictHeaderValue = strings.TrimSpace(headerArray[1])
-			} else if len(headerArray) == 1 {
+			} else if len(headerArray) == 1 && headerArray[0] != "" {
 				return fmt.Errorf("Header key value pairs must be seperated by a colon 'key:value'")
 			}
 			if functionName == "" {
 				return fmt.Errorf("Google Domain Fronts must have a function name (-n)")
+			} else if !match {
+				return fmt.Errorf("Google Domain Front function must begin with a letter and can only contain letters and numbers")
 			}
 		case "AZURE":
 		default:
