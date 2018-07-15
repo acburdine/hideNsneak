@@ -115,7 +115,7 @@ var nmap = &cobra.Command{
 
 		nmapCommands := deployer.SplitNmapCommand(nmapPorts, nmapHostFile, nmapCommand, len(instances), nmapEvasive)
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -129,7 +129,9 @@ var socatRedirect = &cobra.Command{
 	Short: "redirects ports to target hosts",
 	Long:  "initializes scat redirector that sends all traffic from the specified port to the specified target",
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("socat-exec")
+		apps := []string{"socat", "socat-exec"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -169,8 +171,8 @@ func init() {
 
 	socatRedirect.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
 	socatRedirect.MarkFlagRequired("id")
-	socatRedirect.PersistentFlags().StringVarP(&socatPort, "port", "p", "", "Specify the port you want to use")
+	socatRedirect.PersistentFlags().StringVarP(&socatPort, "port", "p", "", "Specify the port you want to forward")
 	socatRedirect.MarkPersistentFlagRequired("port")
-	socatRedirect.PersistentFlags().StringVarP(&socatIP, "ip", "i", "", "Specify the ip you want to use")
+	socatRedirect.PersistentFlags().StringVarP(&socatIP, "target", "t", "", "Specify the target ip address for the socat redirector")
 	socatRedirect.MarkPersistentFlagRequired("ip")
 }
