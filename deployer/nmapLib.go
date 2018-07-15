@@ -89,6 +89,7 @@ func ValidatePorts(ports string) (allports []string, err error) {
 	var validatePort, startPort, endPort int
 
 	for _, portString := range portArray {
+		portString = strings.TrimSpace(portString)
 		if strings.Contains(portString, "-") {
 			portRange := strings.Split(portString, "-")
 			if len(portRange) != 2 {
@@ -108,6 +109,12 @@ func ValidatePorts(ports string) (allports []string, err error) {
 			if startPort > endPort {
 				err = fmt.Errorf("Incorrectly formatted port string")
 				return
+			} else if startPort < 0 || startPort > 65535 {
+				err = fmt.Errorf("Port is out of the range of valid ports")
+				return
+			} else if endPort < 0 || endPort > 65535 {
+				err = fmt.Errorf("Port is out of the range of valid ports")
+				return
 			}
 			for i := startPort; i <= endPort; i++ {
 				allports = append(allports, strconv.Itoa(i))
@@ -118,7 +125,10 @@ func ValidatePorts(ports string) (allports []string, err error) {
 				err = fmt.Errorf("Incorrectly formatted port string")
 				return
 			}
-
+			if validatePort < 0 || validatePort > 65535 {
+				err = fmt.Errorf("Port is out of the range of valid ports")
+				return
+			}
 			allports = append(allports, strconv.Itoa(validatePort))
 		}
 	}
@@ -135,7 +145,7 @@ func generateIPPortList(targets []string, ports []string) []string {
 	return ipPortList
 }
 
-func SplitNmapCommand(ports string, hostFile string, command string, count int, evasive bool) (commandList map[int][]string) {
+func SplitNmapCommandsIntoHosts(ports string, hostFile string, command string, count int, evasive bool) (commandList map[int][]string) {
 	hosts, _ := ParseIPFile(hostFile)
 	commandList = make(map[int][]string)
 

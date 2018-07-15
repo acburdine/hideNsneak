@@ -113,7 +113,7 @@ var nmap = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		nmapCommands := deployer.SplitNmapCommand(nmapPorts, nmapHostFile, nmapCommand, len(instances), nmapEvasive)
+		nmapCommands := deployer.SplitNmapCommandsIntoHosts(nmapPorts, nmapHostFile, nmapCommand, len(instances), nmapEvasive)
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
 
