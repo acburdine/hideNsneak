@@ -17,8 +17,7 @@ Table of contents
 Overview
 ---------
 hideNsneak provides a simple interface that allows penetration testers to build ephemeral infrastructure -- one that requires minimal overhead. 
-
-* hideNsneak can 
+hideNsneak can: 
 
 * *`deploy`, `destroy`, and `list`*
 	1. Cloud instances via EC2, Google Cloud, Digital Ocean, Azure, and Alibaba Cloud
@@ -102,7 +101,7 @@ Organization
 
 Contributions
 -------------
-We would love to have you contribute to hideNsneak. Feel free to fork the repo and start contributing, we will review pull requests as we receive them. If you feel like some things need improvement or some features need adding, feel free to open up an issue and hopefully -- someone will pick it up. 
+We would love to have you contribute to hideNsneak. Feel free to pull the repo and start contributing, we will review pull requests as we receive them. If you feel like some things need improvement or some features need adding, feel free to open up an issue and hopefully -- someone will pick it up. 
 
 
 License 

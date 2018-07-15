@@ -32,6 +32,10 @@ var nmapCommands map[int][]string
 var execCommand string
 var socatPort string
 var socatIP string
+var cobaltStrikeLicense string
+var cobaltStrikeIp string
+var cobaltStrikePassword string
+var cobaltStrikeC2Path string
 
 var exec = &cobra.Command{
 	Use:   "exec",
@@ -57,7 +61,7 @@ var command = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -115,7 +119,7 @@ var nmap = &cobra.Command{
 
 		nmapCommands := deployer.SplitNmapCommandsIntoHosts(nmapPorts, nmapHostFile, nmapCommand, len(instances), nmapEvasive)
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -139,7 +143,7 @@ var socatRedirect = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -147,6 +151,45 @@ var socatRedirect = &cobra.Command{
 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
+
+var cobaltStrikeRun = &cobra.Command{
+	Use:   "cobaltstrike-run",
+	Short: "updates and runs cobalt strike teamserver",
+	Long:  "updates the cobalt strike teamserver with the licensse and starts the teamserver with specified profile and password ",
+	Run: func(cmd *cobra.Command, args []string) {
+		apps := []string{"cobaltstrike", "cobaltstrike-exec"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instances := list[installIndex : installIndex+1]
+
+		remoteFilePath = "/opt/cobaltstrike"
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
+
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
+
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+	},
+}
+
+// ---
+// # Starts up Cobalt Strike
+// cobaltstrike_license
+// public_ip
+// password
+// path_to_malleable_c2
+
+// ---
+// # Synchronize two directories on one remote host.
+// remote_absolute_path
+// host_absolute_path
 
 func init() {
 	rootCmd.AddCommand(exec)
@@ -174,5 +217,18 @@ func init() {
 	socatRedirect.PersistentFlags().StringVarP(&socatPort, "port", "p", "", "Specify the port you want to forward")
 	socatRedirect.MarkPersistentFlagRequired("port")
 	socatRedirect.PersistentFlags().StringVarP(&socatIP, "target", "t", "", "Specify the target ip address for the socat redirector")
-	socatRedirect.MarkPersistentFlagRequired("ip")
+	socatRedirect.MarkPersistentFlagRequired("target")
+
+	cobaltStrikeRun.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	cobaltStrikeRun.MarkFlagRequired("id")
+	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeLicense, "license", "l", "", "Specify the cobalt strike license")
+	cobaltStrikeRun.MarkPersistentFlagRequired("license")
+	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeIp, "target", "t", "", "Specify the target ip address")
+	cobaltStrikeRun.MarkPersistentFlagRequired("target")
+	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikePassword, "password", "p", "", "Enter your password")
+	cobaltStrikeRun.MarkPersistentFlagRequired("password")
+	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeC2Path, "c2", "c", "", "Specify the malleable C2 path")
+	cobaltStrikeRun.MarkPersistentFlagRequired("c2")
+	cobaltStrikeRun.PersistentFlags().StringVarP(&localFilePath, "localhost", "h", "", "Specify localhost file path")
+	cobaltStrikeRun.MarkPersistentFlagRequired("localhost")
 }

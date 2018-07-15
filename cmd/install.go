@@ -57,7 +57,7 @@ var burpInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -85,7 +85,7 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -113,7 +113,7 @@ var goPhishInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -141,7 +141,7 @@ var letsEncryptInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -169,7 +169,7 @@ var nmapInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -197,7 +197,7 @@ var socatInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -225,7 +225,7 @@ var sqlMapInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)

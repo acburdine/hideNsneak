@@ -51,4 +51,8 @@ type ansibleHost struct {
 	SocatIP               string   `yaml:"socat_ip"`
 	NmapCommands          []string `yaml:"nmap_commands"`
 	NmapOutput            string   `yaml:"nmap_output"`
+	CobaltStrikeLicense   string   `yaml:"cobaltstrike_license"`
+	CobaltStrikeIP        string   `yaml:"public_ip"`
+	CobaltStrikePassword  string   `yaml:"password"`
+	CobaltStrikeC2Path    string   `yaml:"path_to_malleable_c2"`
 }
