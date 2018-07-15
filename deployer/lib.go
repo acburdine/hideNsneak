@@ -202,7 +202,7 @@ func GeneratePlaybookFile(apps []string) string {
 
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
-	hostFilePath string, remoteFilePath string, execCommand string, nmapOutput string, nmapCommands map[int][]string) string {
+	hostFilePath string, remoteFilePath string, execCommand string, socatPort string, socatIP string, nmapOutput string, nmapCommands map[int][]string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -225,6 +225,8 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			ExecCommand:           execCommand,
 			NmapCommands:          nmapCommands[index],
 			NmapOutput:            nmapOutput,
+			SocatPort:             socatPort,
+			SocatIP:               socatIP,
 		}
 	}
 

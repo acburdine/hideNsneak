@@ -22,7 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var execCommand string
 var nmapPorts string
 var nmapHostFile string
 var nmapCommand string
@@ -30,6 +29,9 @@ var nmapOutput string
 var nmapIndex string
 var nmapEvasive bool
 var nmapCommands map[int][]string
+var execCommand string
+var socatPort string
+var socatIP string
 
 var exec = &cobra.Command{
 	Use:   "exec",
@@ -55,7 +57,7 @@ var command = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -122,9 +124,31 @@ var nmap = &cobra.Command{
 	},
 }
 
+var socatRedirect = &cobra.Command{
+	Use:   "socat-redirect",
+	Short: "redirects ports to target hosts",
+	Long:  "initializes scat redirector that sends all traffic from the specified port to the specified target",
+	Run: func(cmd *cobra.Command, args []string) {
+		playbook := deployer.GeneratePlaybookFile("socat-exec")
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		instances := list[installIndex : installIndex+1]
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
+
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(exec)
-	exec.AddCommand(command, nmap)
+	exec.AddCommand(command, nmap, socatRedirect)
 
 	command.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
 	command.MarkFlagRequired("id")
@@ -143,4 +167,10 @@ func init() {
 	nmap.MarkPersistentFlagRequired("nmapOutput")
 	nmap.PersistentFlags().BoolVarP(&nmapEvasive, "nmapEvasion", "e", false, "Specify whether or not you want nmap to be evasive i.e. true or false")
 
+	socatRedirect.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	socatRedirect.MarkFlagRequired("id")
+	socatRedirect.PersistentFlags().StringVarP(&socatPort, "port", "p", "", "Specify the port you want to use")
+	socatRedirect.MarkPersistentFlagRequired("port")
+	socatRedirect.PersistentFlags().StringVarP(&socatIP, "ip", "i", "", "Specify the ip you want to use")
+	socatRedirect.MarkPersistentFlagRequired("ip")
 }

@@ -47,6 +47,8 @@ type ansibleHost struct {
 	HostAbsPath           string   `yaml:"host_absolute_path"`
 	RemoteAbsPath         string   `yaml:"remote_absolute_path"`
 	ExecCommand           string   `yaml:"remote_command"`
+	SocatPort             string   `yaml:"socat_port"`
+	SocatIP               string   `yaml:"socat_ip"`
 	NmapCommands          []string `yaml:"nmap_commands"`
 	NmapOutput            string   `yaml:"nmap_output"`
 }
