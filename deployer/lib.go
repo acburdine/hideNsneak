@@ -203,7 +203,7 @@ func GeneratePlaybookFile(apps []string) string {
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
 	hostFilePath string, remoteFilePath string, execCommand string, socatPort string, socatIP string, nmapOutput string, nmapCommands map[int][]string,
-	cobaltStrikeLicense string, cobaltStrikeIP string, cobaltStrikePassword string, cobaltStrikeC2Path string) string {
+	cobaltStrikeLicense string, cobaltStrikePassword string, cobaltStrikeC2Path string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -229,7 +229,6 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			SocatPort:             socatPort,
 			SocatIP:               socatIP,
 			CobaltStrikeLicense:   cobaltStrikeLicense,
-			CobaltStrikeIP:        cobaltStrikeIP,
 			CobaltStrikeC2Path:    cobaltStrikeC2Path,
 			CobaltStrikePassword:  cobaltStrikePassword,
 		}

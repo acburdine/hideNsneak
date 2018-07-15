@@ -25,7 +25,7 @@
   when: cobaltstrike_pushed is failed
 
 - name: start run cobalt strike 
-  shell: ./teamserver "{{ public_ip }}" "{{ password }}" "{{ path_to_malleable_c2 }}"
+  shell: ./teamserver "{{ ansible_host }}" "{{ password }}" "{{ path_to_malleable_c2 }}"
     executable: /bin/bash
   register: cobaltstrike_ran
 

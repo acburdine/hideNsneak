@@ -141,7 +141,9 @@ var letsEncryptInstall = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeLicense, cobaltStrikeIp, cobaltStrikePassword, cobaltStrikeC2Path)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands, cobaltStrikeLicense,
+			cobaltStrikePassword, cobaltStrikeC2Path)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
