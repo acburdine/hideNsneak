@@ -22,7 +22,7 @@ func (playbook *ansiblePlaybook) GenerateDefault() {
 	playbook.Become = true
 	playbook.GatherFacts = false
 	playbook.PreTasks = append(playbook.PreTasks, ansiblePretask{
-		Name:        "installing python",
+		Name:        "initialization steps",
 		Raw:         "test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)",
 		Register:    "output",
 		ChangedWhen: `output.stdout != ""`,
@@ -37,13 +37,18 @@ type ansibleInventory struct {
 }
 
 type ansibleHost struct {
-	AnsibleHost       string `yaml:"ansible_host"`
-	AnsibleUser       string `yaml:"ansible_user"`
-	AnsiblePrivateKey string `yaml:"ansible_ssh_private_key_file"`
-	AnsibleFQDN       string `yaml:"ansible_fqdn"`
-	AnsibleDomain     string `yaml:"ansible_domain_name"`
-	BurpDir           string `yaml:"burp_dir"`
-	HostAbsPath       string `yaml:"host_absolute_path"`
-	RemoteAbsPath     string `yaml:"remote_absolute_path"`
-	ExecCommand       string `yaml:"remote_command"`
+	AnsibleHost           string   `yaml:"ansible_host"`
+	AnsibleUser           string   `yaml:"ansible_user"`
+	AnsiblePrivateKey     string   `yaml:"ansible_ssh_private_key_file"`
+	AnsibleAdditionalOpts string   `yaml:"ansible_ssh_common_args"`
+	AnsibleFQDN           string   `yaml:"ansible_fqdn"`
+	AnsibleDomain         string   `yaml:"ansible_domain_name"`
+	BurpDir               string   `yaml:"burp_dir"`
+	HostAbsPath           string   `yaml:"host_absolute_path"`
+	RemoteAbsPath         string   `yaml:"remote_absolute_path"`
+	ExecCommand           string   `yaml:"remote_command"`
+	SocatPort             string   `yaml:"socat_port"`
+	SocatIP               string   `yaml:"socat_ip"`
+	NmapCommands          []string `yaml:"nmap_commands"`
+	NmapOutput            string   `yaml:"nmap_output"`
 }

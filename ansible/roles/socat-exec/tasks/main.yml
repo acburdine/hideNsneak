@@ -1,0 +1,17 @@
+---
+# Executes socat redirector
+
+- name: execute socat redirector to remote server
+  become: yes
+  shell: "( (nohup socat TCP4-LISTEN:{{ socat_port }},fork TCP4:{{ socat_ip }}:{{ socat_port }}) &)"
+  async: 45
+  poll: 0
+  args:
+    executable: /bin/bash
+  register: socat_exec_command
+
+- debug: msg="Command Succeeded"
+  when: socat_exec_command is succeeded
+
+- debug: msg="Command Failed"
+  when: socat_exec_command is failed

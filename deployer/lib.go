@@ -180,12 +180,14 @@ func ValidateListOfInstances(numberInput string) error {
 /////////////////////
 
 //GeneratePlaybookFile generates an ansible playbook
-func GeneratePlaybookFile(app string) string {
+func GeneratePlaybookFile(apps []string) string {
 	var playbookStruct ansiblePlaybook
 
 	playbookStruct.GenerateDefault()
 
-	playbookStruct.Roles = append(playbookStruct.Roles, app)
+	for _, app := range apps {
+		playbookStruct.Roles = append(playbookStruct.Roles, app)
+	}
 
 	playbookList := []ansiblePlaybook{playbookStruct}
 
@@ -200,7 +202,7 @@ func GeneratePlaybookFile(app string) string {
 
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
-	hostFilePath string, remoteFilePath string, execCommand string) string {
+	hostFilePath string, remoteFilePath string, execCommand string, socatPort string, socatIP string, nmapOutput string, nmapCommands map[int][]string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -209,17 +211,22 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 	}
 
 	inventory.All.Hosts = make(map[string]ansibleHost)
-	for _, instance := range instances {
+	for index, instance := range instances {
 		inventory.All.Hosts[instance.IP] = ansibleHost{
-			AnsibleHost:       instance.IP,
-			AnsiblePrivateKey: usr.HomeDir + "/.ssh/" + instance.PrivateKey,
-			AnsibleUser:       instance.Username,
-			AnsibleFQDN:       fqdn,
-			AnsibleDomain:     domain,
-			BurpDir:           burpDir,
-			HostAbsPath:       hostFilePath,
-			RemoteAbsPath:     remoteFilePath,
-			ExecCommand:       execCommand,
+			AnsibleHost:           instance.IP,
+			AnsiblePrivateKey:     usr.HomeDir + "/.ssh/" + instance.PrivateKey,
+			AnsibleUser:           instance.Username,
+			AnsibleAdditionalOpts: "-o StrictHostKeyChecking=no",
+			AnsibleFQDN:           fqdn,
+			AnsibleDomain:         domain,
+			BurpDir:               burpDir,
+			HostAbsPath:           hostFilePath,
+			RemoteAbsPath:         remoteFilePath,
+			ExecCommand:           execCommand,
+			NmapCommands:          nmapCommands[index],
+			NmapOutput:            nmapOutput,
+			SocatPort:             socatPort,
+			SocatIP:               socatIP,
 		}
 	}
 

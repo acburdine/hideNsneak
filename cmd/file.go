@@ -39,7 +39,8 @@ var filePush = &cobra.Command{
 	Short: "send a file",
 	Long:  `send a file from your local host to a remote server via absolute filepath`,
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("sync-push")
+		apps := []string{"sync-push"}
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -47,7 +48,7 @@ var filePush = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -61,7 +62,9 @@ var filePull = &cobra.Command{
 	Short: "get a file",
 	Long:  `get a file from your remote server to your local host via absolute filepath`,
 	Run: func(cmd *cobra.Command, args []string) {
-		playbook := deployer.GeneratePlaybookFile("sync-pull")
+		apps := []string{"sync-pull"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
@@ -69,7 +72,7 @@ var filePull = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
