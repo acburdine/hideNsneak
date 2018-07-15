@@ -1,0 +1,81 @@
+---
+- name: ufw install check
+  raw: test -e /usr/sbin/ufw || (apt -y update && apt install -y ufw)
+  register: output
+  changed_when: output.stdout != ""
+
+- name: Deny everything and enable UFW
+  become: yes
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+  when:
+    - ufw_action == "add"
+  
+
+- name: Add TCP Rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ ufw_tcp_port }}"
+    proto: tcp
+  when:
+    - ufw_tcp_port != ""
+    - ufw_action == "add"
+
+- name: Add UDP Rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ ufw_udp_port }}"
+    proto: udp
+  when:
+    - ufw_udp_port != ""
+    - ufw_action == "add"   
+
+- name: Delete TCP rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ ufw_tcp_port }}"
+    proto: tcp
+    delete: yes
+  when:
+    - ufw_tcp_port != ""
+    - ufw_action == "delete"   
+
+
+- name: Delete UDP Rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ ufw_udp_port }}"
+    proto: udp
+    delete: yes
+  when:
+    - ufw_udp_port != ""
+    - ufw_action == "delete"   
+
+- name: List rules
+  become: yes
+  shell: "ufw status"
+  args:
+    executable: /bin/bash
+  register: list
+  when:
+    - ufw_action == "list"   
+
+- debug: msg="{{ list.stdout_lines }}"
+  when: 
+    - list is succeeded
+    - ufw_action == "list"   
+
+- debug: msg="{{ list.stderr_lines }}"
+  when: 
+    - list is failed
+    - ufw_action == "list"   
