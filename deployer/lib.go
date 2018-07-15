@@ -569,7 +569,7 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 						} else {
 							domainFrontOutput.Status = "Disabled"
 						}
-						domainFrontOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+						domainFrontOutput.Name = "module." + module.Path[1]
 						domainFrontOutput.FunctionName = resource.Primary.Attributes["name"].(string)
 						domainFrontOutput.RestrictUA = resource.Primary.Attributes["labels.restrictua"].(string)
 						domainFrontOutput.RestrictSubnet = resource.Primary.Attributes["labels.restrictsubnet"].(string)
@@ -869,8 +869,9 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 				tempConfig := GooglefrontConfigWrapper{
 					ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
 					FrontedDomain:       frontedDomain,
-					HostURL:             origin,
-					Host:                strings.Split(origin, "//")[1],
+					HostURL:             "https://" + origin,
+					Host:                origin,
+					Enabled:             true,
 					RestrictUA:          restrictUA,
 					RestrictHeader:      restrictHeader,
 					RestrictHeaderValue: restrictHeaderValue,
@@ -887,8 +888,10 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 		} else {
 			tempConfig := GooglefrontConfigWrapper{
 				ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
-				HostURL:             origin,
-				Host:                strings.Split(origin, "//")[1],
+				FrontedDomain:       frontedDomain,
+				HostURL:             "https://" + origin,
+				Host:                origin,
+				Enabled:             true,
 				RestrictUA:          restrictUA,
 				RestrictHeader:      restrictHeader,
 				RestrictHeaderValue: restrictHeaderValue,
@@ -900,7 +903,8 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 			tempConfig.SourceFile = indexFile
 			tempConfig.PackageFile = packageFile
 
-			wrappers.Googlefront = append(wrappers.Googlefront)
+			wrappers.Googlefront = append(wrappers.Googlefront, tempConfig)
+			wrappers.GooglefrontModuleCount = wrappers.GooglefrontModuleCount + 1
 		}
 	}
 

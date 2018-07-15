@@ -64,7 +64,7 @@ func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrapper
 			tempConfig.ModuleName = module.Path[1]
 			for _, resource := range module.Resources {
 				if resource.Type == "google_cloudfunctions_function" {
-
+					tempConfig.ModuleName = module.Path[1]
 					tempConfig.Enabled, _ = strconv.ParseBool(resource.Primary.Attributes["trigger_http"].(string))
 					tempConfig.InvokeURI = resource.Primary.Attributes["https_trigger_url"].(string)
 					tempConfig.FunctionName = resource.Primary.Attributes["name"].(string)
@@ -308,6 +308,15 @@ func CreateMasterFile(wrappers ConfigWrappers) (masterString string) {
 
 	for _, config := range wrappers.Cloudfront {
 		templ := template.Must(template.New("cloudfront").Funcs(template.FuncMap{"counter": templateCounter}).Parse(mainCloudfrontModule))
+		var templBuffer bytes.Buffer
+		err := templ.Execute(&templBuffer, config)
+		masterString = masterString + templBuffer.String()
+		checkErr(err)
+	}
+
+	for _, config := range wrappers.Googlefront {
+		config.Host = strings.Replace(config.Host, ".", "_", -1)
+		templ := template.Must(template.New("googlefront").Funcs(template.FuncMap{"counter": templateCounter}).Parse(googlefrontModule))
 		var templBuffer bytes.Buffer
 		err := templ.Execute(&templBuffer, config)
 		masterString = masterString + templBuffer.String()
