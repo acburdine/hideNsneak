@@ -83,8 +83,9 @@ var firewallAdd = &cobra.Command{
 
 		ufwAction = "add"
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath,
-			remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
@@ -141,8 +142,9 @@ var firewallDelete = &cobra.Command{
 
 		ufwAction = "delete"
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath,
-			remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
@@ -188,6 +190,7 @@ var firewallList = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)

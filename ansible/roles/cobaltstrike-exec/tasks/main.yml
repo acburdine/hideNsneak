@@ -1,0 +1,36 @@
+---
+# Starts up Cobalt Strike 
+
+- name: license cobalt strike installation and download the latest version
+  shell: echo "{{ cobaltstrike_license }}" | ./update
+    executable: /bin/bash
+  register: cobaltstrike_updated
+
+- debug: msg="{{ cobaltstrike_updated.stdout_lines }}"
+  when: cobaltstrike_updated is succeeded
+
+- debug: msg="{{ cobaltstrike_updated.stderr_lines }}"
+  when: cobaltstrike_updated is failed
+
+- name: run a sync-push of malleable C2 from localhost to remote server
+  become: true
+  roles:
+  - sync-push
+  register: cobaltstrike_pushed
+
+- debug: msg="{{ cobaltstrike_pushed.stdout_lines }}"
+  when: cobaltstrike_updated is succeeded
+
+- debug: msg="{{ cobaltstrike_pushed.stderr_lines }}"
+  when: cobaltstrike_pushed is failed
+
+- name: start run cobalt strike 
+  shell: ./teamserver "{{ ansible_host }}" "{{ password }}" "{{ path_to_malleable_c2 }}"
+    executable: /bin/bash
+  register: cobaltstrike_ran
+
+- debug: msg="{{ cobaltstrike_ran.stdout_lines }}"
+  when: cobaltstrike_ran is succeeded
+
+- debug: msg="{{ cobaltstrike_ran.stderr_lines }}"
+  when: cobaltstrike_ran is failed
