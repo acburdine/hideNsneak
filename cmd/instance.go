@@ -106,7 +106,7 @@ var instanceDeploy = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(firewallList, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)

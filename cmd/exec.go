@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"hideNsneak/deployer"
+	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -31,9 +32,10 @@ var execCommand string
 var socatPort string
 var socatIP string
 var cobaltStrikeLicense string
-var cobaltStrikeIp string
+var cobaltStrikeFile string
 var cobaltStrikePassword string
 var cobaltStrikeC2Path string
+var cobaltStrikeKillDate string
 
 var commandIndices []int
 
@@ -67,7 +69,7 @@ var command = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
@@ -116,7 +118,7 @@ var nmap = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
@@ -150,7 +152,7 @@ var socatRedirect = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
@@ -164,8 +166,21 @@ var cobaltStrikeRun = &cobra.Command{
 	Use:   "cobaltstrike-run",
 	Short: "updates and runs cobalt strike teamserver",
 	Long:  "updates the cobalt strike teamserver with the licensse and starts the teamserver with specified profile and password ",
+	Args: func(cmd *cobra.Command, args []string) error {
+		match, _ := regexp.MatchString(`20[0-9]{2}\-[0=1]{1}[0-9]{1}\-[0-3]{1}[0-9]{1}`, cobaltStrikeKillDate)
+		if !match {
+			return fmt.Errorf("invalid kill date format, need YYYY-MM-DD")
+		}
+		err := deployer.ValidateNumberOfInstances(commandIndices)
+		return err
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		apps := []string{"cobaltstrike", "cobaltstrike-exec"}
+		var apps []string
+		if cobaltStrikeFile != "" {
+			apps = []string{"cobaltstrike", "cobaltstrike-exec"}
+		} else {
+			apps = []string{"cobaltstrike-exec"}
+		}
 
 		playbook := deployer.GeneratePlaybookFile(apps)
 
@@ -183,7 +198,7 @@ var cobaltStrikeRun = &cobra.Command{
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
@@ -237,12 +252,11 @@ func init() {
 	cobaltStrikeRun.MarkFlagRequired("id")
 	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeLicense, "license", "l", "", "Specify the cobalt strike license")
 	cobaltStrikeRun.MarkPersistentFlagRequired("license")
-	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeIp, "target", "t", "", "Specify the target ip address")
-	cobaltStrikeRun.MarkPersistentFlagRequired("target")
 	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikePassword, "password", "p", "", "Enter your password")
 	cobaltStrikeRun.MarkPersistentFlagRequired("password")
 	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeC2Path, "c2", "c", "", "Specify the malleable C2 path")
 	cobaltStrikeRun.MarkPersistentFlagRequired("c2")
-	cobaltStrikeRun.PersistentFlags().StringVarP(&localFilePath, "file", "f", "", "cobaltstrike ")
-	cobaltStrikeRun.MarkPersistentFlagRequired("localhost")
+	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeFile, "file", "f", "", "local filepath of the cobaltstrike tgz file")
+	cobaltStrikeRun.PersistentFlags().StringVarP(&cobaltStrikeKillDate, "kill", "k", "", "Kill date for cobaltstrike beacons YYYY-MM-DD i.e. 2018-08-08")
+	cobaltStrikeRun.MarkPersistentFlagRequired("kill")
 }

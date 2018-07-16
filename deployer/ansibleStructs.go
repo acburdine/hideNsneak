@@ -54,6 +54,8 @@ type ansibleHost struct {
 	CobaltStrikeLicense   string   `yaml:"cobaltstrike_license"`
 	CobaltStrikePassword  string   `yaml:"password"`
 	CobaltStrikeC2Path    string   `yaml:"path_to_malleable_c2"`
+	CobaltStrikeFile      string   `yaml:"cobaltstrike_file"`
+	CobaltStrikeKillDate  string   `yaml:"cobaltstrike_kill_date"`
 	UfwAction             string   `yaml:"ufw_action"`
 	UfwTCPPort            []string `yaml:"ufw_tcp_port"`
 	UfwUDPPort            []string `yaml:"ufw_udp_port"`

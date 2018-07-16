@@ -217,7 +217,8 @@ func GeneratePlaybookFile(apps []string) string {
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
 	hostFilePath string, remoteFilePath string, execCommand string, socatPort string, socatIP string, nmapOutput string, nmapCommands map[int][]string,
-	cobaltStrikeLicense string, cobaltStrikePassword string, cobaltStrikeC2Path string, ufwAction string, ufwTcpPort []string, ufwUdpPort []string) string {
+	cobaltStrikeLicense string, cobaltStrikePassword string, cobaltStrikeC2Path string, cobaltStrikeFile string, cobaltStrikeKillDate string,
+	ufwAction string, ufwTcpPort []string, ufwUdpPort []string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -242,9 +243,11 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			NmapOutput:            nmapOutput,
 			SocatPort:             socatPort,
 			SocatIP:               socatIP,
+			CobaltStrikeFile:      cobaltStrikeFile,
 			CobaltStrikeLicense:   cobaltStrikeLicense,
 			CobaltStrikeC2Path:    cobaltStrikeC2Path,
 			CobaltStrikePassword:  cobaltStrikePassword,
+			CobaltStrikeKillDate:  cobaltStrikeKillDate,
 			UfwAction:             ufwAction,
 			UfwTCPPort:            ufwTcpPort,
 			UfwUDPPort:            ufwUdpPort,

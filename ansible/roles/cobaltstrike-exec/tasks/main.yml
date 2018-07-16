@@ -2,7 +2,10 @@
 # Starts up Cobalt Strike 
 
 - name: license cobalt strike installation and download the latest version
-  shell: echo "{{ cobaltstrike_license }}" | ./update
+  shell: ./update
+  args:
+    chdir: /opt/cobaltstrike
+    stdin: "{{ cobaltstrike_license }}"
     executable: /bin/bash
   register: cobaltstrike_updated
 
@@ -14,9 +17,15 @@
 
 - name: run a sync-push of malleable C2 from localhost to remote server
   become: true
-  roles:
-  - sync-push
+  synchronize:
+    mode: push
+    src: "{{ path_to_malleable_c2 }}"
+    dest: "/opt/cobaltstrike/"
+    recursive: false
+    verify_host: false
   register: cobaltstrike_pushed
+  when:
+    - cobaltstrike_updated is succeeded
 
 - debug: msg="{{ cobaltstrike_pushed.stdout_lines }}"
   when: cobaltstrike_updated is succeeded
@@ -25,12 +34,18 @@
   when: cobaltstrike_pushed is failed
 
 - name: start run cobalt strike 
-  shell: ./teamserver "{{ ansible_host }}" "{{ password }}" "{{ path_to_malleable_c2 }}"
+  shell: "( (nohup ./teamserver {{ ansible_host }} {{ password }} {{ path_to_malleable_c2 | basename }} {{ cobaltstrike_kill_date }}) &)"
+  async: 45
+  poll: 0
+  args:
+    chdir: /opt/cobaltstrike
     executable: /bin/bash
   register: cobaltstrike_ran
+  when:
+    - cobaltstrike_updated is succeeded
 
-- debug: msg="{{ cobaltstrike_ran.stdout_lines }}"
+- debug: msg="( (nohup ./teamserver {{ ansible_host }} {{ password }} {{ path_to_malleable_c2 }} {{ cobaltstrike_kill_date }}) &)"
   when: cobaltstrike_ran is succeeded
 
-- debug: msg="{{ cobaltstrike_ran.stderr_lines }}"
+- debug: msg="Command Failed"
   when: cobaltstrike_ran is failed
