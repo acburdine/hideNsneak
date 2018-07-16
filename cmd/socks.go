@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"hideNsneak/deployer"
 	"strings"
@@ -24,7 +23,7 @@ import (
 )
 
 var socksPort int
-var socksInstanceInput string
+var socksInstanceInput []int
 
 // helloCmd represents the hello command
 var socks = &cobra.Command{
@@ -41,29 +40,14 @@ var socksDeploy = &cobra.Command{
 	Short: "Deploy SOCKS Proxy",
 	Long:  `Deploy SOCKS Proxy`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		marshalledState := deployer.TerraformStateMarshaller()
-
-		list := deployer.ListIPAddresses(marshalledState)
-		if !deployer.IsValidNumberInput(socksInstanceInput) {
-			return fmt.Errorf("invalid formatting specified: %s", numberInput)
-		}
-		numsToDeploy := deployer.ExpandNumberInput(socksInstanceInput)
-		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDeploy)
-
-		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(list) < largestInstanceNumToDestroy {
-			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
-		}
-		return nil
-
+		return deployer.ValidateNumberOfInstances(socksInstanceInput)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		numsToDeploy := deployer.ExpandNumberInput(socksInstanceInput)
 		marshalledState := deployer.TerraformStateMarshaller()
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		for _, num := range numsToDeploy {
+		for _, num := range socksInstanceInput {
 			err := deployer.CreateSingleSOCKS(list[num].PrivateKey, list[num].Username, list[num].IP, socksPort)
 			if err != nil {
 				fmt.Println("SOCKS creation failed for " + list[num].IP)
@@ -79,21 +63,7 @@ var socksDestroy = &cobra.Command{
 	Short: "Destroy a SOCKS Proxy",
 	Long:  `Destroy a SOCKS Proxy`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		marshalledState := deployer.TerraformStateMarshaller()
-
-		list := deployer.ListIPAddresses(marshalledState)
-		if !deployer.IsValidNumberInput(socksInstanceInput) {
-			return fmt.Errorf("invalid formatting specified: %s", numberInput)
-		}
-		numsToDestroy := deployer.ExpandNumberInput(socksInstanceInput)
-		largestInstanceNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
-
-		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(list) < largestInstanceNumToDestroy {
-			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
-		}
-
-		return nil
+		return deployer.ValidateNumberOfInstances(socksInstanceInput)
 
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -101,9 +71,7 @@ var socksDestroy = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		numsToDestroy := deployer.ExpandNumberInput(socksInstanceInput)
-
-		for _, num := range numsToDestroy {
+		for _, num := range socksInstanceInput {
 			deployer.DestroySOCKS(list[num].IP)
 		}
 
@@ -165,10 +133,10 @@ func init() {
 	socksDeploy.PersistentFlags().IntVarP(&socksPort, "port", "p", 8081, "Start port for socks proxy")
 	socksDeploy.MarkPersistentFlagRequired("port")
 
-	socksDeploy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "Indices of the instances to deploy")
+	socksDeploy.PersistentFlags().IntSliceVarP(&socksInstanceInput, "index", "i", []int{}, "Indices of the instances to deploy")
 	socksDeploy.MarkPersistentFlagRequired("index")
 
-	socksDestroy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "Indices of the instances to deploy")
+	socksDestroy.PersistentFlags().IntSliceVarP(&socksInstanceInput, "index", "i", []int{}, "Indices of the instances to deploy")
 	socksDestroy.MarkPersistentFlagRequired("index")
 
 	// Here you will define your flags and configuration settings.

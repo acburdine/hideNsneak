@@ -23,6 +23,7 @@ import (
 
 var localFilePath string
 var remoteFilePath string
+var instanceFileIndex []int
 
 // helloCmd represents the hello command
 var file = &cobra.Command{
@@ -46,9 +47,13 @@ var filePush = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPort, ufwUDPPort)
+		for _, num := range instanceFileIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -70,9 +75,13 @@ var filePull = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPort, ufwUDPPort)
+		for _, num := range instanceFileIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -85,14 +94,14 @@ func init() {
 	rootCmd.AddCommand(file)
 	file.AddCommand(filePush, filePull)
 
-	filePush.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	filePush.PersistentFlags().IntSliceVarP(&instanceFileIndex, "id", "i", []int{}, "Specify the id(s) for the remote server i.e. 1 or 1,2,3")
 	filePush.MarkFlagRequired("id")
 	filePush.PersistentFlags().StringVarP(&localFilePath, "local", "l", "", "Specify the local file's absolute path")
 	filePush.MarkPersistentFlagRequired("host")
 	filePush.PersistentFlags().StringVarP(&remoteFilePath, "remote", "r", "", "Specify the remote file's absolute path")
 	filePush.MarkPersistentFlagRequired("remote")
 
-	filePull.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the remote server")
+	filePull.PersistentFlags().IntSliceVarP(&instanceFileIndex, "id", "i", []int{}, "Specify the id(s) for the remote server i.e. 1 or 1,2,3")
 	filePull.MarkFlagRequired("id")
 	filePull.PersistentFlags().StringVarP(&localFilePath, "local", "l", "", "Specify the local file or directory's absolute path")
 	filePull.MarkPersistentFlagRequired("host")

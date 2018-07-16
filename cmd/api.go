@@ -26,6 +26,7 @@ import (
 
 var apiProvider string
 var targetURI string
+var apiIndices []int
 
 var api = &cobra.Command{
 	Use:   "api",
@@ -75,11 +76,7 @@ var apiDestroy = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 		marshalledState := deployer.TerraformStateMarshaller()
 		apiList := deployer.ListAPIs(marshalledState)
-		if !deployer.IsValidNumberInput(numberInput) {
-			return fmt.Errorf("invalid formatting specified: %s", numberInput)
-		}
-		numsToDestroy := deployer.ExpandNumberInput(numberInput)
-		largestNumToDestroy := deployer.FindLargestNumber(numsToDestroy)
+		largestNumToDestroy := deployer.FindLargestNumber(apiIndices)
 
 		if largestNumToDestroy > len(apiList) {
 			return errors.New("the number you entered is too big. try running `list` to see the number of apis you have")
@@ -89,11 +86,10 @@ var apiDestroy = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 		list := deployer.ListAPIs(marshalledState)
-		numsToDelete := deployer.ExpandNumberInput(numberInput)
 
 		var namesToDelete []string
 
-		for _, numIndex := range numsToDelete {
+		for _, numIndex := range apiIndices {
 			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
 
@@ -129,6 +125,6 @@ func init() {
 	apiDeploy.PersistentFlags().StringVarP(&apiProvider, "target", "t", "", "the target URI: i.e. https://google.com/")
 	apiDeploy.MarkPersistentFlagRequired("target")
 
-	apiDestroy.PersistentFlags().StringVarP(&numberInput, "input", "i", "", "number of instances to destroy")
+	apiDestroy.PersistentFlags().IntSliceVarP(&apiIndices, "input", "i", []int{}, "comma-seperated list of indices to destroy")
 	apiDestroy.MarkPersistentFlagRequired("input")
 }

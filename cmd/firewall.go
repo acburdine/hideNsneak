@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"hideNsneak/deployer"
 
@@ -22,37 +23,69 @@ import (
 )
 
 var ufwAction string
-var ufwTCPPort string
-var ufwUDPPort string
-var ufwIndex int
+var ufwTCPPorts []string
+var ufwUDPPorts []string
+var ufwIndices []int
 
 // helloCmd represents the hello command
 var firewall = &cobra.Command{
-	Use:   "file",
-	Short: "file",
-	Long:  `file`,
+	Use:   "firewall",
+	Short: "firewall",
+	Long:  `firewall`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Run 'file --help' for usage.")
+		fmt.Println("Run 'firewall --help' for usage.")
 	},
 }
 
 var firewallAdd = &cobra.Command{
-	Use:   "push",
-	Short: "send a file",
-	Long:  `send a file from your local host to a remote server via absolute filepath`,
+	Use:   "add",
+	Short: "add a ufw firewall rule",
+	Long:  `adds a ufw firewall rules to target host containing the tcp and udp port specifications set out by the user`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		_, err := deployer.ValidatePorts(ufwTCPPorts)
+		if err != nil {
+			return err
+		}
+		_, err = deployer.ValidatePorts(ufwUDPPorts)
+		if err != nil {
+			return err
+		}
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
+
+		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
+		if len(list) < largestInstanceNum+1 {
+			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		apps := []string{"sync-push"}
+		ufwTCPPorts, _ := deployer.ValidatePorts(ufwTCPPorts)
+
+		ufwUDPPorts, _ := deployer.ValidatePorts(ufwUDPPorts)
+
+		apps := []string{"firewall"}
 		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
+
+		for _, num := range ufwIndices {
+			instances = append(instances, list[num])
+		}
+
+		ufwAction = "add"
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath,
 			remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			ufwAction, ufwTCPPort, ufwUDPPort)
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -62,11 +95,37 @@ var firewallAdd = &cobra.Command{
 }
 
 var firewallDelete = &cobra.Command{
-	Use:   "pull",
-	Short: "get a file",
-	Long:  `get a file from your remote server to your local host via absolute filepath`,
+	Use:   "delete",
+	Short: "delete a ufw firewall rule",
+	Long:  `adds a ufw firewall rules to target host containing the tcp and udp port specifications set out by the user`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		_, err := deployer.ValidatePorts(ufwTCPPorts)
+		if err != nil {
+			return err
+		}
+		_, err = deployer.ValidatePorts(ufwUDPPorts)
+		if err != nil {
+			return err
+		}
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
+
+		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
+		if len(list) < largestInstanceNum+1 {
+			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		apps := []string{"sync-pull"}
+		ufwTCPPorts, _ = deployer.ValidatePorts(ufwTCPPorts)
+
+		ufwUDPPorts, _ := deployer.ValidatePorts(ufwUDPPorts)
+
+		apps := []string{"firewall"}
 
 		playbook := deployer.GeneratePlaybookFile(apps)
 
@@ -74,11 +133,17 @@ var firewallDelete = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
+
+		for _, num := range ufwIndices {
+			instances = append(instances, list[num])
+		}
+
+		ufwAction = "delete"
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath,
 			remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			ufwAction, ufwTCPPort, ufwUDPPort)
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -88,11 +153,24 @@ var firewallDelete = &cobra.Command{
 }
 
 var firewallList = &cobra.Command{
-	Use:   "pull",
-	Short: "get a file",
-	Long:  `get a file from your remote server to your local host via absolute filepath`,
+	Use:   "list",
+	Short: "list ufw firewall rules",
+	Long:  `lists all of the ufw firewall rules on the specifiec host`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListIPAddresses(marshalledState)
+
+		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
+
+		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
+		if len(list) < largestInstanceNum+1 {
+			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		apps := []string{"sync-pull"}
+		apps := []string{"firewall"}
 
 		playbook := deployer.GeneratePlaybookFile(apps)
 
@@ -100,11 +178,17 @@ var firewallList = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
+
+		for _, num := range ufwIndices {
+			instances = append(instances, list[num])
+		}
+
+		ufwAction = "list"
 
 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			ufwAction, ufwTCPPort, ufwUDPPort)
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -117,16 +201,19 @@ func init() {
 	rootCmd.AddCommand(firewall)
 	firewall.AddCommand(firewallAdd, firewallDelete, firewallList)
 
-	firewallAdd.PersistentFlags().IntVarP(&ufwIndex, "id", "i", 0, "Specify the id for the remote server")
+	firewallAdd.PersistentFlags().IntSliceVarP(&ufwIndices, "id", "i", []int{}, "Specify the id for the remote server")
 	firewallAdd.MarkFlagRequired("id")
 
-	firewallAdd.PersistentFlags().StringVarP(&ufwTCPPort, "tcp", "t", "", "Specify the id for the remote server")
-	firewallAdd.PersistentFlags().StringVarP(&ufwTCPPort, "udp", "u", "", "Specify the id for the remote server")
+	firewallAdd.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "Specify the tcp ports to add i.e. 22,23")
+	firewallAdd.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "Specify the udp ports to add i.e. 500,53")
 
-	firewallDelete.PersistentFlags().IntVarP(&ufwIndex, "id", "i", 0, "Specify the id for the remote server")
+	firewallDelete.PersistentFlags().IntSliceVarP(&ufwIndices, "id", "i", []int{}, "Specify the id for the remote server")
 	firewallDelete.MarkFlagRequired("id")
 
-	firewallDelete.PersistentFlags().StringVarP(&ufwUDPPort, "tcp", "t", "", "Specify the id for the remote server")
-	firewallDelete.PersistentFlags().StringVarP(&ufwUDPPort, "udp", "u", "", "Specify the id for the remote server")
+	firewallDelete.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "Specify the tcp ports to delete i.e. 22,23")
+	firewallDelete.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "Specify the udp ports to delete i.e. 500,53")
+
+	firewallList.PersistentFlags().IntSliceVarP(&ufwIndices, "id", "i", []int{}, "Specify the id for the remote server")
+	firewallList.MarkFlagRequired("id")
 
 }

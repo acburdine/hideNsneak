@@ -52,6 +52,6 @@ type ansibleHost struct {
 	NmapCommands          []string `yaml:"nmap_commands"`
 	NmapOutput            string   `yaml:"nmap_output"`
 	UfwAction             string   `yaml:"ufw_action"`
-	UfwTCPPort            string   `yaml:"ufw_tcp_port"`
-	UfwUDPPort            string   `yaml:"ufw_udp_port"`
+	UfwTCPPort            []string `yaml:"ufw_tcp_port"`
+	UfwUDPPort            []string `yaml:"ufw_udp_port"`
 }

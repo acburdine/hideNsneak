@@ -84,11 +84,9 @@ func normalizeTargets(targets []string) string {
 	return strings.Join(targets, " ")
 }
 
-func ValidatePorts(ports string) (allports []string, err error) {
-	portArray := strings.Split(ports, ",")
+func ValidatePorts(ports []string) (allports []string, err error) {
 	var validatePort, startPort, endPort int
-
-	for _, portString := range portArray {
+	for _, portString := range ports {
 		portString = strings.TrimSpace(portString)
 		if strings.Contains(portString, "-") {
 			portRange := strings.Split(portString, "-")
@@ -145,7 +143,7 @@ func generateIPPortList(targets []string, ports []string) []string {
 	return ipPortList
 }
 
-func SplitNmapCommandsIntoHosts(ports string, hostFile string, command string, count int, evasive bool) (commandList map[int][]string) {
+func SplitNmapCommandsIntoHosts(ports []string, hostFile string, command string, count int, evasive bool) (commandList map[int][]string) {
 	hosts, _ := ParseIPFile(hostFile)
 	commandList = make(map[int][]string)
 
@@ -197,7 +195,7 @@ func SplitNmapCommandsIntoHosts(ports string, hostFile string, command string, c
 				targetHosts = hosts[hostsPerServer*i : hostsPerServer*(i+1)+remainder]
 			}
 
-			tempCommand := command + " -p " + ports + " -oA " + "/tmp/nmap/{{ ansible_host }}_$(date +\"%m%d%y_%H%M%S\") " + normalizeTargets(targetHosts)
+			tempCommand := command + " -p " + strings.Join(ports, ",") + " -oA " + "/tmp/nmap/{{ ansible_host }}_$(date +\"%m%d%y_%H%M%S\") " + normalizeTargets(targetHosts)
 			commandList[i] = append(commandList[i], tempCommand)
 		}
 	}

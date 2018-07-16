@@ -19,10 +19,12 @@
   ufw:
     rule: allow
     direction: in
-    port: "{{ ufw_tcp_port }}"
+    port: "{{ item }}"
     proto: tcp
+  loop: "{{ ufw_tcp_port }}"
   when:
-    - ufw_tcp_port != ""
+    - ufw_tcp_port | length  > 0
+    - ufw_tcp_port[0] != ""
     - ufw_action == "add"
 
 - name: Add UDP Rule
@@ -30,10 +32,12 @@
   ufw:
     rule: allow
     direction: in
-    port: "{{ ufw_udp_port }}"
+    port: "{{ item }}"
     proto: udp
+  loop: "{{ ufw_udp_port }}"
   when:
-    - ufw_udp_port != ""
+    - ufw_udp_port | length  > 0
+    - ufw_udp_port[0] != ""
     - ufw_action == "add"   
 
 - name: Delete TCP rule
@@ -41,11 +45,13 @@
   ufw:
     rule: allow
     direction: in
-    port: "{{ ufw_tcp_port }}"
+    port: "{{ item }}"
     proto: tcp
     delete: yes
+  loop: "{{ ufw_tcp_port }}"
   when:
-    - ufw_tcp_port != ""
+    - ufw_tcp_port | length  > 0
+    - ufw_tcp_port[0] != ""
     - ufw_action == "delete"   
 
 
@@ -54,11 +60,13 @@
   ufw:
     rule: allow
     direction: in
-    port: "{{ ufw_udp_port }}"
+    port: "{{ item }}"
     proto: udp
     delete: yes
+  loop: "{{ ufw_udp_port }}"
   when:
-    - ufw_udp_port != ""
+    - ufw_udp_port | length  > 0
+    - ufw_udp_port[0] != ""
     - ufw_action == "delete"   
 
 - name: List rules
@@ -67,15 +75,11 @@
   args:
     executable: /bin/bash
   register: list
-  when:
-    - ufw_action == "list"   
 
 - debug: msg="{{ list.stdout_lines }}"
   when: 
     - list is succeeded
-    - ufw_action == "list"   
 
 - debug: msg="{{ list.stderr_lines }}"
   when: 
     - list is failed
-    - ufw_action == "list"   

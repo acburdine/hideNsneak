@@ -17,9 +17,11 @@ package cmd
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"hideNsneak/deployer"
 
+	"github.com/schollz/progressbar"
 	"github.com/spf13/cobra"
 )
 
@@ -31,6 +33,7 @@ var regionAws []string
 var regionDo []string
 var regionAzure []string
 var regionGoogle []string
+var instanceDestroyIndices []int
 
 var instance = &cobra.Command{
 	Use:   "instance",
@@ -81,21 +84,29 @@ var instanceDeploy = &cobra.Command{
 
 		deployer.TerraformApply()
 
+		fmt.Println("Waiting for instances to initialize...")
+
+		bar := progressbar.New(100)
+		for i := 0; i < 100; i++ {
+			bar.Add(1)
+			time.Sleep(60 * time.Second)
+		}
+		fmt.Println("")
 		fmt.Println("Restricting Ports to only port 22...")
 
 		marshalledState = deployer.TerraformStateMarshaller()
+		newList := deployer.ListIPAddresses(marshalledState)
+		firewallList := deployer.InstanceDiff(oldList, newList)
 
-		apps := []string{"sync-pull"}
-
+		apps := []string{"firewall"}
 		playbook := deployer.GeneratePlaybookFile(apps)
 
-		newList := deployer.ListIPAddresses(marshalledState)
-
-		firewallList := deployer.InstanceDiff(oldList, newList)
+		ufwTCPPorts = []string{"22"}
+		ufwAction = "add"
 
 		hostFile := deployer.GenerateHostFile(firewallList, fqdn, domain, burpDir, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			"add", "22", ufwUDPPort)
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -110,18 +121,16 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroys instances",
 	Long:  `destroys instances by choosing an index`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		return deployer.ValidateNumberOfInstances(instanceDestroyIndices)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
 		list := deployer.ListIPAddresses(marshalledState)
-		numsToDelete := deployer.ExpandNumberInput(numberInput)
 
 		var namesToDelete []string
 
-		for _, numIndex := range numsToDelete {
+		for _, numIndex := range instanceDestroyIndices {
 			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
 
@@ -162,13 +171,13 @@ func init() {
 	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
-	instanceDestroy.PersistentFlags().StringVarP(&numberInput, "input", "i", "", "number of instances to destroy")
+	instanceDestroy.PersistentFlags().IntSliceVarP(&instanceDestroyIndices, "input", "i", []int{}, "indices of instances to destroy")
 	instanceDestroy.MarkPersistentFlagRequired("input")
 
 	//TODO: default all regions
-	rootCmd.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "ap-south-1", "sa-east-1"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	rootCmd.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
-	rootCmd.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
-	rootCmd.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "ap-south-1", "sa-east-1"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
 
 }
