@@ -48,7 +48,7 @@ var filePush = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPort, ufwUDPPort)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -72,7 +72,7 @@ var filePull = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPort, ufwUDPPort)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)

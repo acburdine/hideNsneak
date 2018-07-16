@@ -10,7 +10,7 @@ config/backend.txt
 **/*.json
 terraform/modules/gcf-deployment/files
 terraform/main.tf
-ansible/hosts.yml
+ansible/*.yml
 ansible/ansible.yml
 ansible/main.yml
 ansible/*.retry

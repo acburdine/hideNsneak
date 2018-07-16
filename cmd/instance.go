@@ -71,6 +71,8 @@ var instanceDeploy = &cobra.Command{
 		marshalledState := deployer.TerraformStateMarshaller()
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
 
+		oldList := deployer.ListIPAddresses(marshalledState)
+
 		wrappers = deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, "hidensneak", wrappers)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
@@ -78,6 +80,28 @@ var instanceDeploy = &cobra.Command{
 		deployer.CreateTerraformMain(mainFile)
 
 		deployer.TerraformApply()
+
+		fmt.Println("Restricting Ports to only port 22...")
+
+		marshalledState = deployer.TerraformStateMarshaller()
+
+		apps := []string{"sync-pull"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
+
+		newList := deployer.ListIPAddresses(marshalledState)
+
+		firewallList := deployer.InstanceDiff(oldList, newList)
+
+		hostFile := deployer.GenerateHostFile(firewallList, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			"add", "22", ufwUDPPort)
+
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
+
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+
 	},
 }
 

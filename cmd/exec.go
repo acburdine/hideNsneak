@@ -57,7 +57,7 @@ var command = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPort, ufwUDPPort)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -115,7 +115,7 @@ var nmap = &cobra.Command{
 
 		nmapCommands := deployer.SplitNmapCommandsIntoHosts(nmapPorts, nmapHostFile, nmapCommand, len(instances), nmapEvasive)
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPort, ufwUDPPort)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -139,7 +139,7 @@ var socatRedirect = &cobra.Command{
 
 		instances := list[installIndex : installIndex+1]
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands, ufwAction, ufwTCPPort, ufwUDPPort)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
