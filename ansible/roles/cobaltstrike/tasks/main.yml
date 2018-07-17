@@ -1,9 +1,21 @@
 ---
+- name: check for existing installation
+  stat: path=/opt/cobaltstrike
+  become: yes
+  register: cobaltstrike_installed
+
+- debug: msg="cobaltstrike is already installed"
+  when:
+    - cobaltstrike_installed.stat.exists
+
+
 - name: apt update
   apt: 
     update_cache: yes
     upgrade: full
   become: yes
+  when:
+    - not cobaltstrike_installed.stat.exists
 
 - name: add java 1.8 ppa
   apt_repository:
@@ -11,6 +23,8 @@
   become: yes
   notify: 
   - apt update
+  when:
+    - not cobaltstrike_installed.stat.exists
 
 - name: pre-accept java license
   debconf:
@@ -19,14 +33,20 @@
     value: "true" 
     vtype: "select" 
   become: true
+  when:
+    - not cobaltstrike_installed.stat.exists
 
 - name: install java 1.8
   apt:
     pkg: oracle-java8-installer
     update_cache: yes
   become: yes
+  when:
+    - not cobaltstrike_installed.stat.exists
 
 - unarchive:
-    src: files/cobaltstrike-trial.tgz
+    src: "{{ cobaltstrike_file }}"
     dest: /opt/
   become: yes
+  when:
+    - not cobaltstrike_installed.stat.exists

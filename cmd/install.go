@@ -17,14 +17,16 @@ package cmd
 import (
 	"fmt"
 	"hideNsneak/deployer"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 var installArgs string
 var burpCmd string
-var installIndex int
-var numberInput string
+var installIndex []int
 var fqdn string
 var domain string
 var burpDir string
@@ -43,8 +45,7 @@ var burpInstall = &cobra.Command{
 	Short: "Installs Burp Suite Collaborator Server",
 	Long:  `Installs and starts a Burp Suite collaborator with the specified domain on the specified remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		return deployer.ValidateNumberOfInstances(installIndex)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"burp"}
@@ -55,9 +56,16 @@ var burpInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		for _, num := range installIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -71,11 +79,22 @@ var cobaltStrikeInstall = &cobra.Command{
 	Short: "Installs Cobalt Strike",
 	Long:  `Installs,starts, and optionally licenses Cobaltstrike on the remote server with the specified malleable C2 profile and password`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		if _, err := os.Stat(cobaltStrikeFile); os.IsNotExist(err) {
+			return fmt.Errorf("cobaltstrike file does not exist")
+		}
+
+		if len(strings.Split(filepath.Base(cobaltStrikeFile), ".")) != 2 {
+			return fmt.Errorf("cobaltstrike file must be in tgz format as only linux teamservers are supported")
+		}
+
+		if strings.Split(filepath.Base(cobaltStrikeFile), ".")[1] != "tgz" {
+			return fmt.Errorf("cobaltstrike file must be in tgz format as only linux teamservers are supported")
+		}
+
+		return deployer.ValidateNumberOfInstances(installIndex)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		apps := []string{"cobalstrike"}
+		apps := []string{"cobaltstrike"}
 
 		playbook := deployer.GeneratePlaybookFile(apps)
 
@@ -83,9 +102,16 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		for _, num := range installIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -99,8 +125,8 @@ var goPhishInstall = &cobra.Command{
 	Short: "Installs Gophish",
 	Long:  `Installs and starts Gophish on the remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		return deployer.ValidateNumberOfInstances(installIndex)
+
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"gophish"}
@@ -111,9 +137,16 @@ var goPhishInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		for _, num := range installIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -127,8 +160,7 @@ var letsEncryptInstall = &cobra.Command{
 	Short: "Installs Letsencrypt",
 	Long:  `Installs Letsencrypt with the specified domain on the specified server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		return deployer.ValidateNumberOfInstances(installIndex)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"letsencrypt"}
@@ -139,9 +171,16 @@ var letsEncryptInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		for _, num := range installIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -155,8 +194,7 @@ var nmapInstall = &cobra.Command{
 	Short: "Installs Nmap",
 	Long:  `Installs Nmap to remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		return deployer.ValidateNumberOfInstances(installIndex)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"nmap"}
@@ -167,9 +205,16 @@ var nmapInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		for _, num := range installIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -183,8 +228,7 @@ var socatInstall = &cobra.Command{
 	Short: "Installs Socat",
 	Long:  `Installs Socat to remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		return deployer.ValidateNumberOfInstances(installIndex)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"socat"}
@@ -195,9 +239,16 @@ var socatInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		for _, num := range installIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -211,8 +262,8 @@ var sqlMapInstall = &cobra.Command{
 	Short: "Installs SQLmap",
 	Long:  `Installs SQLmap to remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.ValidateListOfInstances(numberInput)
-		return nil
+		return deployer.ValidateNumberOfInstances(installIndex)
+
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"sqlmap"}
@@ -223,9 +274,16 @@ var sqlMapInstall = &cobra.Command{
 
 		list := deployer.ListIPAddresses(marshalledState)
 
-		instances := list[installIndex : installIndex+1]
+		var instances []deployer.ListStruct
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath, execCommand, socatPort, socatIP, nmapOutput, nmapCommands)
+		for _, num := range installIndex {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 		deployer.WriteToFile("ansible/main.yml", playbook)
@@ -238,7 +296,7 @@ func init() {
 	rootCmd.AddCommand(install)
 	install.AddCommand(burpInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall)
 
-	burpInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	burpInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	burpInstall.MarkPersistentFlagRequired("id")
 	burpInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
 	burpInstall.MarkPersistentFlagRequired("fqdn")
@@ -247,33 +305,32 @@ func init() {
 	burpInstall.PersistentFlags().StringVarP(&burpDir, "burpDir", "b", "", "Specify the directory where burp is located")
 	burpInstall.MarkPersistentFlagRequired("burpDir")
 
-	cobaltStrikeInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	cobaltStrikeInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	cobaltStrikeInstall.MarkFlagRequired("id")
-	cobaltStrikeInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
-	cobaltStrikeInstall.MarkPersistentFlagRequired("fqdn")
 	cobaltStrikeInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
-	cobaltStrikeInstall.MarkPersistentFlagRequired("domain")
+	cobaltStrikeInstall.PersistentFlags().StringVarP(&cobaltStrikeFile, "file", "f", "", "local filepath of the cobaltstrike tgz file")
+	cobaltStrikeInstall.MarkPersistentFlagRequired("file")
 
-	goPhishInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	goPhishInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	goPhishInstall.MarkFlagRequired("id")
 	goPhishInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
 	goPhishInstall.MarkPersistentFlagRequired("fqdn")
 	goPhishInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	goPhishInstall.MarkPersistentFlagRequired("domain")
 
-	letsEncryptInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	letsEncryptInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	letsEncryptInstall.MarkFlagRequired("id")
 	letsEncryptInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
 	letsEncryptInstall.MarkPersistentFlagRequired("fqdn")
 	letsEncryptInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	letsEncryptInstall.MarkPersistentFlagRequired("domain")
 
-	nmapInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	nmapInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	nmapInstall.MarkFlagRequired("id")
 
-	socatInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	socatInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	socatInstall.MarkFlagRequired("id")
 
-	sqlMapInstall.PersistentFlags().IntVarP(&installIndex, "id", "i", 0, "Specify the id for the install")
+	sqlMapInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	sqlMapInstall.MarkFlagRequired("id")
 }
