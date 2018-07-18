@@ -17,7 +17,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"regexp"
 
 	"hideNsneak/deployer"
 
@@ -46,10 +45,10 @@ var apiDeploy = &cobra.Command{
 		if !deployer.ProviderCheck(instanceProviders) {
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}
-		r, _ := regexp.Compile(`http[s]{0,1}\:\/\/[a-zA-Z]+\.[a-zA-Z]+\/{1}[a-zA-Z]*`)
-		if !r.MatchString(targetURI) {
-			return fmt.Errorf("the target uri is formatted incorrectly")
-		}
+		// r, _ := regexp.Compile(`http[s]{0,1}\:\/\/[a-zA-Z]+\.[a-zA-Z]+\/{1}[a-zA-Z]*`)
+		// if !r.MatchString(targetURI) {
+		// 	return fmt.Errorf("the target uri is formatted incorrectly")
+		// }
 		return nil
 
 	},
