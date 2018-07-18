@@ -1,0 +1,85 @@
+---
+- name: ufw install check
+  raw: test -e /usr/sbin/ufw || (apt -y update && apt install -y ufw)
+  register: output
+  changed_when: output.stdout != ""
+
+- name: Deny everything and enable UFW
+  become: yes
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+  when:
+    - ufw_action == "add"
+  
+
+- name: Add TCP Rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ ufw_tcp_port }}"
+  when:
+    - ufw_tcp_port | length  > 0
+    - ufw_tcp_port[0] != ""
+    - ufw_action == "add"
+
+- name: Add UDP Rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: udp
+  loop: "{{ ufw_udp_port }}"
+  when:
+    - ufw_udp_port | length  > 0
+    - ufw_udp_port[0] != ""
+    - ufw_action == "add"   
+
+- name: Delete TCP rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: tcp
+    delete: yes
+  loop: "{{ ufw_tcp_port }}"
+  when:
+    - ufw_tcp_port | length  > 0
+    - ufw_tcp_port[0] != ""
+    - ufw_action == "delete"   
+
+
+- name: Delete UDP Rule
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: udp
+    delete: yes
+  loop: "{{ ufw_udp_port }}"
+  when:
+    - ufw_udp_port | length  > 0
+    - ufw_udp_port[0] != ""
+    - ufw_action == "delete"   
+
+- name: List rules
+  become: yes
+  shell: "ufw status"
+  args:
+    executable: /bin/bash
+  register: list
+
+- debug: msg="{{ list.stdout_lines }}"
+  when: 
+    - list is succeeded
+
+- debug: msg="{{ list.stderr_lines }}"
+  when: 
+    - list is failed

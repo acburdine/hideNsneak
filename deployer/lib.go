@@ -158,21 +158,35 @@ func WriteToFile(path string, content string) {
 	defer file.Close()
 }
 
-//ValidateListOfInstances makes sure that the number input is actually available in our list of active instances
-func ValidateListOfInstances(numberInput string) error {
+//ValidateNumberOfInstances makes sure that the number input is actually available in our list of active instances
+func ValidateNumberOfInstances(numberInput []int) error {
 	marshalledState := TerraformStateMarshaller()
 	list := ListIPAddresses(marshalledState)
-	if !IsValidNumberInput(numberInput) {
-		return fmt.Errorf("invalid formatting specified: %s", numberInput)
-	}
-	numsToInstall := ExpandNumberInput(numberInput)
-	largestInstanceNumToInstall := FindLargestNumber(numsToInstall)
+
+	largestInstanceNumToInstall := FindLargestNumber(numberInput)
 
 	//make sure the largestInstanceNumToInstall is not bigger than totalInstancesAvailable
 	if len(list) < largestInstanceNumToInstall {
 		return errors.New("the number you entered is too big; try running `list` to see the number of instances you have")
 	}
 	return nil
+}
+
+//InstanceDiff takes the old list of instances and the new list of instances and proceeds to
+//check each instance in the new list against the old list. If its not in the old list, it
+//appends it to output.
+func InstanceDiff(instancesOld []ListStruct, instancesNew []ListStruct) (instancesOut []ListStruct) {
+	for _, instance := range instancesNew {
+		for index, check := range instancesOld {
+			if check.IP == instance.IP {
+				break
+			}
+			if index == len(instancesOld)-1 {
+				instancesOut = append(instancesOut, instance)
+			}
+		}
+	}
+	return
 }
 
 /////////////////////
@@ -202,7 +216,9 @@ func GeneratePlaybookFile(apps []string) string {
 
 //GenerateHostsFile generates an ansible host file
 func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
-	hostFilePath string, remoteFilePath string, execCommand string, socatPort string, socatIP string, nmapOutput string, nmapCommands map[int][]string) string {
+	hostFilePath string, remoteFilePath string, execCommand string, socatPort string, socatIP string, nmapOutput string, nmapCommands map[int][]string,
+	cobaltStrikeLicense string, cobaltStrikePassword string, cobaltStrikeC2Path string, cobaltStrikeFile string, cobaltStrikeKillDate string,
+	ufwAction string, ufwTcpPort []string, ufwUdpPort []string) string {
 	var inventory ansibleInventory
 
 	usr, err := user.Current()
@@ -227,6 +243,14 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			NmapOutput:            nmapOutput,
 			SocatPort:             socatPort,
 			SocatIP:               socatIP,
+			CobaltStrikeFile:      cobaltStrikeFile,
+			CobaltStrikeLicense:   cobaltStrikeLicense,
+			CobaltStrikeC2Path:    cobaltStrikeC2Path,
+			CobaltStrikePassword:  cobaltStrikePassword,
+			CobaltStrikeKillDate:  cobaltStrikeKillDate,
+			UfwAction:             ufwAction,
+			UfwTCPPort:            ufwTcpPort,
+			UfwUDPPort:            ufwUdpPort,
 		}
 	}
 
