@@ -99,7 +99,7 @@ var apiDestroy = &cobra.Command{
 
 		deployer.TerraformDestroy(namesToDelete)
 		if len(apiIndices) > 2 {
-			fmt.Println("Destroying multiple API gateways can take a long time...")
+			fmt.Println("Destroying multiple API gateways a few minutes...")
 		}
 		return
 	},
