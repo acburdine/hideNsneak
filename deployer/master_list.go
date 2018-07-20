@@ -23,7 +23,7 @@ func retrieveUserAndPrivateKey(module ModuleState) (privateKey string, user stri
 ////////////
 func createAWSAPIFromState(modules []ModuleState) (awsAPIConfigWrappers []AWSApiConfigWrapper, moduleCount int) {
 	for _, module := range modules {
-		if len(module.Path) > 1 && strings.Contains(module.Path[1], "awsAPIDeploy") {
+		if len(module.Path) > 1 && len(module.Resources) != 0 && strings.Contains(module.Path[1], "awsAPIDeploy") {
 			moduleCountString := strings.Split(module.Path[1], "awsAPIDeploy")[1]
 			tempInt, _ := strconv.Atoi(moduleCountString)
 			if moduleCount < tempInt {
@@ -43,6 +43,7 @@ func createAWSAPIFromState(modules []ModuleState) (awsAPIConfigWrappers []AWSApi
 					continue
 				}
 			}
+			awsAPIConfigWrappers = append(awsAPIConfigWrappers, tempConfig)
 		}
 	}
 	return
@@ -54,7 +55,7 @@ func createAWSAPIFromState(modules []ModuleState) (awsAPIConfigWrappers []AWSApi
 
 func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrappers []GooglefrontConfigWrapper, moduleCount int) {
 	for _, module := range modules {
-		if len(module.Path) > 1 && strings.Contains(module.Path[1], "googlefrontDeploy") {
+		if len(module.Path) > 1 && len(module.Resources) != 0 && strings.Contains(module.Path[1], "googlefrontDeploy") {
 			moduleCountString := strings.Split(module.Path[1], "googlefrontDeploy")[1]
 			tempInt, _ := strconv.Atoi(moduleCountString)
 			if moduleCount < tempInt {
@@ -73,6 +74,8 @@ func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrapper
 					tempConfig.RestrictSubnet = resource.Primary.Attributes["labels.restrictsubnet"].(string)
 					tempConfig.RestrictHeader = resource.Primary.Attributes["labels.restrictheader"].(string)
 					tempConfig.RestrictHeaderValue = resource.Primary.Attributes["labels.restrictheadervalue"].(string)
+					tempConfig.PackageFile = "/tmp/package.json"
+					tempConfig.SourceFile = "/tmp/index.js"
 
 					googlefrontConfigWrappers = append(googlefrontConfigWrappers, tempConfig)
 				}
@@ -88,7 +91,7 @@ func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrapper
 
 func createCloudfrontFromState(modules []ModuleState) (cloudfrontConfigWrappers []CloudfrontConfigWrapper, moduleCount int) {
 	for _, module := range modules {
-		if len(module.Path) > 1 && strings.Contains(module.Path[1], "cloudfrontDeploy") {
+		if len(module.Path) > 1 && len(module.Resources) != 0 && strings.Contains(module.Path[1], "cloudfrontDeploy") {
 			moduleCountString := strings.Split(module.Path[1], "cloudfrontDeploy")[1]
 			tempInt, _ := strconv.Atoi(moduleCountString)
 			if moduleCount < tempInt {
@@ -146,7 +149,7 @@ func returnInitialEC2Config(module ModuleState) (tempConfig EC2ConfigWrapper) {
 
 func createEC2ConfigFromState(modules []ModuleState) (ec2Configs []EC2ConfigWrapper, maxModuleCount int) {
 	for _, module := range modules {
-		if len(module.Path) > 2 && strings.Contains(module.Path[1], "ec2Deploy") {
+		if len(module.Path) > 2 && len(module.Resources) != 0 && strings.Contains(module.Path[1], "ec2Deploy") {
 			for _, resource := range module.Resources {
 				if resource.Type == "aws_instance" {
 					availZone := resource.Primary.Attributes["availability_zone"].(string)
@@ -219,7 +222,7 @@ func returnInitialDOConfig(module ModuleState) (tempConfig DOConfigWrapper) {
 
 func createDOConfigFromState(modules []ModuleState) (doConfigs []DOConfigWrapper, maxModuleCount int) {
 	for _, module := range modules {
-		if len(module.Path) > 2 && strings.Contains(module.Path[1], "doDropletDeploy") {
+		if len(module.Path) > 2 && len(module.Resources) != 0 && strings.Contains(module.Path[1], "doDropletDeploy") {
 			for _, resource := range module.Resources {
 				if resource.Type == "digitalocean_droplet" {
 					countString := strings.Split(module.Path[1], "doDropletDeploy")[1]
@@ -261,6 +264,44 @@ func createDOConfigFromState(modules []ModuleState) (doConfigs []DOConfigWrapper
 			}
 		}
 
+	}
+	return
+}
+
+//CheckForEmptyEC2Module is a hack to ensure EC2 data resources are
+//destroyed as they cannot be destroyed individually
+func CheckForEmptyEC2Module(namesToDelete []string, state State) (names []string) {
+	for _, module := range state.Modules {
+		allInstancesPresent := false
+		if len(module.Path) > 1 && strings.Contains(module.Path[1], "ec2Deploy") {
+			allInstancesPresent = true
+			for name, resource := range module.Resources {
+				if resource.Type == "aws_instance" {
+					fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+					nameSlice := strings.Split(name, ".")
+					finalString := nameSlice[len(nameSlice)-1]
+					_, err := strconv.Atoi(finalString)
+					if err == nil {
+
+						index := "[" + finalString + "]"
+
+						newName := strings.Join(nameSlice[:len(nameSlice)-1], ".")
+
+						fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName + index
+					}
+					if !ContainsString(namesToDelete, fullName) {
+						allInstancesPresent = false
+						break
+					}
+				}
+				if allInstancesPresent {
+					if !ContainsString(names, "module."+module.Path[1]) {
+						names = append(names, "module."+module.Path[1])
+					}
+					continue
+				}
+			}
+		}
 	}
 	return
 }

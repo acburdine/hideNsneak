@@ -17,6 +17,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"regexp"
 
 	"hideNsneak/deployer"
 
@@ -46,10 +47,14 @@ var apiDeploy = &cobra.Command{
 		if !deployer.ProviderCheck(instanceProviders) {
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}
-		// r, _ := regexp.Compile(`http[s]{0,1}\:\/\/[a-zA-Z]+\.[a-zA-Z]+\/{1}[a-zA-Z]*`)
-		// if !r.MatchString(targetURI) {
-		// 	return fmt.Errorf("the target uri is formatted incorrectly")
-		// }
+		r, _ := regexp.Compile(`http[s]{0,1}\:\/\/[a-zA-Z0-9]+\.[a-z]+`)
+		if !r.MatchString(targetURI) {
+			return fmt.Errorf("the target uri is formatted incorrectly i.e. http[s]://example.com")
+		}
+		if string(targetURI[len(targetURI)-1]) != "/" {
+			targetURI = targetURI + "/"
+		}
+
 		return nil
 
 	},
@@ -93,6 +98,9 @@ var apiDestroy = &cobra.Command{
 		}
 
 		deployer.TerraformDestroy(namesToDelete)
+		if len(apiIndices) > 2 {
+			fmt.Println("Destroying multiple API gateways can take a long time...")
+		}
 		return
 	},
 }
@@ -121,7 +129,7 @@ func init() {
 	apiDeploy.PersistentFlags().StringVarP(&apiProvider, "provider", "p", "", "the provider to use: i.e. AWS")
 	apiDeploy.MarkPersistentFlagRequired("providers")
 
-	apiDeploy.PersistentFlags().StringVarP(&apiProvider, "target", "t", "", "the target URI: i.e. https://google.com/")
+	apiDeploy.PersistentFlags().StringVarP(&targetURI, "target", "t", "", "the target URI: i.e. https://google.com/")
 	apiDeploy.MarkPersistentFlagRequired("target")
 
 	apiDestroy.PersistentFlags().IntSliceVarP(&apiIndices, "input", "i", []int{}, "comma-seperated list of indices to destroy")

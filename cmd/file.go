@@ -45,7 +45,7 @@ var filePush = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -53,7 +53,7 @@ var filePush = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -76,7 +76,7 @@ var filePull = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -84,7 +84,7 @@ var filePull = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)

@@ -9,40 +9,40 @@
     - cobaltstrike_installed.stat.exists
 
 
-- name: apt update
-  apt: 
-    update_cache: yes
-    upgrade: full
-  become: yes
-  when:
-    - not cobaltstrike_installed.stat.exists
+# - name: apt update
+#   apt: 
+#     update_cache: yes
+#     upgrade: full
+#   become: yes
+#   when:
+#     - not cobaltstrike_installed.stat.exists
 
-- name: add java 1.8 ppa
-  apt_repository:
-    repo: 'ppa:webupd8team/java'
-  become: yes
-  notify: 
-  - apt update
-  when:
-    - not cobaltstrike_installed.stat.exists
+# - name: add java 1.8 ppa
+#   apt_repository:
+#     repo: 'ppa:webupd8team/java'
+#   become: yes
+#   notify: 
+#   - apt update
+#   when:
+#     - not cobaltstrike_installed.stat.exists
 
-- name: pre-accept java license
-  debconf:
-    name: "oracle-java8-installer"
-    question: "shared/accepted-oracle-license-v1-1"
-    value: "true" 
-    vtype: "select" 
-  become: true
-  when:
-    - not cobaltstrike_installed.stat.exists
+# - name: pre-accept java license
+#   debconf:
+#     name: "oracle-java8-installer"
+#     question: "shared/accepted-oracle-license-v1-1"
+#     value: "true" 
+#     vtype: "select" 
+#   become: true
+#   when:
+#     - not cobaltstrike_installed.stat.exists
 
-- name: install java 1.8
-  apt:
-    pkg: oracle-java8-installer
-    update_cache: yes
-  become: yes
-  when:
-    - not cobaltstrike_installed.stat.exists
+# - name: install java 1.8
+#   apt:
+#     pkg: oracle-java8-installer
+#     update_cache: yes
+#   become: yes
+#   when:
+#     - not cobaltstrike_installed.stat.exists
 
 - unarchive:
     src: "{{ cobaltstrike_file }}"

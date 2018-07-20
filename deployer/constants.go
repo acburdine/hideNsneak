@@ -235,7 +235,7 @@ exports.redirector = (req, res) => {
  
 
     if (req.method == "GET" || req.method == "POST") {
-        if (restrictUA != "" && restrictUA != req.getHeader('User-Agent') {
+        if (restrictUA != "" && restrictUA != req.getHeader('User-Agent')) {
             res.redirect(frontedDomain)
             return
         }
@@ -243,7 +243,7 @@ exports.redirector = (req, res) => {
             res.redirect(frontedDomain) 
             return
         }
-        if (restrictHeader != "" && req.getHeader(restrictHeader) != restrictValue){
+        if (restrictHeader != "" && req.getHeader(restrictHeader) != restrictValue) {
           res.redirect(frontedDomain)
           return
         }

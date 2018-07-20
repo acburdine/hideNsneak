@@ -54,3 +54,16 @@ resource "aws_api_gateway_deployment" "hideNsneak" {
 
   depends_on = ["aws_api_gateway_integration.hideNsneak", "aws_api_gateway_method.hideNsneak", "aws_api_gateway_rest_api.hideNsneak", "aws_api_gateway_resource.hideNsneak"]
 }
+
+resource "aws_api_gateway_method_settings" "hideNsneak" {
+  rest_api_id = "${aws_api_gateway_rest_api.hideNsneak.id}"
+  stage_name  = "${var.aws_api_stage_name}"
+  method_path = "*/*"
+
+  settings {
+    caching_enabled = false
+    logging_level   = "OFF"
+  }
+
+  depends_on = ["aws_api_gateway_deployment.hideNsneak"]
+}

@@ -4,16 +4,15 @@
   register: output
   changed_when: output.stdout != ""
 
-
 - name: Check for letsencrypt private key
-  stat: path=/etc/letsencrypt/live/{{ ansible_domain_name }}/privkey.pem
+  stat: path="/etc/letsencrypt/live/{{ ansible_domain_name }}/privkey.pem"
   become: yes
   register: existing_letsencrypt_key
   tags:
     - tls
 
 - name: Check for letsencrypt cert
-  stat: path=/etc/letsencrypt/live/{{ ansible_domain_name }}/cert.pem
+  stat: path="/etc/letsencrypt/live/{{ ansible_domain_name }}/cert.pem"
   become: yes
   register: existing_letsencrypt_cert
   tags:
@@ -21,14 +20,14 @@
 
 
 - name: Check for letsecnrypt upstream
-  stat: path=/etc/letsencrypt/live/{{ ansible_domain_name }}/fullchain.pem
+  stat: path="/etc/letsencrypt/live/{{ ansible_domain_name }}/fullchain.pem"
   become: yes
   register: existing_letsencrypt_bundle
   tags:
     - tls
 
 
-- name: Set Geneation to false
+- name: Set Generation to false
   set_fact:
     generate_self_signed_certs: false
   when: 
@@ -37,7 +36,7 @@
     - existing_letsencrypt_bundle.stat.exists
 
 - name: Check for existing private key
-  stat: path=burp.key
+  stat: path=/tmp/burp.key
   become: no
   when:
     - generate_self_signed_certs
@@ -47,7 +46,7 @@
     - tls
 
 - name: Check for existing PKCS8 private key
-  stat: path={{ burp_key }}
+  stat: path=/tmp/{{ burp_key }}
   become: no
   when:
     - generate_self_signed_certs
@@ -57,7 +56,7 @@
     - tls
 
 - name: Check for existing CSR
-  stat: path=burp.csr
+  stat: path=/tmp/burp.csr
   become: no
   when:
     - generate_self_signed_certs
@@ -67,7 +66,7 @@
     - tls
 
 - name: Check for existing certificate
-  stat: path={{ burp_cert }}
+  stat: path=/tmp/{{ burp_cert }}
   become: no
   when:
     - generate_self_signed_certs
@@ -77,7 +76,7 @@
     - tls
 
 - name: Check for existing intermediate certificate
-  stat: path={{ burp_ca_bundle }}
+  stat: path=/tmp/{{ burp_ca_bundle }}
   become: no
   when:
     - generate_self_signed_certs
@@ -87,7 +86,7 @@
     - tls
 
 - name: Generate private key
-  command: openssl genrsa -out burp.key 2048
+  command: openssl genrsa -out /tmp/burp.key 2048
   delegate_to: 127.0.0.1
   become: no
   when:
@@ -97,7 +96,7 @@
     - tls
 
 - name: Convert RSA private key to PKCS8
-  command: openssl pkcs8 -topk8 -inform PEM -in burp.key -outform PEM -out {{ burp_key }} -nocrypt
+  command: openssl pkcs8 -topk8 -inform PEM -in /tmp/burp.key -outform PEM -out /tmp/{{ burp_key }} -nocrypt
   delegate_to: 127.0.0.1
   become: no
   when:
@@ -107,7 +106,7 @@
     - tls
 
 - name: Generate CSR
-  command: openssl req -new -key burp.key -out burp.csr -subj "/C={{ country }}/ST={{ state }}/L={{ locality }}/O={{ organisation }}/OU={{ organisational_unit }}/CN=*.{{ ansible_domain_name }}"
+  command: openssl req -new -key /tmp/burp.key -out /tmp/burp.csr -subj "/C={{ country }}/ST={{ state }}/L={{ locality }}/O={{ organisation }}/OU={{ organisational_unit }}/CN=*.{{ ansible_domain_name }}"
   delegate_to: 127.0.0.1
   become: no
   when:
@@ -118,7 +117,7 @@
     - csr
 
 - name: Create empty intermediate CA cert
-  command: touch {{ burp_ca_bundle }}
+  command: touch /tmp/{{ burp_ca_bundle }}
   delegate_to: 127.0.0.1
   become: no
   when:
@@ -128,7 +127,7 @@
     - tls
 
 - name: Generate self-signed certificate
-  command: openssl x509 -req -sha256 -days 365 -in burp.csr -signkey burp.key -out {{ burp_cert }}
+  command: openssl x509 -req -sha256 -days 365 -in /tmp/burp.csr -signkey /tmp/burp.key -out /tmp/{{ burp_cert }}
   delegate_to: 127.0.0.1
   become: no
   when:
@@ -151,27 +150,27 @@
 - name: Copy Burp jar
   copy: src={{ item }} dest=/usr/share/burp/burpsuite_pro.jar
   with_fileglob:
-    - "{{ burp_dir }}/burpsuite*.jar"
+    - "{{ burp_file }}"
   tags:
     - installjar
     - setup
 
 - name: Copy over server key
-  copy: src={{ burp_key }} dest=/etc/burp/burp.pk8
+  copy: src=/tmp/{{ burp_key }} dest=/etc/burp/burp.pk8
   when:
     - generate_self_signed_certs
   tags:
     - setup
 
 - name: Copy over server cert
-  copy: src={{ burp_cert }} dest=/etc/burp/burp.crt
+  copy: src=/tmp/{{ burp_cert }} dest=/etc/burp/burp.crt
   when:
     - generate_self_signed_certs
   tags:
     - setup
 
 - name: Copy over CA bundle certificates
-  copy: src={{ burp_ca_bundle }} dest=/etc/burp/intermediate.crt
+  copy: src=/tmp/{{ burp_ca_bundle }} dest=/etc/burp/intermediate.crt
   when:
     - generate_self_signed_certs
   tags:
@@ -202,20 +201,7 @@
     - setup
 
 
-- name: Copy systemd job
-  copy: src={{ role_path }}/files/burp.service dest=/etc/systemd/system/burp.service owner=root group=root
-  tags:
-    - setup
-    - systemd
-
 - name: Generate configuration file
   template: src={{ role_path }}/templates/burpcollaboratorconfig.jinja2 dest=/etc/burp/collaborator.config
   tags:
     - configure
-
-- name: Restart Burp collaborator server
-  systemd: name=burp state=restarted
-  tags:
-    - installjar
-    - configure
-    - restart

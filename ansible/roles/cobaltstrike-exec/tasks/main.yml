@@ -34,7 +34,8 @@
   when: cobaltstrike_pushed is failed
 
 - name: start run cobalt strike 
-  shell: "( (nohup ./teamserver {{ ansible_host }} {{ password }} {{ path_to_malleable_c2 | basename }} {{ cobaltstrike_kill_date }}) &)"
+  shell: "( ( nohup ./teamserver {{ ansible_host }} {{ password }} {{ path_to_malleable_c2 | basename }} {{ cobaltstrike_kill_date }}) &)"
+  become: yes
   async: 45
   poll: 0
   args:
@@ -44,7 +45,7 @@
   when:
     - cobaltstrike_updated is succeeded
 
-- debug: msg="( (nohup ./teamserver {{ ansible_host }} {{ password }} {{ path_to_malleable_c2 }} {{ cobaltstrike_kill_date }}) &)"
+- debug: msg="( nohup ./teamserver {{ ansible_host }} {{ password }} {{ path_to_malleable_c2 | basename}} {{ cobaltstrike_kill_date }} &)"
   when: cobaltstrike_ran is succeeded
 
 - debug: msg="Command Failed"
