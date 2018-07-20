@@ -1,5 +1,4 @@
 --- 
-# Make this to seperate module
 - name: Check for burp jar
   stat: path=/usr/share/burp/burpsuite_pro.jar
   register: burp_jar
