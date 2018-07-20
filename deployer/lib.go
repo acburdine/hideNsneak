@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -27,6 +28,37 @@ var catchErr = json.Unmarshal(configContents, &config)
 ////////////////////////
 //Miscellaneous Functions
 ////////////////////////
+
+func AskForConfirmation() bool {
+	var response string
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		log.Fatal(err)
+	}
+	okayResponses := []string{"y", "Y", "yes", "Yes", "YES"}
+	nokayResponses := []string{"n", "N", "no", "No", "NO"}
+	if ContainsString(okayResponses, response) {
+		return true
+	} else if ContainsString(nokayResponses, response) {
+		return false
+	} else {
+		fmt.Println("Please type yes or no and then press enter:")
+		return AskForConfirmation()
+	}
+}
+
+// You might want to put the following two functions in a separate utility package.
+
+// posString returns the first index of element in slice.
+// If slice does not contain element, returns -1.
+func PosString(slice []string, element string) int {
+	for index, elem := range slice {
+		if elem == element {
+			return index
+		}
+	}
+	return -1
+}
 
 func checkErr(err error) {
 	if err != nil {
@@ -148,6 +180,27 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+func GetEC2DataToDestroy(instanceNames []string) (newInstanceNames []string) {
+	var tempList []string
+	newInstanceNames = instanceNames
+	for _, name := range instanceNames {
+		moduleNameList := strings.Split(name, ".")
+		moduleNameList = moduleNameList[:4]
+		moduleName := strings.Join(moduleNameList, ".")
+		match, _ := regexp.MatchString(`module\.ec2Deploy[1-9]+\.module\.aws\-[a-zA-Z0-9-]+`, moduleName)
+		if match {
+			if !ContainsString(tempList, moduleName) {
+				tempList = append(tempList, moduleName)
+				dataElementList := []string{moduleName + ".aws_ami.ubuntu",
+					moduleName + ".aws_subnet_ids.all", moduleName + ".aws_vpc.default"}
+				newInstanceNames = append(newInstanceNames, dataElementList...)
+			}
+		}
+
+	}
+	return
+}
+
 //WriteToFile opens, clears and writes to file
 func WriteToFile(path string, content string) {
 	file, err := os.Create(path)
@@ -161,7 +214,7 @@ func WriteToFile(path string, content string) {
 //ValidateNumberOfInstances makes sure that the number input is actually available in our list of active instances
 func ValidateNumberOfInstances(numberInput []int) error {
 	marshalledState := TerraformStateMarshaller()
-	list := ListIPAddresses(marshalledState)
+	list := ListInstances(marshalledState)
 
 	largestInstanceNumToInstall := FindLargestNumber(numberInput)
 
@@ -176,16 +229,22 @@ func ValidateNumberOfInstances(numberInput []int) error {
 //check each instance in the new list against the old list. If its not in the old list, it
 //appends it to output.
 func InstanceDiff(instancesOld []ListStruct, instancesNew []ListStruct) (instancesOut []ListStruct) {
-	for _, instance := range instancesNew {
-		for index, check := range instancesOld {
-			if check.IP == instance.IP {
-				break
-			}
-			if index == len(instancesOld)-1 {
-				instancesOut = append(instancesOut, instance)
+	if len(instancesOld) == 0 {
+		instancesOut = instancesNew
+	} else {
+		for _, instance := range instancesNew {
+			for index, check := range instancesOld {
+				if check.IP == instance.IP {
+					break
+				}
+				if index == len(instancesOld)-1 {
+					instancesOut = append(instancesOut, instance)
+					break
+				}
 			}
 		}
 	}
+
 	return
 }
 
@@ -215,7 +274,7 @@ func GeneratePlaybookFile(apps []string) string {
 }
 
 //GenerateHostsFile generates an ansible host file
-func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDir string,
+func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpFile string,
 	hostFilePath string, remoteFilePath string, execCommand string, socatPort string, socatIP string, nmapOutput string, nmapCommands map[int][]string,
 	cobaltStrikeLicense string, cobaltStrikePassword string, cobaltStrikeC2Path string, cobaltStrikeFile string, cobaltStrikeKillDate string,
 	ufwAction string, ufwTcpPort []string, ufwUdpPort []string) string {
@@ -235,7 +294,7 @@ func GenerateHostFile(instances []ListStruct, domain string, fqdn string, burpDi
 			AnsibleAdditionalOpts: "-o StrictHostKeyChecking=no",
 			AnsibleFQDN:           fqdn,
 			AnsibleDomain:         domain,
-			BurpDir:               burpDir,
+			BurpFile:              burpFile,
 			HostAbsPath:           hostFilePath,
 			RemoteAbsPath:         remoteFilePath,
 			ExecCommand:           execCommand,
@@ -286,6 +345,30 @@ func ExecAnsible(hostsFile string, playbook string, filepath string) {
 /////////////////////
 //Terraform Functions
 /////////////////////
+
+//Hack for backend config
+func execBashTerraform(args string, filepath string) string {
+	var stdout, stderr bytes.Buffer
+
+	binary, err := exec.LookPath("terraform")
+
+	args = binary + " " + args
+
+	checkErr(err)
+
+	cmd := exec.Command("/bin/bash", "-c", args)
+
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = filepath
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(stderr.String())
+	}
+
+	return stdout.String()
+}
 
 func execTerraform(args []string, filepath string) string {
 	var stdout, stderr bytes.Buffer
@@ -356,31 +439,32 @@ func InitializeTerraformFiles() {
 func TerraformApply() {
 
 	//Initializing Terraform
-	fmt.Println("Initializing Terraform...")
-	args := []string{"init", "-backend-config=../config/backend.txt"}
-	execTerraform(args, "terraform")
+	args := "init -backend-config=\"access_key=" + config.AwsAccessID + "\" -backend-config=\"secret_key=" + config.AwsSecretKey + "\""
+
+	execBashTerraform(args, "terraform")
 
 	//Applying Changes Identified in tfplan
 	fmt.Println("Applying Terraform Changes...")
-	args = []string{"apply", "-input=false", "-auto-approve"}
-	execTerraform(args, "terraform")
+	argsSlice := []string{"apply", "-input=false", "-auto-approve"}
+	execTerraform(argsSlice, "terraform")
 
 }
 
 func TerraformDestroy(nameList []string) {
 
 	//Initializing Terraform
-	args := []string{"init", "-backend-config=../config/backend.txt"}
-	execTerraform(args, "terraform")
+	args := "init -backend-config=\"access_key=" + config.AwsAccessID + "\" -backend-config=\"secret_key=" + config.AwsSecretKey + "\""
 
-	args = []string{"destroy", "-auto-approve"}
+	execBashTerraform(args, "terraform")
+
+	argsSlice := []string{"destroy", "-auto-approve"}
 
 	for _, name := range nameList {
-		args = append(args, "-target", name)
+		argsSlice = append(argsSlice, "-target", name)
 	}
 	fmt.Println("Destroying Terraform Targets...")
 
-	execTerraform(args, "terraform")
+	execTerraform(argsSlice, "terraform")
 }
 
 //TerraforrmOutputMarshaller runs the terraform output command
@@ -414,7 +498,7 @@ func CreateTerraformMain(masterString string) {
 }
 
 func writeGoogleFrontFiles(googleFront GooglefrontConfigWrapper) (indexFilePath string, packageFilePath string) {
-	indexFilePath = "/tmp/index.js"
+	indexFilePath = "/tmp/index.json"
 	packageFilePath = "/tmp/package.json"
 
 	indexFile, err := os.Create(indexFilePath)
@@ -514,10 +598,11 @@ func DestroySOCKS(ip string) {
 //createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
 func CreateSingleSOCKS(privateKey string, username string, ipv4 string, port int) (err error) {
 	portString := strconv.Itoa(port)
-	args := []string{"-D", portString, "-o", "StrictHostKeyChecking=no", "-N", "-f", "-i", privateKey, username + "@" + ipv4}
+	args := []string{"-D", portString, "-o", "StrictHostKeyChecking=no", "-N", "-f", "-i", os.Getenv("HOME") + "/.ssh/" + privateKey, username + "@" + ipv4}
 	cmd := exec.Command("ssh", args...)
 	err = cmd.Start()
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	return
@@ -568,14 +653,14 @@ func ListProxies(instances []ListStruct) (output string) {
 func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 	for _, module := range state.Modules {
 		var domainFrontOutput DomainFrontOutput
-		if len(module.Path) > 1 {
-			for name, resource := range module.Resources {
+		if len(module.Path) > 1 && len(module.Resources) != 0 {
+			for _, resource := range module.Resources {
 				if strings.Contains(module.Path[1], "cloudfrontDeploy") {
 					domainFrontOutput.Provider = "AWS"
 					domainFrontOutput.ID = resource.Primary.Attributes["id"].(string)
 					domainFrontOutput.Etag = resource.Primary.Attributes["etag"].(string)
 					domainFrontOutput.Status = resource.Primary.Attributes["status"].(string)
-					domainFrontOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+					domainFrontOutput.Name = "module." + module.Path[1]
 					for key, value := range resource.Primary.Attributes {
 						if strings.Contains(key, "domain_name") {
 							if strings.Contains(key, "origin") {
@@ -623,70 +708,73 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 func ListAPIs(state State) (apiOutputs []APIOutput) {
 	for _, module := range state.Modules {
 		var apiOutput APIOutput
-		if len(module.Path) > 1 && strings.Contains(module.Path[1], "apiDeploy") {
+		if len(module.Path) > 1 && len(module.Resources) != 0 && strings.Contains(module.Path[1], "awsAPIDeploy") {
 			apiOutput.Provider = "AWS"
-			for name, resource := range module.Resources {
+			apiOutput.Name = "module." + module.Path[1]
+			for _, resource := range module.Resources {
 				switch resource.Type {
 				case "aws_api_gateway_deployment":
 					apiOutput.InvokeURI = resource.Primary.Attributes["invoke_url"].(string)
 				case "aws_api_gateway_integration":
 					apiOutput.TargetURI = resource.Primary.Attributes["uri"].(string)
-				case "aws_api_gateway_rest_api":
-					apiOutput.Name = "module." + strings.Join(module.Path[1:], ".module.") + "." + name
 				default:
 					continue
 				}
 			}
+			apiOutputs = append(apiOutputs, apiOutput)
 		}
-		apiOutputs = append(apiOutputs, apiOutput)
+
 	}
 	return
 }
 
-func ListIPAddresses(state State) (hostOutput []ListStruct) {
+func ListInstances(state State) (hostOutput []ListStruct) {
 	for _, module := range state.Modules {
-		var tempOutput []ListStruct
-		if len(module.Path) > 1 {
-			privatekey, username := retrieveUserAndPrivateKey(module)
-			for name, resource := range module.Resources {
-				fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
-				nameSlice := strings.Split(name, ".")
-				finalString := nameSlice[len(nameSlice)-1]
-				count, err := strconv.Atoi(finalString)
-				if err == nil {
+		if len(module.Resources) != 0 {
+			var tempOutput []ListStruct
+			if len(module.Path) > 1 {
+				privatekey, username := retrieveUserAndPrivateKey(module)
 
-					index := "[" + finalString + "]"
+				for name, resource := range module.Resources {
+					fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+					nameSlice := strings.Split(name, ".")
+					finalString := nameSlice[len(nameSlice)-1]
+					count, err := strconv.Atoi(finalString)
+					if err == nil {
 
-					newName := strings.Join(nameSlice[:len(nameSlice)-1], ".")
+						index := "[" + finalString + "]"
 
-					fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName + index
+						newName := strings.Join(nameSlice[:len(nameSlice)-1], ".")
+
+						fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName + index
+					}
+					switch resource.Type {
+					case "digitalocean_droplet":
+						tempOutput = append(tempOutput, ListStruct{
+							IP:         resource.Primary.Attributes["ipv4_address"].(string),
+							Provider:   "DigitalOcean",
+							Region:     resource.Primary.Attributes["region"].(string),
+							Name:       fullName,
+							Place:      count,
+							PrivateKey: privatekey,
+							Username:   username,
+						})
+					case "aws_instance":
+						tempOutput = append(tempOutput, ListStruct{
+							IP:         resource.Primary.Attributes["public_ip"].(string),
+							Provider:   "AWS",
+							Region:     resource.Primary.Attributes["availability_zone"].(string),
+							Name:       fullName,
+							Place:      count,
+							PrivateKey: privatekey,
+							Username:   username,
+						})
+					default:
+						continue
+					}
 				}
-				switch resource.Type {
-				case "digitalocean_droplet":
-					tempOutput = append(tempOutput, ListStruct{
-						IP:         resource.Primary.Attributes["ipv4_address"].(string),
-						Provider:   "DigitalOcean",
-						Region:     resource.Primary.Attributes["region"].(string),
-						Name:       fullName,
-						Place:      count,
-						PrivateKey: privatekey,
-						Username:   username,
-					})
-				case "aws_instance":
-					tempOutput = append(tempOutput, ListStruct{
-						IP:         resource.Primary.Attributes["public_ip"].(string),
-						Provider:   "AWS",
-						Region:     resource.Primary.Attributes["availability_zone"].(string),
-						Name:       fullName,
-						Place:      count,
-						PrivateKey: privatekey,
-						Username:   username,
-					})
-				default:
-					continue
-				}
+				hostOutput = append(hostOutput, listStructSort(tempOutput)...)
 			}
-			hostOutput = append(hostOutput, listStructSort(tempOutput)...)
 		}
 	}
 	return
@@ -702,8 +790,8 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 
 	//Strip Directories from key name
 	//Identical Keypairs must be named the same
-	privKey = filepath.Base(privKey)
-	pubKey = filepath.Base(pubKey)
+	shortPrivKey := filepath.Base(privKey)
+	shortPubKey := filepath.Base(pubKey)
 
 	//Gather the count per provider and the remainder
 	countPerProvider := count / len(providers)
@@ -734,21 +822,26 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				if regionCount > 0 {
 					//TODO: Ensure private key is the same
 					//Check this functionality between two clients
-					// result := checkEC2KeyExistence(config.AwsSecretKey, config.AwsAccessID, region, keyName)
+					result := checkEC2KeyExistence(config.AwsSecretKey, config.AwsAccessID, region, keyName)
 
-					// if !result {
-					// 	publicKeyBytes, _ := ioutil.ReadFile(pubKey)
+					if !result {
+						publicKeyBytes, err := ioutil.ReadFile(pubKey)
+						if err != nil {
+							fmt.Printf("Error reading public key: %s", err)
+						}
 
-					// 	err := importEC2Key(config.AwsSecretKey, config.AwsAccessID, region, publicKeyBytes, pubKey)
-					// 	if err != nil {
-					// 		fmt.Printf("There was an errror importing your key to EC2: %s", err)
-					// 	}
-					// }
+						err = importEC2Key(config.AwsSecretKey, config.AwsAccessID, region, publicKeyBytes, keyName)
+						if err != nil {
+							fmt.Printf("There was an errror importing your key to EC2: %s", err)
+						} else {
+							fmt.Println("Success for importing AWS key for region: " + region)
+						}
+					}
 
 					newEC2RegionConfig := EC2ConfigWrapper{
 						InstanceType: "t2.micro",
-						PrivateKey:   privKey,
-						PublicKey:    pubKey,
+						PrivateKey:   shortPrivKey,
+						PublicKey:    shortPubKey,
 						KeyPairName:  keyName,
 						DefaultUser:  "ubuntu",
 						RegionMap:    make(map[string]int),
@@ -800,7 +893,7 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				if regionCount > 0 {
 					newDORegionConfig := DOConfigWrapper{
 						Image:       "ubuntu-16-04-x64",
-						PrivateKey:  privKey,
+						PrivateKey:  shortPrivKey,
 						Fingerprint: genDOKeyFingerprint(pubKey),
 						Size:        "512mb",
 						DefaultUser: "root",
@@ -860,10 +953,11 @@ func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) Confi
 				ModuleName: "awsAPIDeploy" + strconv.Itoa(moduleCount+1),
 				TargetURI:  targetURI,
 			})
+			moduleCount = moduleCount + 1
 		}
 	} else if strings.ToUpper(provider) == "ALIBABA" {
 	}
-
+	wrappers.AWSAPIModuleCount = moduleCount
 	return wrappers
 }
 

@@ -53,7 +53,7 @@ var firewallAdd = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
 
@@ -73,7 +73,7 @@ var firewallAdd = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -83,7 +83,7 @@ var firewallAdd = &cobra.Command{
 
 		ufwAction = "add"
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -111,7 +111,7 @@ var firewallDelete = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
 
@@ -132,7 +132,7 @@ var firewallDelete = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -142,7 +142,7 @@ var firewallDelete = &cobra.Command{
 
 		ufwAction = "delete"
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -161,7 +161,7 @@ var firewallList = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
 
@@ -178,7 +178,7 @@ var firewallList = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -188,7 +188,7 @@ var firewallList = &cobra.Command{
 
 		ufwAction = "list"
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)

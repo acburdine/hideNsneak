@@ -74,7 +74,7 @@ var instanceDeploy = &cobra.Command{
 		marshalledState := deployer.TerraformStateMarshaller()
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
 
-		oldList := deployer.ListIPAddresses(marshalledState)
+		oldList := deployer.ListInstances(marshalledState)
 
 		wrappers = deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, "hidensneak", wrappers)
 
@@ -86,16 +86,16 @@ var instanceDeploy = &cobra.Command{
 
 		fmt.Println("Waiting for instances to initialize...")
 
-		bar := progressbar.New(100)
-		for i := 0; i < 100; i++ {
+		bar := progressbar.New(120)
+		for i := 0; i < 120; i++ {
 			bar.Add(1)
-			time.Sleep(60 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 		fmt.Println("")
 		fmt.Println("Restricting Ports to only port 22...")
 
 		marshalledState = deployer.TerraformStateMarshaller()
-		newList := deployer.ListIPAddresses(marshalledState)
+		newList := deployer.ListInstances(marshalledState)
 		firewallList := deployer.InstanceDiff(oldList, newList)
 
 		apps := []string{"firewall"}
@@ -104,7 +104,7 @@ var instanceDeploy = &cobra.Command{
 		ufwTCPPorts = []string{"22"}
 		ufwAction = "add"
 
-		hostFile := deployer.GenerateHostFile(firewallList, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(firewallList, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -127,13 +127,17 @@ var instanceDestroy = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var namesToDelete []string
 
 		for _, numIndex := range instanceDestroyIndices {
 			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
+
+		emptyEC2Modules := deployer.CheckForEmptyEC2Module(namesToDelete, marshalledState)
+
+		namesToDelete = append(namesToDelete, emptyEC2Modules...)
 
 		deployer.TerraformDestroy(namesToDelete)
 		return
@@ -147,7 +151,7 @@ var instanceList = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		for index, item := range list {
 			fmt.Print(index)

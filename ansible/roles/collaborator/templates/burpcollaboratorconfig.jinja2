@@ -3,7 +3,7 @@
   "workerThreads" : 10,
 
   "eventCapture": {
-      "localAddress" : "{{ ansible_host }}",
+      "localAddress" : "{{ ansible_default_ipv4.address }}",
       "publicAddress" : "{{ ansible_host }}",
 
       "http": {
@@ -12,6 +12,17 @@
 
       "https": {
           "port" : {{ burp_https_port }},
+      },
+
+      "smtp": {
+          "ports" : [25, 587]
+      },
+
+      "smtps": {
+          "ports" : 465
+      },
+
+      "ssl": {
           "certificateFiles" : [
             "/etc/burp/burp.pk8",
             "/etc/burp/burp.crt",
@@ -25,10 +36,15 @@
       "addressWhitelist" : {{ burp_whitelist }}
   },
 
+  "polling" : {
+      "publicAddress" : "{{ ansible_host }}",
+  },
+
+
   "dns": {
       "interfaces" : [{
         "name":"ns",
-	"localAddress" : "{{ ansible_default_ipv4.address }}",
+	"localAddress" : "{{ansible_default_ipv4.address}}",
 	"publicAddress" : "{{ansible_host }}",
       }],
       "port" : {{ burp_dns_port }}

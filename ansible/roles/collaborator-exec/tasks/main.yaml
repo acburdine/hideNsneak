@@ -1,0 +1,54 @@
+--- 
+- name: Check for burp jar
+  stat: path=/usr/share/burp/burpsuite_pro.jar
+  register: burp_jar
+
+- debug: msg="Unable to start, burp jar not found"
+  when: 
+    - not burp_jar.stat.exists
+
+- name: Check for burp config
+  stat: path=/etc/burp/collaborator.config
+  register: burp_config
+
+- debug: msg="Unable to start, collaborator config not found"
+  when: 
+    - not burp_config.stat.exists
+
+
+- name: Open tcp ports for collaborator
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "80"
+    - "443"
+    - "25"
+    - "53"
+    - "587"
+    - "465"
+
+- name: Open udp ports for collaborator
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    port: "{{ item }}"
+    proto: udp
+  loop:
+    - "53"
+
+
+- name: Start burp collaborator server
+  become: yes
+  shell: ( (java -jar /usr/share/burp/burpsuite_pro.jar --collaborator-server --collaborator-config=/etc/burp/collaborator.config) &)
+  args:
+    executable: /bin/bash
+  async: 45
+  poll: 0
+  when:
+    - burp_jar.stat.exists
+    - burp_config.stat.exists

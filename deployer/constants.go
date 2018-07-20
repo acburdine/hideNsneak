@@ -5,7 +5,13 @@ const tfMainFile = "terraform/main.tf"
 const tfVariablesFile = "terraform/variables.tf"
 const tfVarsFile = "terraform/terraform.tfvars"
 const backend = `terraform {
-	backend "s3" {}
+	backend "s3" {
+		bucket           = "hidensneak-terraform"
+		dynamodb_table   = "terraform-state-lock-dynamo"
+		key              = "filename.tfstate"
+		region           = "us-east-1"
+		encrypt 	     = true 
+	}
 }
 `
 
@@ -235,7 +241,7 @@ exports.redirector = (req, res) => {
  
 
     if (req.method == "GET" || req.method == "POST") {
-        if (restrictUA != "" && restrictUA != req.getHeader('User-Agent') {
+        if (restrictUA != "" && restrictUA != req.getHeader('User-Agent')) {
             res.redirect(frontedDomain)
             return
         }
@@ -243,7 +249,7 @@ exports.redirector = (req, res) => {
             res.redirect(frontedDomain) 
             return
         }
-        if (restrictHeader != "" && req.getHeader(restrictHeader) != restrictValue){
+        if (restrictHeader != "" && req.getHeader(restrictHeader) != restrictValue) {
           res.redirect(frontedDomain)
           return
         }

@@ -45,7 +45,7 @@ var socksDeploy = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		for _, num := range socksInstanceInput {
 			err := deployer.CreateSingleSOCKS(list[num].PrivateKey, list[num].Username, list[num].IP, socksPort)
@@ -69,7 +69,7 @@ var socksDestroy = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		for _, num := range socksInstanceInput {
 			deployer.DestroySOCKS(list[num].IP)
@@ -86,7 +86,7 @@ var socksList = &cobra.Command{
 		fmt.Println("Pulling Terraform State...")
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		output := deployer.ListProxies(list)
 
@@ -101,7 +101,7 @@ var proxychains = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		output := deployer.ListProxies(list)
 
@@ -116,7 +116,7 @@ var socksd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		output := deployer.ListProxies(list)
 
@@ -139,13 +139,4 @@ func init() {
 	socksDestroy.PersistentFlags().IntSliceVarP(&socksInstanceInput, "index", "i", []int{}, "Indices of the instances to deploy")
 	socksDestroy.MarkPersistentFlagRequired("index")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// helloCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// helloCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -29,7 +29,7 @@ var burpCmd string
 var installIndex []int
 var fqdn string
 var domain string
-var burpDir string
+var burpFile string
 
 var install = &cobra.Command{
 	Use:   "install",
@@ -40,21 +40,27 @@ var install = &cobra.Command{
 	},
 }
 
-var burpInstall = &cobra.Command{
-	Use:   "burp",
+var collaboratorInstall = &cobra.Command{
+	Use:   "collaborator",
 	Short: "Installs Burp Suite Collaborator Server",
 	Long:  `Installs and starts a Burp Suite collaborator with the specified domain on the specified remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		return deployer.ValidateNumberOfInstances(installIndex)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		apps := []string{"burp"}
+		fmt.Println("WARNING: Its best to obtain your wildcard letsencrypt certificate prior to installation")
+		fmt.Println("Do you still wish to continue?")
+		if !deployer.AskForConfirmation() {
+			return
+		}
+
+		apps := []string{"collaborator"}
 
 		playbook := deployer.GeneratePlaybookFile(apps)
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -62,7 +68,9 @@ var burpInstall = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		fqdn = domain
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -71,6 +79,12 @@ var burpInstall = &cobra.Command{
 		deployer.WriteToFile("ansible/main.yml", playbook)
 
 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+
+		fmt.Println("Next Steps:")
+
+		fmt.Println("1. Set this IP address to be both the primary and secondary nameserver for your domain")
+
+		fmt.Println("Note: In order to have valid HTTPS on the collaborator server you must obtain a wildcard certificate from letsencrypt")
 	},
 }
 
@@ -100,7 +114,7 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -108,7 +122,7 @@ var cobaltStrikeInstall = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -135,7 +149,7 @@ var goPhishInstall = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -143,7 +157,7 @@ var goPhishInstall = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -169,7 +183,7 @@ var letsEncryptInstall = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -177,7 +191,7 @@ var letsEncryptInstall = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -203,7 +217,7 @@ var nmapInstall = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -211,7 +225,7 @@ var nmapInstall = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -237,7 +251,7 @@ var socatInstall = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -245,7 +259,7 @@ var socatInstall = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -272,7 +286,7 @@ var sqlMapInstall = &cobra.Command{
 
 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListIPAddresses(marshalledState)
+		list := deployer.ListInstances(marshalledState)
 
 		var instances []deployer.ListStruct
 
@@ -280,7 +294,7 @@ var sqlMapInstall = &cobra.Command{
 			instances = append(instances, list[num])
 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpDir, localFilePath, remoteFilePath,
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
 			ufwAction, ufwTCPPorts, ufwUDPPorts)
@@ -294,16 +308,14 @@ var sqlMapInstall = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(install)
-	install.AddCommand(burpInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall)
+	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall)
 
-	burpInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
-	burpInstall.MarkPersistentFlagRequired("id")
-	burpInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
-	burpInstall.MarkPersistentFlagRequired("fqdn")
-	burpInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
-	burpInstall.MarkPersistentFlagRequired("domain")
-	burpInstall.PersistentFlags().StringVarP(&burpDir, "burpDir", "b", "", "Specify the directory where burp is located")
-	burpInstall.MarkPersistentFlagRequired("burpDir")
+	collaboratorInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	collaboratorInstall.MarkPersistentFlagRequired("id")
+	collaboratorInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
+	collaboratorInstall.MarkPersistentFlagRequired("domain")
+	collaboratorInstall.PersistentFlags().StringVarP(&burpFile, "burpFile", "b", "", "Specify the file where burp is located")
+	collaboratorInstall.MarkPersistentFlagRequired("burpFile")
 
 	cobaltStrikeInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	cobaltStrikeInstall.MarkFlagRequired("id")
