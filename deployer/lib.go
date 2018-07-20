@@ -346,6 +346,30 @@ func ExecAnsible(hostsFile string, playbook string, filepath string) {
 //Terraform Functions
 /////////////////////
 
+//Hack for backend config
+func execBashTerraform(args string, filepath string) string {
+	var stdout, stderr bytes.Buffer
+
+	binary, err := exec.LookPath("terraform")
+
+	args = binary + " " + args
+
+	checkErr(err)
+
+	cmd := exec.Command("/bin/bash", "-c", args)
+
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Dir = filepath
+
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(stderr.String())
+	}
+
+	return stdout.String()
+}
+
 func execTerraform(args []string, filepath string) string {
 	var stdout, stderr bytes.Buffer
 
@@ -415,31 +439,32 @@ func InitializeTerraformFiles() {
 func TerraformApply() {
 
 	//Initializing Terraform
-	fmt.Println("Initializing Terraform...")
-	args := []string{"init", "-backend-config=../config/backend.txt"}
-	execTerraform(args, "terraform")
+	args := "init -backend-config=\"access_key=" + config.AwsAccessID + "\" -backend-config=\"secret_key=" + config.AwsSecretKey + "\""
+
+	execBashTerraform(args, "terraform")
 
 	//Applying Changes Identified in tfplan
 	fmt.Println("Applying Terraform Changes...")
-	args = []string{"apply", "-input=false", "-auto-approve"}
-	execTerraform(args, "terraform")
+	argsSlice := []string{"apply", "-input=false", "-auto-approve"}
+	execTerraform(argsSlice, "terraform")
 
 }
 
 func TerraformDestroy(nameList []string) {
 
 	//Initializing Terraform
-	args := []string{"init", "-backend-config=../config/backend.txt"}
-	execTerraform(args, "terraform")
+	args := "init -backend-config=\"access_key=" + config.AwsAccessID + "\" -backend-config=\"secret_key=" + config.AwsSecretKey + "\""
 
-	args = []string{"destroy", "-auto-approve"}
+	execBashTerraform(args, "terraform")
+
+	argsSlice := []string{"destroy", "-auto-approve"}
 
 	for _, name := range nameList {
-		args = append(args, "-target", name)
+		argsSlice = append(argsSlice, "-target", name)
 	}
 	fmt.Println("Destroying Terraform Targets...")
 
-	execTerraform(args, "terraform")
+	execTerraform(argsSlice, "terraform")
 }
 
 //TerraforrmOutputMarshaller runs the terraform output command
@@ -573,10 +598,11 @@ func DestroySOCKS(ip string) {
 //createSingleSOCKS initiates a SOCKS Proxy on the local host with the specifed ipv4 address
 func CreateSingleSOCKS(privateKey string, username string, ipv4 string, port int) (err error) {
 	portString := strconv.Itoa(port)
-	args := []string{"-D", portString, "-o", "StrictHostKeyChecking=no", "-N", "-f", "-i", privateKey, username + "@" + ipv4}
+	args := []string{"-D", portString, "-o", "StrictHostKeyChecking=no", "-N", "-f", "-i", os.Getenv("HOME") + "/.ssh/" + privateKey, username + "@" + ipv4}
 	cmd := exec.Command("ssh", args...)
 	err = cmd.Start()
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	return

@@ -15,5 +15,5 @@ ansible/ansible.yml
 ansible/main.yml
 ansible/*.retry
 ansible/burp*
-ansoble/*crt
+ansible/*crt
 hidensneak

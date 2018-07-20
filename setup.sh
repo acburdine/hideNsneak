@@ -104,4 +104,13 @@ then
     sudo pip install ansible
 fi
 
+echo "Instantiating Backend DynamoDB Table"
+cd terraform/backend
+terraform init -input=true
+terraform apply
+
+cd ../../
+
+echo "If this the table already exists, you are good to go"
+
 echo "All requirements met!"
