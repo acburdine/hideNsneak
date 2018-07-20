@@ -103,6 +103,10 @@ Contributions
 -------------
 We would love to have you contribute to hideNsneak. Feel free to pull the repo and start contributing, we will review pull requests as we receive them. If you feel like some things need improvement or some features need adding, feel free to open up an issue and hopefully -- someone will pick it up. 
 
+Miscellaneous
+-------------
+All firewall rules are performed at the host level. All instances are restricted to port 22 upon deployment. In order to achieve this, a default security group is made in every AWS region named hideNsneak which is by default to the world. This security group should not be used for any other infrastructure.
+
 
 License 
 -------
