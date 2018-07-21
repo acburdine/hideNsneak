@@ -20,6 +20,10 @@ variable "aws_tags" {
   default = ""
 }
 
+variable "security_group" {
+  default = "hidensneak"
+}
+
 variable "ansible_groups" {
   default = []
 }

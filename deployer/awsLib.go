@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os/exec"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudfront"
@@ -85,6 +87,65 @@ func genEC2KeyFingerprint(privateKey string) (keyFingerprint string) {
 	keyFingerprint = strings.Split(strings.TrimSpace(cmd2Out.String()), " ")[1]
 
 	return
+}
+
+func describeInstanceSecurityGroup(region string, ip string, secret string, accessID string,
+	securityGroupName string) *ec2.DescribeSecurityGroupsOutput {
+	svc := ec2.New(session.New(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
+	}))
+	securityGroups, err := svc.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{})
+	if err != nil {
+		log.Println("Error describing security group for AWS Instance")
+	}
+	return securityGroups
+}
+
+func createDefaultSecurityGroup(securityGroup string, region string, secret string, accessID string) error {
+	svc := ec2.New(session.New(&aws.Config{
+		Region:      aws.String(region),
+		Credentials: credentials.NewStaticCredentials(accessID, secret, ""),
+	}))
+	_, err := svc.CreateSecurityGroup(&ec2.CreateSecurityGroupInput{
+		GroupName:   aws.String(securityGroup),
+		Description: aws.String("hidensneak default security group"),
+	})
+
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			case "InvalidGroup.Duplicate":
+				return nil
+			}
+		}
+		return err
+	}
+	ec2Permissions := []*ec2.IpPermission{
+		(&ec2.IpPermission{}).
+			SetIpProtocol("tcp").
+			SetFromPort(int64(0)).
+			SetToPort(int64(65535)).
+			SetIpRanges([]*ec2.IpRange{
+				{CidrIp: aws.String("0.0.0.0/0")},
+			}),
+		(&ec2.IpPermission{}).
+			SetIpProtocol("udp").
+			SetFromPort(int64(0)).
+			SetToPort(int64(65535)).
+			SetIpRanges([]*ec2.IpRange{
+				{CidrIp: aws.String("0.0.0.0/0")},
+			}),
+	}
+	// fmt.Printf("Created security group %s with VPC %s.\n", aws.StringValue(createRes.GroupId), instance.Cloud.ID)
+	_, err = svc.AuthorizeSecurityGroupIngress(&ec2.AuthorizeSecurityGroupIngressInput{
+		GroupName:     aws.String(securityGroup),
+		IpPermissions: ec2Permissions,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 //checkEc2KeyExistence queries the Amazon EC2 API for the security groups

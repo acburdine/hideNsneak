@@ -1,6 +1,7 @@
 {
     "aws_access_id": "",
     "aws_secret_key": "",
+    "aws_bucket_name": "",
     "digitalocean_token":"",
     "azure_tenant_id": "",
     "azure_client_id": "",
