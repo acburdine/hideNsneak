@@ -1,0 +1,53 @@
+--- 
+- name: check for existing installation 
+  stat: path=/opt/empire
+  become: yes
+  register: empire_installed
+
+- debug: msg="powershell empire is already installed"
+  when:
+    - empire_installed.stat.exists
+
+- name: apt update
+  apt: 
+    update_cache: yes
+    upgrade: full
+  become: yes
+  when:
+    - not empire_installed.stat.exists
+
+- name: ensure git is installed
+  apt: name={{item}} state=present
+  with_items:
+    - git
+    - screen
+
+- git: 
+    repo: "https://github.com/EmpireProject/Empire"
+    version: master
+    dest: /opt/empire
+    update: yes
+
+- copy: 
+    src: startup.rc
+    dest: /opt/empire
+
+- name: setup empire
+  command: /opt/empire/setup/install.sh
+  environment:
+    STAGING_KEY: 'RANDOM'
+  args:
+    chdir: /opt/empire
+
+- name: start empire in a screen session
+  command: screen -dmS Empire /root/empire/empire --resource /root/empire/EmpireStartup.rc
+  args:
+    chdir: /root/empire
+      
+- pause:
+    seconds: 5
+
+- fetch: 
+    src: /root/Empire_http80.ps1
+    dest: stager.ps1
+    flat: yes
