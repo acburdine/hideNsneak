@@ -162,6 +162,40 @@ var socatRedirect = &cobra.Command{
 	},
 }
 
+var empireRun = &cobra.Command{
+	Use:   "empire-run",
+	Short: "runs powershell empire",
+	Long:  `starts powershell empire in a screen session`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		return deployer.ValidateNumberOfInstances(commandIndices)
+	},
+	Run: func(cmd *cobra.command, args []string) {
+		apps := []string{"empire", "empire-exec"}
+
+		playbook := deployer.GeneratePlaybookFile(apps)
+
+		marshalledState := deployer.TerraformStateMarshaller()
+
+		list := deployer.ListInstances(marshalledState)
+
+		var instances []deployer.ListStruct
+
+		for _, num := range commandIndices {
+			instances = append(instances, list[num])
+		}
+
+		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
+			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+			ufwAction, ufwTCPPorts, ufwUDPPorts)
+
+		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+		deployer.WriteToFile("ansible/main.yml", playbook)
+
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+	},
+}
+
 var cobaltStrikeRun = &cobra.Command{
 	Use:   "cobaltstrike-run",
 	Short: "updates and runs cobalt strike teamserver",
@@ -278,7 +312,7 @@ var collaboratorRun = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(exec)
-	exec.AddCommand(command, nmap, socatRedirect, cobaltStrikeRun, collaboratorRun)
+	exec.AddCommand(command, nmap, socatRedirect, cobaltStrikeRun, collaboratorRun, empireRun)
 
 	command.PersistentFlags().IntSliceVarP(&commandIndices, "id", "i", []int{}, "Specify the id(s) for the remote server")
 	command.MarkFlagRequired("id")
@@ -321,4 +355,6 @@ func init() {
 	collaboratorRun.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance (Optional)")
 	collaboratorRun.PersistentFlags().StringVarP(&burpFile, "burpFile", "b", "", "Specify the file where burp is located (Optional)")
 
+	empireRun.PersistentFlags().IntSliceVarP(&commandIndices, "id", "i", []int{}, "Specify the id for the install (Required)")
+	empireRun.MarkPersistentFlagRequired("id")
 }
