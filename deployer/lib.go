@@ -820,8 +820,6 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 				}
 				//TODO: Add custom input
 				if regionCount > 0 {
-					//TODO: Ensure private key is the same
-					//Check this functionality between two clients
 					result := checkEC2KeyExistence(config.AwsSecretKey, config.AwsAccessID, region, keyName)
 
 					if !result {
@@ -836,6 +834,13 @@ func InstanceDeploy(providers []string, awsRegions []string, doRegions []string,
 						} else {
 							fmt.Println("Success for importing AWS key for region: " + region)
 						}
+					}
+
+					//Attempting to add default security group, if it exists function will return nil
+					err := createDefaultSecurityGroup("hidensneak", region, config.AwsSecretKey, config.AwsAccessID)
+
+					if err != nil {
+						fmt.Printf("Default security group creation failed: %s \n You may have to manually allow traffic to your instance", err)
 					}
 
 					newEC2RegionConfig := EC2ConfigWrapper{

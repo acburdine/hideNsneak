@@ -47,6 +47,15 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+data "aws_security_groups" "hideNsneak" {
+  count = "${var.instance_count > 0 ? 1 : 0}"
+
+  filter {
+    name   = "group-name"
+    values = ["hidensneak"]
+  }
+}
+
 resource "aws_instance" "hideNsneak" {
   ami = "${data.aws_ami.ubuntu.id}"
 
@@ -56,6 +65,8 @@ resource "aws_instance" "hideNsneak" {
   subnet_id = "${element(data.aws_subnet_ids.all.ids, 0)}"
 
   key_name = "${var.aws_keypair_name}"
+
+  vpc_security_group_ids = ["${data.aws_security_groups.hideNsneak.ids}"]
 
   tags {
     Name = "hidensneak"
