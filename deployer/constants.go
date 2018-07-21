@@ -6,7 +6,7 @@ const tfVariablesFile = "terraform/variables.tf"
 const tfVarsFile = "terraform/terraform.tfvars"
 const backend = `terraform {
 	backend "s3" {
-		bucket           = "hidensneak-terraform"
+		bucket           = "{{.AwsS3BucketName}}"
 		dynamodb_table   = "terraform-state-lock-dynamo"
 		key              = "filename.tfstate"
 		region           = "us-east-1"

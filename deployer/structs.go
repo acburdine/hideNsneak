@@ -3,6 +3,7 @@ package deployer
 type configStruct struct {
 	AwsAccessID           string `json:"aws_access_id"`
 	AwsSecretKey          string `json:"aws_secret_key"`
+	AwsS3BucketName       string `json:"aws_bucket_name"`
 	DigitaloceanToken     string `json:"digitalocean_token"`
 	AzureTenantID         string `json:"azure_tenant_id"`
 	AzureClientID         string `json:"azure_client_id"`

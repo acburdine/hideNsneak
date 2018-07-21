@@ -268,39 +268,61 @@ func createDOConfigFromState(modules []ModuleState) (doConfigs []DOConfigWrapper
 	return
 }
 
+// if resource.Type == "aws_instance" {
+// 				fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
+
+// 				moduleRegionName := "module." + strings.Join(module.Path[1:], ".module.") + "." + newName
+
+// 				nameSlice := strings.Split(name, ".")
+// 				finalString := nameSlice[len(nameSlice)-1]
+// 				_, err := strconv.Atoi(finalString)
+// 				if err == nil {
+
+// 					index := "[" + finalString + "]"
+
+// 					newName := strings.Join(nameSlice[:len(nameSlice)-1], ".")
+
+// 					fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName + index
+// 				}
+
+// 				if !ContainsString(namesToDelete, fullName) {
+// 					allInstancesPresent = false
+// 					break
+// 				}
+
+// 				if allInstancesPresent {
+// 					if !ContainsString(names, "module."+module.Path[1]) {
+// 						names = append(names, "module."+module.Path[1])
+// 					}
+// 					continue
+// 				}
+// 			}
+
 //CheckForEmptyEC2Module is a hack to ensure EC2 data resources are
 //destroyed as they cannot be destroyed individually
 func CheckForEmptyEC2Module(namesToDelete []string, state State) (names []string) {
+	regions := make(map[string]int)
 	for _, module := range state.Modules {
-		allInstancesPresent := false
-		if len(module.Path) > 1 && strings.Contains(module.Path[1], "ec2Deploy") {
-			allInstancesPresent = true
-			for name, resource := range module.Resources {
+		if len(module.Path) > 2 && strings.Contains(module.Path[1], "ec2Deploy") {
+			for _, resource := range module.Resources {
 				if resource.Type == "aws_instance" {
-					fullName := "module." + strings.Join(module.Path[1:], ".module.") + "." + name
-					nameSlice := strings.Split(name, ".")
-					finalString := nameSlice[len(nameSlice)-1]
-					_, err := strconv.Atoi(finalString)
-					if err == nil {
-
-						index := "[" + finalString + "]"
-
-						newName := strings.Join(nameSlice[:len(nameSlice)-1], ".")
-
-						fullName = "module." + strings.Join(module.Path[1:], ".module.") + "." + newName + index
-					}
-					if !ContainsString(namesToDelete, fullName) {
-						allInstancesPresent = false
-						break
-					}
-				}
-				if allInstancesPresent {
-					if !ContainsString(names, "module."+module.Path[1]) {
-						names = append(names, "module."+module.Path[1])
-					}
-					continue
+					regions[module.Path[2]] = regions[module.Path[2]] + 1
 				}
 			}
+		}
+	}
+	for _, module := range state.Modules {
+		if len(module.Path) > 2 && strings.Contains(module.Path[1], "ec2Deploy") {
+			for _, instance := range namesToDelete {
+				instanceSlice := strings.Split(instance, ".")
+				regions[instanceSlice[3]] = regions[instanceSlice[3]] - 1
+			}
+			for name, index := range regions {
+				if index == 0 {
+					names = append(names, "module."+module.Path[1]+".module."+name)
+				}
+			}
+
 		}
 	}
 	return

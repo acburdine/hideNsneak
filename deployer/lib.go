@@ -413,6 +413,16 @@ func InitializeTerraformFiles() {
 		fmt.Println(err)
 	}
 
+	backendBucket, err := template.New("backend").Parse(backend)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	backendBuff := new(bytes.Buffer)
+
+	err = backendBucket.Execute(backendBuff, &config)
+
 	noEscapeSecrets := template.HTML(secretBuff.String())
 
 	mainFile, err := os.Create(tfMainFile)
@@ -429,7 +439,7 @@ func InitializeTerraformFiles() {
 
 	fmt.Println("Creating Terraform Files...")
 
-	mainFile.Write([]byte(backend))
+	mainFile.Write([]byte(backendBuff.String()))
 	varFile.Write([]byte(variables))
 	tfvarsFile.Write([]byte(noEscapeSecrets))
 }
