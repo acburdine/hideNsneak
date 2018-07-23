@@ -14,10 +14,4 @@ variable target {}
 
 variable restrictua {}
 
-variable restrictsubnet {}
-
-variable restrictheader {}
-
-variable restrictheadervalue {}
-
 variable "google_credentials_path" {}

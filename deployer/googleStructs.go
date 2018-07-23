@@ -15,15 +15,3 @@ type GooglefrontConfigWrapper struct {
 	RestrictHeaderValue string
 	Enabled             bool
 }
-
-//Deprecated
-// type googleCloudDeployer struct {
-// 	Region            string
-// 	Project           string
-// 	Count             int
-// 	SSHUser           string
-// 	SSHPubKeyFile     string
-// 	SSHPrivateKeyFile string
-// 	MachineType       string
-// 	Image             string
-// }

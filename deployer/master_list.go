@@ -70,10 +70,7 @@ func createGooglefrontFromState(modules []ModuleState) (googlefrontConfigWrapper
 					tempConfig.InvokeURI = resource.Primary.Attributes["https_trigger_url"].(string)
 					tempConfig.FunctionName = resource.Primary.Attributes["name"].(string)
 					tempConfig.HostURL = resource.Primary.Attributes["labels.target"].(string)
-					tempConfig.RestrictUA = resource.Primary.Attributes["labels.restrictua"].(string)
-					tempConfig.RestrictSubnet = resource.Primary.Attributes["labels.restrictsubnet"].(string)
-					tempConfig.RestrictHeader = resource.Primary.Attributes["labels.restrictheader"].(string)
-					tempConfig.RestrictHeaderValue = resource.Primary.Attributes["labels.restrictheadervalue"].(string)
+					tempConfig.RestrictUA = resource.Primary.Attributes["description"].(string)
 					tempConfig.PackageFile = "/tmp/package.json"
 					tempConfig.SourceFile = "/tmp/index.js"
 

@@ -27,9 +27,6 @@ var domainFrontProvider string
 var domainFrontIndex int
 var domainFrontOrigin string
 var restrictUA string
-var restrictSubnet string
-var restrictHeader string
-var restrictHeaderValue string
 var functionName string
 var frontedDomain string
 
@@ -51,15 +48,8 @@ var domainFrontDeploy = &cobra.Command{
 		switch strings.ToUpper(domainFrontProvider) {
 		case "AWS":
 		case "GOOGLE":
-			headerArray := strings.Split(restrictHeader, ":")
 			match, _ := regexp.MatchString("^[a-zA-Z][a-zA-Z0-9]+", functionName)
 
-			if len(headerArray) > 1 {
-				restrictHeader = strings.TrimSpace(headerArray[0])
-				restrictHeaderValue = strings.TrimSpace(headerArray[1])
-			} else if len(headerArray) == 1 && headerArray[0] != "" {
-				return fmt.Errorf("Header key value pairs must be seperated by a colon 'key:value'")
-			}
 			if functionName == "" {
 				return fmt.Errorf("Google Domain Fronts must have a function name (-n)")
 			} else if !match {
@@ -75,7 +65,7 @@ var domainFrontDeploy = &cobra.Command{
 		marshalledState := deployer.TerraformStateMarshaller()
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
 		wrappers = deployer.DomainFrontDeploy(domainFrontProvider, domainFrontOrigin,
-			restrictUA, restrictSubnet, restrictHeader, restrictHeaderValue, functionName, frontedDomain, wrappers)
+			restrictUA, functionName, frontedDomain, wrappers)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
@@ -148,12 +138,16 @@ var domainFrontDisable = &cobra.Command{
 				}
 			}
 		case "AZURE":
+			//TODO: Implement Azure CDN domain fronting
 		case "GOOGLE":
-			for index, front := range wrappers.Cloudfront {
-				if list[domainFrontIndex].ID == front.ID {
-					wrappers.Cloudfront[index].Enabled = "false"
-				}
-			}
+			fmt.Println("Disabling Google Domain Fronts is not currently supported")
+			fmt.Println("Exiting....")
+			// for index, front := range wrappers.Googlefront {
+			// 	if list[domainFrontIndex].Invoke == front.InvokeURI {
+			// 		wrappers.Googlefront[index].Enabled = false
+			// 	}
+			// }
+			return
 		default:
 		}
 		mainFile := deployer.CreateMasterFile(wrappers)
@@ -198,11 +192,14 @@ var domainFrontEnable = &cobra.Command{
 			}
 		case "AZURE":
 		case "GOOGLE":
-			for index, front := range wrappers.Cloudfront {
-				if list[domainFrontIndex].ID == front.ID {
-					wrappers.Cloudfront[index].Enabled = "true"
-				}
-			}
+			fmt.Println("Enabling Google Domain Fronts is not currently supported")
+			fmt.Println("Exiting....")
+			// for index, front := range wrappers.Googlefront {
+			// 	if list[domainFrontIndex].Invoke == front.InvokeURI {
+			// 		wrappers.Googlefront[index].Enabled = false
+			// 	}
+			// }
+			return
 		default:
 		}
 
@@ -223,7 +220,7 @@ var domainFrontList = &cobra.Command{
 		list := deployer.ListDomainFronts(marshalledState)
 		for index, front := range list {
 			fmt.Print(index)
-			fmt.Println(front.String())
+			fmt.Println(front)
 		}
 
 		return
@@ -243,8 +240,6 @@ func init() {
 	domainFrontDeploy.PersistentFlags().StringVarP(&frontedDomain, "frontedDomain", "d", "", "Specify the Google domain to front i.e inbox.google.com")
 	domainFrontDeploy.PersistentFlags().StringVarP(&functionName, "name", "n", "", "Specify the function name of the Google Domain front i.e /functionname1")
 	domainFrontDeploy.PersistentFlags().StringVar(&restrictUA, "restrictua", "", "Specify the User Agent header to filter on for Google Domain Front")
-	domainFrontDeploy.PersistentFlags().StringVar(&restrictHeader, "restrictheader", "", "Specify the custer header to filter on for Google Domain Front i.e. Test:test")
-	domainFrontDeploy.PersistentFlags().StringVar(&restrictSubnet, "restrictsubnet", "", "Specify the subnet to allow to your Google Domain Front")
 
 	domainFrontEnable.PersistentFlags().IntVarP(&domainFrontIndex, "id", "i", 0, "Specify the id of the domain front")
 	domainFrontEnable.MarkPersistentFlagRequired("id")

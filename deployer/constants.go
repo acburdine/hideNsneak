@@ -209,12 +209,6 @@ module "{{.ModuleName}}" {
   target = "{{.Host}}"
 
   restrictua = "{{.RestrictUA}}"
-  
-  restrictsubnet = "{{.RestrictSubnet}}"
-  
-  restrictheader = "{{.RestrictHeader}}"
-  
-  restrictheadervalue = "{{.RestrictHeaderValue}}"
 
   google_credentials_path = "${var.google_credentials_path}"
 }`
@@ -241,19 +235,10 @@ exports.redirector = (req, res) => {
  
 
     if (req.method == "GET" || req.method == "POST") {
-        if (restrictUA != "" && restrictUA != req.getHeader('User-Agent')) {
+        if (restrictUA != "" && restrictUA != req.get('User-Agent')) {
             res.redirect(frontedDomain)
             return
         }
-        if (restrictSubnet != "" && !ip.cidrSubnet(restrictSubnet).Contains(requestIP)) {
-            res.redirect(frontedDomain) 
-            return
-        }
-        if (restrictHeader != "" && req.getHeader(restrictHeader) != restrictValue) {
-          res.redirect(frontedDomain)
-          return
-        }
-    
         req.host = host
         proxy.web(req, res, { target: target });
     } else {

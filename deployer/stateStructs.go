@@ -1,5 +1,7 @@
 package deployer
 
+import "strings"
+
 type State struct {
 	// Version is the state file protocol version.
 	Version int `json:"version"`
@@ -155,20 +157,21 @@ func (output APIOutput) String() string {
 }
 
 type DomainFrontOutput struct {
-	Name                string
-	Origin              string
-	ID                  string
-	Invoke              string
-	Provider            string
-	Etag                string
-	Status              string
-	FunctionName        string
-	RestrictUA          string
-	RestrictSubnet      string
-	RestrictHeader      string
-	RestrictHeaderValue string
+	Name         string
+	Origin       string
+	ID           string
+	Invoke       string
+	Provider     string
+	Etag         string
+	Status       string
+	FunctionName string
+	RestrictUA   string
 }
 
 func (output DomainFrontOutput) String() string {
-	return " - Origin: " + output.Origin + " - Invoke: " + output.Invoke + " - Status: " + output.Status + " - Provider: " + output.Provider + " - Name: " + output.Name
+	if output.Provider == "GOOGLE" {
+		origin := strings.Replace(output.Origin, "-", ".", -1)
+		return " - Origin: " + origin + " - Invoke: " + output.Invoke + " - Status: " + output.Status + " - RestrictedUA: " + output.RestrictUA + " - Provider: " + output.Provider
+	}
+	return " - Origin: " + output.Origin + " - Invoke: " + output.Invoke + " - Status: " + output.Status + " - Provider: " + output.Provider
 }
