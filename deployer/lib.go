@@ -413,6 +413,16 @@ func InitializeTerraformFiles() {
 		fmt.Println(err)
 	}
 
+	backendBucket, err := template.New("backend").Parse(backend)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	backendBuff := new(bytes.Buffer)
+
+	err = backendBucket.Execute(backendBuff, &config)
+
 	noEscapeSecrets := template.HTML(secretBuff.String())
 
 	mainFile, err := os.Create(tfMainFile)
@@ -429,7 +439,7 @@ func InitializeTerraformFiles() {
 
 	fmt.Println("Creating Terraform Files...")
 
-	mainFile.Write([]byte(backend))
+	mainFile.Write([]byte(backendBuff.String()))
 	varFile.Write([]byte(variables))
 	tfvarsFile.Write([]byte(noEscapeSecrets))
 }
@@ -498,7 +508,7 @@ func CreateTerraformMain(masterString string) {
 }
 
 func writeGoogleFrontFiles(googleFront GooglefrontConfigWrapper) (indexFilePath string, packageFilePath string) {
-	indexFilePath = "/tmp/index.json"
+	indexFilePath = "/tmp/index.js"
 	packageFilePath = "/tmp/package.json"
 
 	indexFile, err := os.Create(indexFilePath)
@@ -689,10 +699,7 @@ func ListDomainFronts(state State) (domainFronts []DomainFrontOutput) {
 						}
 						domainFrontOutput.Name = "module." + module.Path[1]
 						domainFrontOutput.FunctionName = resource.Primary.Attributes["name"].(string)
-						domainFrontOutput.RestrictUA = resource.Primary.Attributes["labels.restrictua"].(string)
-						domainFrontOutput.RestrictSubnet = resource.Primary.Attributes["labels.restrictsubnet"].(string)
-						domainFrontOutput.RestrictHeader = resource.Primary.Attributes["labels.restrictheader"].(string)
-						domainFrontOutput.RestrictHeaderValue = resource.Primary.Attributes["labels.restrictheadervalue"].(string)
+						domainFrontOutput.RestrictUA = resource.Primary.Attributes["description"].(string)
 
 						domainFronts = append(domainFronts, domainFrontOutput)
 					}
@@ -966,8 +973,8 @@ func APIDeploy(provider string, targetURI string, wrappers ConfigWrappers) Confi
 	return wrappers
 }
 
-func DomainFrontDeploy(provider string, origin string, restrictUA string, restrictSubnet string,
-	restrictHeader string, restrictHeaderValue string, functionName string, frontedDomain string, wrappers ConfigWrappers) ConfigWrappers {
+func DomainFrontDeploy(provider string, origin string, restrictUA string,
+	functionName string, frontedDomain string, wrappers ConfigWrappers) ConfigWrappers {
 	cloudfrontmMduleCount := wrappers.CloudfrontModuleCount
 
 	googlefrontModuleCount := wrappers.GooglefrontModuleCount
@@ -999,16 +1006,13 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 					continue
 				}
 				tempConfig := GooglefrontConfigWrapper{
-					ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
-					FrontedDomain:       frontedDomain,
-					HostURL:             "https://" + origin,
-					Host:                origin,
-					Enabled:             true,
-					RestrictUA:          restrictUA,
-					RestrictHeader:      restrictHeader,
-					RestrictHeaderValue: restrictHeaderValue,
-					RestrictSubnet:      restrictSubnet,
-					FunctionName:        functionName,
+					ModuleName:    "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
+					FrontedDomain: frontedDomain,
+					HostURL:       "https://" + origin,
+					Host:          origin,
+					Enabled:       true,
+					RestrictUA:    restrictUA,
+					FunctionName:  functionName,
 				}
 				indexFile, packageFile := writeGoogleFrontFiles(tempConfig)
 
@@ -1019,16 +1023,13 @@ func DomainFrontDeploy(provider string, origin string, restrictUA string, restri
 			}
 		} else {
 			tempConfig := GooglefrontConfigWrapper{
-				ModuleName:          "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
-				FrontedDomain:       frontedDomain,
-				HostURL:             "https://" + origin,
-				Host:                origin,
-				Enabled:             true,
-				RestrictUA:          restrictUA,
-				RestrictHeader:      restrictHeader,
-				RestrictHeaderValue: restrictHeaderValue,
-				RestrictSubnet:      restrictSubnet,
-				FunctionName:        functionName,
+				ModuleName:    "googlefrontDeploy" + strconv.Itoa(googlefrontModuleCount+1),
+				FrontedDomain: frontedDomain,
+				HostURL:       "https://" + origin,
+				Host:          origin,
+				Enabled:       true,
+				RestrictUA:    restrictUA,
+				FunctionName:  functionName,
 			}
 			indexFile, packageFile := writeGoogleFrontFiles(tempConfig)
 

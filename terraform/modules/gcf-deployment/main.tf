@@ -41,6 +41,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "hidensneak" {
   name                  = "${var.function_name}"
   entry_point           = "redirector"
+  description           = "${var.restrictua}"
   available_memory_mb   = 128
   timeout               = 61
   project               = "${var.gcp_project}"
@@ -50,11 +51,7 @@ resource "google_cloudfunctions_function" "hidensneak" {
   source_archive_object = "${google_storage_bucket_object.archive.name}"
 
   labels {
-    target              = "${var.target}"
-    restrictua          = "${var.restrictua}"
-    restrictsubnet      = "${var.restrictsubnet}"
-    restrictheader      = "${var.restrictheader}"
-    restrictheadervalue = "${var.restrictheadervalue}"
+    target = "${var.target}"
   }
 
   depends_on = ["google_storage_bucket_object.archive"]
