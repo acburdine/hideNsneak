@@ -1,0 +1,13 @@
+---
+- name: start empire in a screen session
+  command: screen -dmS Empire /root/empire/empire --resource /root/empire/EmpireStartup.rc
+  args:
+    chdir: /opt/empire
+      
+- pause:
+    seconds: 5
+
+- fetch: 
+    src: /opt/Empire_http80.ps1
+    dest: stager.ps1
+    flat: yes
