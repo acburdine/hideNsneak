@@ -33,7 +33,7 @@ var regionAws []string
 var regionDo []string
 var regionAzure []string
 var regionGoogle []string
-var instanceDestroyIndices []int
+var instanceDestroyIndices string
 
 var instance = &cobra.Command{
 	Use:   "instance",
@@ -122,7 +122,21 @@ var instanceDestroy = &cobra.Command{
 	Short: "destroys instances",
 	Long:  `destroys instances by choosing an index`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(instanceDestroyIndices)
+		err := deployer.IsValidNumberInput(instanceDestroyIndices)
+
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(instanceDestroyIndices)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
@@ -131,7 +145,9 @@ var instanceDestroy = &cobra.Command{
 
 		var namesToDelete []string
 
-		for _, numIndex := range instanceDestroyIndices {
+		expandedNumIndex := deployer.ExpandNumberInput(instanceDestroyIndices)
+
+		for _, numIndex := range expandedNumIndex {
 			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
 
@@ -176,7 +192,7 @@ func init() {
 	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
-	instanceDestroy.PersistentFlags().IntSliceVarP(&instanceDestroyIndices, "input", "i", []int{}, "indices of instances to destroy")
+	instanceDestroy.PersistentFlags().StringVarP(&instanceDestroyIndices, "input", "i", "", "indices of instances to destroy")
 	instanceDestroy.MarkPersistentFlagRequired("input")
 
 	//TODO: default all regions

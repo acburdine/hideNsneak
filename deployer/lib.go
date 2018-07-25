@@ -119,7 +119,7 @@ func execCmd(binary string, args []string, filepath string) string {
 }
 
 //IsValidNumberInput takes in a string and checks if the numbers are valid
-func IsValidNumberInput(input string) bool {
+func IsValidNumberInput(input string) error {
 	sliceToParse := strings.Split(input, ",")
 
 	for _, num := range sliceToParse {
@@ -127,21 +127,21 @@ func IsValidNumberInput(input string) bool {
 		if err != nil {
 			dashSlice := strings.Split(num, "-")
 			if len(dashSlice) != 2 {
-				return false
+				return err
 			} else {
 				_, err := strconv.Atoi(dashSlice[0])
 				if err != nil {
-					return false
+					return err
 				}
 				_, err = strconv.Atoi(dashSlice[1])
 				if err != nil {
-					return false
+					return err
 				}
 			}
 			continue
 		}
 	}
-	return true
+	return nil
 }
 
 //ExpandNumberInput expands input string and returns a list of ints
