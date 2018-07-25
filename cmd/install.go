@@ -305,6 +305,7 @@ var sqlMapInstall = &cobra.Command{
 	},
 }
 
+<<<<<<< HEAD
 /*
 var empireInstall = &cobra.Command{
 	Use:   "empire",
@@ -315,26 +316,38 @@ var empireInstall = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"empire"}
+=======
+// var empireInstall = &cobra.Command{
+// 	Use:   "empire",
+// 	Short: "Installs Powershell Empire",
+// 	Long:  `Installs Powershell Empire to remote server`,
+// 	Args: func(cmd *cobra.Command, args []string) {
+// 		return deployer.ValidateNumberOfInstances(installIndex)
+// 	},
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		apps := []string{"empire"}
+>>>>>>> 844cc040997572d8cf38af3758ffa3dad5e706f6
 
-		playbook := deployer.GeneratePlaybookFile(apps)
+// 		playbook := deployer.GeneratePlaybookFile(apps)
 
-		masrshalledState := deployer.TerraformStateMarshaller()
+// 		masrshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListInstances(marshalledState)
-		var instances []deployer.ListStruct
+// 		list := deployer.ListInstances(marshalledState)
+// 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
-			instances = append(instances, list[num])
-		}
+// 		for _, num := range installIndex {
+// 			instances = append(instances, list[num])
+// 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
-			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
-			ufwAction, ufwTCPPorts, ufwUDPPorts)
+// 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
+// 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+// 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+// 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
-		deployer.WriteToFile("ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("ansible/main.yml", playbook)
+// 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+// 		deployer.WriteToFile("ansible/main.yml", playbook)
 
+<<<<<<< HEAD
 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
@@ -342,6 +355,15 @@ var empireInstall = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(install)
 	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall)
+=======
+// 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+// 	},
+// }
+
+func init() {
+	rootCmd.AddCommand(install)
+	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall /*, empireInstall*/)
+>>>>>>> 844cc040997572d8cf38af3758ffa3dad5e706f6
 
 	collaboratorInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	collaboratorInstall.MarkPersistentFlagRequired("id")

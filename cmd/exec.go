@@ -312,7 +312,11 @@ var collaboratorRun = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(exec)
+<<<<<<< HEAD
 	exec.AddCommand(command, nmap, socatRedirect, cobaltStrikeRun, collaboratorRun)
+=======
+	exec.AddCommand(command, nmap, socatRedirect, cobaltStrikeRun, collaboratorRun /*, empireRun*/)
+>>>>>>> 844cc040997572d8cf38af3758ffa3dad5e706f6
 
 	command.PersistentFlags().IntSliceVarP(&commandIndices, "id", "i", []int{}, "Specify the id(s) for the remote server")
 	command.MarkFlagRequired("id")
