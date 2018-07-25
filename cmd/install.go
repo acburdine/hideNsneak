@@ -305,6 +305,7 @@ var sqlMapInstall = &cobra.Command{
 	},
 }
 
+/*
 var empireInstall = &cobra.Command{
 	Use:   "empire",
 	Short: "Installs Powershell Empire",
@@ -337,10 +338,10 @@ var empireInstall = &cobra.Command{
 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 	},
 }
-
+*/
 func init() {
 	rootCmd.AddCommand(install)
-	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall, empireInstall)
+	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall)
 
 	collaboratorInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	collaboratorInstall.MarkPersistentFlagRequired("id")
@@ -357,10 +358,7 @@ func init() {
 
 	goPhishInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	goPhishInstall.MarkFlagRequired("id")
-	goPhishInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
-	goPhishInstall.MarkPersistentFlagRequired("fqdn")
 	goPhishInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
-	goPhishInstall.MarkPersistentFlagRequired("domain")
 
 	letsEncryptInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	letsEncryptInstall.MarkFlagRequired("id")
@@ -378,6 +376,6 @@ func init() {
 	sqlMapInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
 	sqlMapInstall.MarkFlagRequired("id")
 
-	empireInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
-	empireInstall.MarkFlagRequired("id")
+	// empireInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	// empireInstall.MarkFlagRequired("id")
 }
