@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"hideNsneak/deployer"
 
@@ -25,7 +24,7 @@ import (
 var ufwAction string
 var ufwTCPPorts []string
 var ufwUDPPorts []string
-var ufwIndices []int
+var ufwIndices string
 
 // helloCmd represents the hello command
 var firewall = &cobra.Command{
@@ -51,17 +50,19 @@ var firewallAdd = &cobra.Command{
 			return err
 		}
 
-		marshalledState := deployer.TerraformStateMarshaller()
-
-		list := deployer.ListInstances(marshalledState)
-
-		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
-
-		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(list) < largestInstanceNum+1 {
-			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
+		err = deployer.IsValidNumberInput(ufwIndices)
+		if err != nil {
+			return err
 		}
-		return nil
+
+		expandedNumIndex := deployer.ExpandNumberInput(ufwIndices)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		ufwTCPPorts, _ := deployer.ValidatePorts(ufwTCPPorts)
@@ -77,7 +78,9 @@ var firewallAdd = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range ufwIndices {
+		expandedNumIndex := deployer.ExpandNumberInput(ufwIndices)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -109,17 +112,19 @@ var firewallDelete = &cobra.Command{
 			return err
 		}
 
-		marshalledState := deployer.TerraformStateMarshaller()
-
-		list := deployer.ListInstances(marshalledState)
-
-		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
-
-		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(list) < largestInstanceNum+1 {
-			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
+		err = deployer.IsValidNumberInput(ufwIndices)
+		if err != nil {
+			return err
 		}
-		return nil
+
+		expandedNumIndex := deployer.ExpandNumberInput(ufwIndices)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		ufwTCPPorts, _ = deployer.ValidatePorts(ufwTCPPorts)
@@ -136,7 +141,9 @@ var firewallDelete = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range ufwIndices {
+		expandedNumIndex := deployer.ExpandNumberInput(ufwIndices)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -159,17 +166,19 @@ var firewallList = &cobra.Command{
 	Short: "list ufw firewall rules",
 	Long:  `lists all of the ufw firewall rules on the specifiec host`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		marshalledState := deployer.TerraformStateMarshaller()
-
-		list := deployer.ListInstances(marshalledState)
-
-		largestInstanceNum := deployer.FindLargestNumber(ufwIndices)
-
-		//make sure the largestInstanceNumToDestroy is not bigger than totalInstancesAvailable
-		if len(list) < largestInstanceNum+1 {
-			return errors.New("the number you entered is too big. Try running `list` to see the number of instances you have")
+		err := deployer.IsValidNumberInput(ufwIndices)
+		if err != nil {
+			return err
 		}
-		return nil
+
+		expandedNumIndex := deployer.ExpandNumberInput(ufwIndices)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"firewall"}
@@ -182,7 +191,9 @@ var firewallList = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range ufwIndices {
+		expandedNumIndex := deployer.ExpandNumberInput(ufwIndices)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -204,19 +215,19 @@ func init() {
 	rootCmd.AddCommand(firewall)
 	firewall.AddCommand(firewallAdd, firewallDelete, firewallList)
 
-	firewallAdd.PersistentFlags().IntSliceVarP(&ufwIndices, "id", "i", []int{}, "Specify the id for the remote server")
+	firewallAdd.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "Specify the id for the remote server")
 	firewallAdd.MarkFlagRequired("id")
 
 	firewallAdd.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "Specify the tcp ports to add i.e. 22,23")
 	firewallAdd.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "Specify the udp ports to add i.e. 500,53")
 
-	firewallDelete.PersistentFlags().IntSliceVarP(&ufwIndices, "id", "i", []int{}, "Specify the id for the remote server")
+	firewallDelete.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "Specify the id for the remote server")
 	firewallDelete.MarkFlagRequired("id")
 
 	firewallDelete.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "Specify the tcp ports to delete i.e. 22,23")
 	firewallDelete.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "Specify the udp ports to delete i.e. 500,53")
 
-	firewallList.PersistentFlags().IntSliceVarP(&ufwIndices, "id", "i", []int{}, "Specify the id for the remote server")
+	firewallList.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "Specify the id for the remote server")
 	firewallList.MarkFlagRequired("id")
 
 }

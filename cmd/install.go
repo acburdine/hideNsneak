@@ -26,7 +26,7 @@ import (
 
 var installArgs string
 var burpCmd string
-var installIndex []int
+var installIndex string
 var fqdn string
 var domain string
 var burpFile string
@@ -45,7 +45,21 @@ var collaboratorInstall = &cobra.Command{
 	Short: "Installs Burp Suite Collaborator Server",
 	Long:  `Installs and starts a Burp Suite collaborator with the specified domain on the specified remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(installIndex)
+		err := deployer.IsValidNumberInput(installIndex)
+
+		if err != nil {
+			return err
+		}
+
+		expandedInstallIndex := deployer.ExpandNumberInput(installIndex)
+
+		err = deployer.ValidateNumberOfInstances(expandedInstallIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("WARNING: Its best to obtain your wildcard letsencrypt certificate prior to installation")
@@ -64,7 +78,9 @@ var collaboratorInstall = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -105,7 +121,21 @@ var cobaltStrikeInstall = &cobra.Command{
 			return fmt.Errorf("cobaltstrike file must be in tgz format as only linux teamservers are supported")
 		}
 
-		return deployer.ValidateNumberOfInstances(installIndex)
+		err := deployer.IsValidNumberInput(installIndex)
+
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"cobaltstrike"}
@@ -118,7 +148,9 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -139,8 +171,21 @@ var goPhishInstall = &cobra.Command{
 	Short: "Installs Gophish",
 	Long:  `Installs and starts Gophish on the remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(installIndex)
+		err := deployer.IsValidNumberInput(installIndex)
 
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"gophish"}
@@ -153,7 +198,9 @@ var goPhishInstall = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -174,7 +221,21 @@ var letsEncryptInstall = &cobra.Command{
 	Short: "Installs Letsencrypt",
 	Long:  `Installs Letsencrypt with the specified domain on the specified server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(installIndex)
+		err := deployer.IsValidNumberInput(installIndex)
+
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"letsencrypt"}
@@ -187,7 +248,9 @@ var letsEncryptInstall = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -208,7 +271,21 @@ var nmapInstall = &cobra.Command{
 	Short: "Installs Nmap",
 	Long:  `Installs Nmap to remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(installIndex)
+		err := deployer.IsValidNumberInput(installIndex)
+
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"nmap"}
@@ -221,7 +298,9 @@ var nmapInstall = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -242,7 +321,21 @@ var socatInstall = &cobra.Command{
 	Short: "Installs Socat",
 	Long:  `Installs Socat to remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(installIndex)
+		err := deployer.IsValidNumberInput(installIndex)
+
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"socat"}
@@ -255,7 +348,9 @@ var socatInstall = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -276,7 +371,21 @@ var sqlMapInstall = &cobra.Command{
 	Short: "Installs SQLmap",
 	Long:  `Installs SQLmap to remote server`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(installIndex)
+		err := deployer.IsValidNumberInput(installIndex)
+
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"sqlmap"}
@@ -289,7 +398,9 @@ var sqlMapInstall = &cobra.Command{
 
 		var instances []deployer.ListStruct
 
-		for _, num := range installIndex {
+		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+		for _, num := range expandedNumIndex {
 			instances = append(instances, list[num])
 		}
 
@@ -305,79 +416,95 @@ var sqlMapInstall = &cobra.Command{
 	},
 }
 
-var empireInstall = &cobra.Command{
-	Use:   "empire",
-	Short: "Installs Powershell Empire",
-	Long:  `Installs Powershell Empire to remote server`,
-	Args: func(cmd *cobra.Command, args []string) {
-		return deployer.ValidateNumberOfInstances(installIndex)
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		apps := []string{"empire"}
+// var empireInstall = &cobra.Command{
+// 	Use:   "empire",
+// 	Short: "Installs Powershell Empire",
+// 	Long:  `Installs Powershell Empire to remote server`,
+// 	Args: func(cmd *cobra.Command, args []string) {
+// err := deployer.IsValidNumberInput(installIndex)
 
-		playbook := deployer.GeneratePlaybookFile(apps)
+// if err != nil {
+// 	return err
+// }
 
-		masrshalledState := deployer.TerraformStateMarshaller()
+// expandedNumIndex := deployer.ExpandNumberInput(installIndex)
 
-		list := deployer.ListInstances(marshalledState)
-		var instances []deployer.ListStruct
+// err = deployer.ValidateNumberOfInstances(expandedNumIndex)
 
-		for _, num := range installIndex {
-			instances = append(instances, list[num])
-		}
+// if err != nil {
+// 	return err
+// }
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
-			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
-			ufwAction, ufwTCPPorts, ufwUDPPorts)
+// return err
+// 	},
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		apps := []string{"empire"}
 
-		deployer.WriteToFile("ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("ansible/main.yml", playbook)
+// 		playbook := deployer.GeneratePlaybookFile(apps)
 
-		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
-	},
-}
+// 		masrshalledState := deployer.TerraformStateMarshaller()
+
+// 		list := deployer.ListInstances(marshalledState)
+// 		var instances []deployer.ListStruct
+
+// expandedNumIndex := deployer.ExpandNumberInput(installIndex)
+
+// for _, num := range expandedNumIndex {
+// 	instances = append(instances, list[num])
+// }
+
+// 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
+// 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+// 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+// 			ufwAction, ufwTCPPorts, ufwUDPPorts)
+
+// 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+// 		deployer.WriteToFile("ansible/main.yml", playbook)
+
+// 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+// 	},
+// }
 
 func init() {
 	rootCmd.AddCommand(install)
-	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall, empireInstall)
+	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall /*, empireInstall*/)
 
-	collaboratorInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	collaboratorInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	collaboratorInstall.MarkPersistentFlagRequired("id")
 	collaboratorInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	collaboratorInstall.MarkPersistentFlagRequired("domain")
 	collaboratorInstall.PersistentFlags().StringVarP(&burpFile, "burpFile", "b", "", "Specify the file where burp is located")
 	collaboratorInstall.MarkPersistentFlagRequired("burpFile")
 
-	cobaltStrikeInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	cobaltStrikeInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	cobaltStrikeInstall.MarkFlagRequired("id")
 	cobaltStrikeInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	cobaltStrikeInstall.PersistentFlags().StringVarP(&cobaltStrikeFile, "file", "f", "", "local filepath of the cobaltstrike tgz file")
 	cobaltStrikeInstall.MarkPersistentFlagRequired("file")
 
-	goPhishInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	goPhishInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	goPhishInstall.MarkFlagRequired("id")
 	goPhishInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
 	goPhishInstall.MarkPersistentFlagRequired("fqdn")
 	goPhishInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	goPhishInstall.MarkPersistentFlagRequired("domain")
 
-	letsEncryptInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	letsEncryptInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	letsEncryptInstall.MarkFlagRequired("id")
 	letsEncryptInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
 	letsEncryptInstall.MarkPersistentFlagRequired("fqdn")
 	letsEncryptInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
 	letsEncryptInstall.MarkPersistentFlagRequired("domain")
 
-	nmapInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	nmapInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	nmapInstall.MarkFlagRequired("id")
 
-	socatInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	socatInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	socatInstall.MarkFlagRequired("id")
 
-	sqlMapInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	sqlMapInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	sqlMapInstall.MarkFlagRequired("id")
 
-	empireInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
-	empireInstall.MarkFlagRequired("id")
+	// empireInstall.PersistentFlags().IntSliceVarP(&installIndex, "id", "i", []int{}, "Specify the id for the install")
+	// empireInstall.MarkFlagRequired("id")
 }

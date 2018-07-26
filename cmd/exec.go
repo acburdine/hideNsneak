@@ -93,7 +93,7 @@ var nmap = &cobra.Command{
 			return err
 		}
 
-		err = deployer.ValidateNumberOfInstances(commandIndices)
+		err = deployer.ValidateNumberOfInstances(commandIndices, "instance")
 		if err != nil {
 			return err
 		}
@@ -133,7 +133,7 @@ var socatRedirect = &cobra.Command{
 	Short: "redirects ports to target hosts",
 	Long:  "initializes scat redirector that sends all traffic from the specified port to the specified target",
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(commandIndices)
+		return deployer.ValidateNumberOfInstances(commandIndices, "instance")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"socat", "socat-exec"}
@@ -162,39 +162,39 @@ var socatRedirect = &cobra.Command{
 	},
 }
 
-var empireRun = &cobra.Command{
-	Use:   "empire-run",
-	Short: "runs powershell empire",
-	Long:  `starts powershell empire in a screen session`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(commandIndices)
-	},
-	Run: func(cmd *cobra.command, args []string) {
-		apps := []string{"empire", "empire-exec"}
+// var empireRun = &cobra.Command{
+// 	Use:   "empire-run",
+// 	Short: "runs powershell empire",
+// 	Long:  `starts powershell empire in a screen session`,
+// 	Args: func(cmd *cobra.Command, args []string) error {
+// 		return deployer.ValidateNumberOfInstances(commandIndices)
+// 	},
+// 	Run: func(cmd *cobra.command, args []string) {
+// 		apps := []string{"empire", "empire-exec"}
 
-		playbook := deployer.GeneratePlaybookFile(apps)
+// 		playbook := deployer.GeneratePlaybookFile(apps)
 
-		marshalledState := deployer.TerraformStateMarshaller()
+// 		marshalledState := deployer.TerraformStateMarshaller()
 
-		list := deployer.ListInstances(marshalledState)
+// 		list := deployer.ListInstances(marshalledState)
 
-		var instances []deployer.ListStruct
+// 		var instances []deployer.ListStruct
 
-		for _, num := range commandIndices {
-			instances = append(instances, list[num])
-		}
+// 		for _, num := range commandIndices {
+// 			instances = append(instances, list[num])
+// 		}
 
-		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
-			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
-			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
-			ufwAction, ufwTCPPorts, ufwUDPPorts)
+// 		hostFile := deployer.GenerateHostFile(instances, fqdn, domain, burpFile, localFilePath, remoteFilePath,
+// 			execCommand, socatPort, socatIP, nmapOutput, nmapCommands,
+// 			cobaltStrikeLicense, cobaltStrikePassword, cobaltStrikeC2Path, cobaltStrikeFile, cobaltStrikeKillDate,
+// 			ufwAction, ufwTCPPorts, ufwUDPPorts)
 
-		deployer.WriteToFile("ansible/hosts.yml", hostFile)
-		deployer.WriteToFile("ansible/main.yml", playbook)
+// 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
+// 		deployer.WriteToFile("ansible/main.yml", playbook)
 
-		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
-	},
-}
+// 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+// 	},
+// }
 
 var cobaltStrikeRun = &cobra.Command{
 	Use:   "cobaltstrike-run",
@@ -205,7 +205,7 @@ var cobaltStrikeRun = &cobra.Command{
 		if !match {
 			return fmt.Errorf("invalid kill date format, need YYYY-MM-DD")
 		}
-		err := deployer.ValidateNumberOfInstances(commandIndices)
+		err := deployer.ValidateNumberOfInstances(commandIndices, "instance")
 		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -247,7 +247,7 @@ var collaboratorRun = &cobra.Command{
 	Short: "Starts burp collaborator server",
 	Long:  "Checks for burp collaborator installation, installs if it does not exist, and starts it",
 	Args: func(cmd *cobra.Command, args []string) error {
-		err := deployer.ValidateNumberOfInstances(commandIndices)
+		err := deployer.ValidateNumberOfInstances(commandIndices, "instance")
 		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -312,7 +312,7 @@ var collaboratorRun = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(exec)
-	exec.AddCommand(command, nmap, socatRedirect, cobaltStrikeRun, collaboratorRun, empireRun)
+	exec.AddCommand(command, nmap, socatRedirect, cobaltStrikeRun, collaboratorRun /*, empireRun*/)
 
 	command.PersistentFlags().IntSliceVarP(&commandIndices, "id", "i", []int{}, "Specify the id(s) for the remote server")
 	command.MarkFlagRequired("id")
@@ -355,6 +355,6 @@ func init() {
 	collaboratorRun.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance (Optional)")
 	collaboratorRun.PersistentFlags().StringVarP(&burpFile, "burpFile", "b", "", "Specify the file where burp is located (Optional)")
 
-	empireRun.PersistentFlags().IntSliceVarP(&commandIndices, "id", "i", []int{}, "Specify the id for the install (Required)")
-	empireRun.MarkPersistentFlagRequired("id")
+	// empireRun.PersistentFlags().IntSliceVarP(&commandIndices, "id", "i", []int{}, "Specify the id for the install (Required)")
+	// empireRun.MarkPersistentFlagRequired("id")
 }
