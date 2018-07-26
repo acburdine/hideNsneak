@@ -1,89 +1,68 @@
 #!/bin/bash
-
-
 terraformPathDir="/usr/local/bin/"
 
-macTerraformLink="https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_darwin_amd64.zip"
-linuxTerraformLink="https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip"
-
-ansibleProviderLinuxURL="https://github.com/nbering/terraform-provider-ansible/releases/download/v0.0.4/terraform-provider-ansible-linux_amd64.zip"
-ansibleProviderMacURL="https://github.com/nbering/terraform-provider-ansible/releases/download/v0.0.4/terraform-provider-ansible-darwin_amd64.zip"
+uname=$(uname | awk '{print tolower($0)}')
+terraformLink="https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_${uname}_amd64.zip"
+ansibleProviderLink="https://github.com/nbering/terraform-provider-ansible/releases/download/v0.0.4/terraform-provider-ansible-${uname}_amd64.zip"
 ansibleProviderFile="terraform-provider-ansible_v0.0.4"
 
+REQUIRED_COMMANDS=('unzip' 'python' 'pip' 'go')
+MISSING_COMMANDS=()
+
+exists() {
+    cmd=$(command -v "$1")
+    [[ -n "$cmd" && -x "$cmd" ]]
+}
+
 echo "Checking initial requirements"
-if ! [ -x $(command -v unzip) ]
+
+# Once we support Windows, remove this check
+if [[ "$uname" != "darwin" && "$uname" != "linux" ]]
 then
-    echo "error: unzip is required"
-    exit 
+    echo "System is not Linux or macOS, program cannot be executed"
+    exit 1
 fi
-if ! [ -x $(command -v python) ]
+
+for c in "${REQUIRED_COMMANDS[@]}"
+do
+    if ! exists $c
+    then
+        MISSING_COMMANDS=("${MISSING_COMMANDS[@]}" $c)
+    fi
+done
+
+if [ "${#MISSING_COMMANDS[@]}" -ne 0 ]
 then
-    echo "error: python is required"
-    exit 
-fi
-if ! [ -x $(command -v pip) ]
-then
-    echo "error: pip is required"
-    exit 
-fi
-if ! [ -x $(command -v go) ]
-then
-    echo "error: golang is required"
-    exit 
+    echo "error, missing commands: ${MISSING_COMMANDS[@]}"
+    exit 1
 fi
 
 echo "Checking Terraform Installation...."
-if ! [ -x $(command -v terraform) ]
+if ! exists "terraform"
 then
-
-    if [ `uname` = "Linux" ]
-    then
-        wget -O /tmp/terraform_linux.zip $linuxTerraformLink; unzip /tmp/terraform_linux.zip -d /usr/local/bin/
-    elif [ `uname` = "Darwin" ]
-    then
-        wget -O /tmp/terraform_mac.zip $macTerraformLink; unzip /tmp/terraform_mac.zip -d /usr/local/bin/
-    else
-        echo "System must be either Linux or OSx. Exiting...."
-        exit 1
-    fi
+    curl -sLo /tmp/terraform_${uname}.zip $terraformLink; unzip /tmp/terraform_${uname}.zip -d /usr/local/bin/
 fi
 
 echo "Installing Ansible Provider...."
 if ! [ -f $HOME/.terraform.d/plugins/$ansibleProviderFile ]
 then
-
-    if ! [ -d $HOME/.terraform.d ]
-    then
-        mkdir $HOME/.terraform.d 
-    fi
-
     if ! [ -d $HOME/.terraform.d/plugins ]
     then
-        mkdir $HOME/.terraform.d/plugins
+        mkdir -p $HOME/.terraform.d/plugins
     fi
 
-    if [ `uname` = "Linux" ]
-    then
-        wget -q -O "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip" $ansibleProviderLinuxURL
-        unzip "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip" -d $HOME/.terraform.d/plugins/
-        rm "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip"
-        mv $HOME/.terraform.d/plugins/*/$ansibleProviderFile $HOME/.terraform.d/plugins/
-        rm -r "$HOME/.terraform.d/plugins/linux_amd64"
-    elif [ `uname` = "Darwin" ]
-    then
-        wget -q -O "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip" $ansibleProviderMacURL 
-        unzip "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip" -d $HOME/.terraform.d/plugins/
-        rm "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip"
-        mv $HOME/.terraform.d/plugins/*/$ansibleProviderFile $HOME/.terraform.d/plugins/
-        rm -r "$HOME/.terraform.d/plugins/darwin_amd64"
-    fi
+    curl -sLo "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip" $ansibleProviderLink
+    unzip "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip" -d $HOME/.terraform.d/plugins/
+    rm "$HOME/.terraform.d/plugins/$ansibleProviderFile.zip"
+    mv $HOME/.terraform.d/plugins/*/$ansibleProviderFile $HOME/.terraform.d/plugins/
+    rm -r "$HOME/.terraform.d/plugins/${uname}_amd64"
 fi
 
 echo "Cleaning up provider files..."
 
 echo "Installing Ansible...."
 
-if [ -x $(command -v ansible) ]
+if ! exists "ansible"
 then
     # #If on Mac and experiencing errors, use the following command
     # sudo CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments pip install ansible
@@ -91,10 +70,10 @@ then
 fi
 
 echo "Instantiating Backend DynamoDB Table"
+
 cd terraform/backend
 terraform init -input=true
 terraform apply
-
 cd ../../
 
 echo "If this the table already exists, you are good to go"
