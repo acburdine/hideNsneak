@@ -107,6 +107,13 @@ Miscellaneous
 -------------
 All firewall rules are performed at the host level. All instances are restricted to port 22 upon deployment. In order to achieve this, a default security group is made in every AWS region named hideNsneak which is by default to the world. This security group should not be used for any other infrastructure.
 
+If there are issues dealing with existing resources causing you to not be able to deploy or destroy
+then cd into the terraform directory and run the following command for the resource that is giving the error
+
+terraform state rm (resource name)
+
+This removes the resource from your state allowing you to proceed but cleanup of the resource must be done manually
+
 
 License 
 -------

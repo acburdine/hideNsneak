@@ -217,7 +217,7 @@ const googleDomainFrontCode = `
 let httpProxy = require('http-proxy'),
     ip = require('ip');
 
-let proxy = httpProxy.createProxyServer({secure: false});
+let proxy = httpProxy.createProxyServer({secure: true});
 
 let host = "{{.Host}}"
 let target = "{{.HostURL}}"
