@@ -14,45 +14,36 @@ echo "Checking initial requirements"
 if ! [ -x $(command -v unzip) ]
 then
     echo "error: unzip is required"
+    exit 
 fi
 if ! [ -x $(command -v python) ]
 then
     echo "error: python is required"
+    exit 
 fi
 if ! [ -x $(command -v pip) ]
 then
     echo "error: pip is required"
+    exit 
 fi
 if ! [ -x $(command -v go) ]
 then
     echo "error: golang is required"
+    exit 
 fi
 
 echo "Checking Terraform Installation...."
 if ! [ -x $(command -v terraform) ]
 then
-    if ! [ -x $(command -v unzip) ]
-    then
-        echo "unzip command is required. Exiting...."
-        exit 
-    fi
 
     if [ `uname` = "Linux" ]
     then
-        test -x $(command -v terraform) || (wget -O /tmp/terraform_linux.zip $linuxTerraformLink; unzip /tmp/terraform_linux.zip -d /tmp/)
+        wget -O /tmp/terraform_linux.zip $linuxTerraformLink; unzip /tmp/terraform_linux.zip -d /usr/local/bin/
     elif [ `uname` = "Darwin" ]
     then
-        test -x $(command -v terraform) || (wget -O /tmp/terraform_linux.zip $macTerraformLink; unzip /tmp/terraform_linux.zip -d /tmp/)
+        wget -O /tmp/terraform_mac.zip $macTerraformLink; unzip /tmp/terraform_mac.zip -d /usr/local/bin/
     else
         echo "System must be either Linux or OSx. Exiting...."
-        exit 1
-    fi
-
-    if [ -f /tmp/terraform ]
-    then
-        sudo mv /tmp/terraform $terraformPathDir
-    else
-        echo "Terraform file not found in /tmp"
         exit 1
     fi
 fi
@@ -92,13 +83,8 @@ echo "Cleaning up provider files..."
 
 echo "Installing Ansible...."
 
-if [ ! -x $(command -v ansible) ]
+if [ -x $(command -v ansible) ]
 then
-    if [ ! -x $(command -v pip) ]
-    then
-        echo "error: pip not installed. exiting...."
-        exit 1
-    fi
     # #If on Mac and experiencing errors, use the following command
     # sudo CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments pip install ansible
     sudo pip install ansible

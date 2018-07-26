@@ -1,3 +1,10 @@
+- name: Deny everything and enable UFW
+  become: yes
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+
 - name: Allow TCP 22 for SSH.
   ufw:
     rule: allow
@@ -15,12 +22,6 @@
     rule: allow
     port: 443
     proto: tcp
-
-- name: Enable ufw.
-  ufw:
-    state: enabled
-    policy: deny
-  when: enable_ufw_firewall
 
 - name: Update APT package cache.
   apt:
@@ -98,7 +99,3 @@
     owner: "{{ gophish_user }}"
     group: "{{ gophish_user }}"
     mode: 0644
-
-- name: Reboot the box in 1 minute.
-  command: shutdown -r 1
-  when: reboot_box

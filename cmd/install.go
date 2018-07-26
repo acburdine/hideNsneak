@@ -416,6 +416,18 @@ var sqlMapInstall = &cobra.Command{
 	},
 }
 
+<<<<<<< HEAD
+/*
+var empireInstall = &cobra.Command{
+	Use:   "empire",
+	Short: "Installs Powershell Empire",
+	Long:  `Installs Powershell Empire to remote server`,
+	Args: func(cmd *cobra.Command, args []string) {
+		return deployer.ValidateNumberOfInstances(installIndex)
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		apps := []string{"empire"}
+=======
 // var empireInstall = &cobra.Command{
 // 	Use:   "empire",
 // 	Short: "Installs Powershell Empire",
@@ -439,6 +451,7 @@ var sqlMapInstall = &cobra.Command{
 // 	},
 // 	Run: func(cmd *cobra.Command, args []string) {
 // 		apps := []string{"empire"}
+>>>>>>> 844cc040997572d8cf38af3758ffa3dad5e706f6
 
 // 		playbook := deployer.GeneratePlaybookFile(apps)
 
@@ -461,6 +474,15 @@ var sqlMapInstall = &cobra.Command{
 // 		deployer.WriteToFile("ansible/hosts.yml", hostFile)
 // 		deployer.WriteToFile("ansible/main.yml", playbook)
 
+<<<<<<< HEAD
+		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
+	},
+}
+*/
+func init() {
+	rootCmd.AddCommand(install)
+	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall)
+=======
 // 		deployer.ExecAnsible("hosts.yml", "main.yml", "ansible")
 // 	},
 // }
@@ -468,6 +490,7 @@ var sqlMapInstall = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(install)
 	install.AddCommand(collaboratorInstall, cobaltStrikeInstall, goPhishInstall, letsEncryptInstall, nmapInstall, socatInstall, sqlMapInstall /*, empireInstall*/)
+>>>>>>> 844cc040997572d8cf38af3758ffa3dad5e706f6
 
 	collaboratorInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	collaboratorInstall.MarkPersistentFlagRequired("id")
@@ -484,10 +507,7 @@ func init() {
 
 	goPhishInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	goPhishInstall.MarkFlagRequired("id")
-	goPhishInstall.PersistentFlags().StringVarP(&fqdn, "fqdn", "f", "", "Specify the FQDN for the instance's service")
-	goPhishInstall.MarkPersistentFlagRequired("fqdn")
 	goPhishInstall.PersistentFlags().StringVarP(&domain, "domain", "d", "", "Specify the domain for the instance")
-	goPhishInstall.MarkPersistentFlagRequired("domain")
 
 	letsEncryptInstall.PersistentFlags().StringVarP(&installIndex, "id", "i", "", "Specify the id for the install")
 	letsEncryptInstall.MarkFlagRequired("id")
