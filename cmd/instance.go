@@ -45,7 +45,6 @@ var instance = &cobra.Command{
 }
 
 var instanceDeploy = &cobra.Command{
-	//TODO: need to trim spaces
 	Use:   "deploy",
 	Short: "deploys instances",
 	Long:  `deploys instances for AWS, Azure, Digital Ocean, or Google Cloud`,
@@ -180,25 +179,29 @@ func init() {
 	rootCmd.AddCommand(instance)
 	instance.AddCommand(instanceDeploy, instanceDestroy, instanceList)
 
-	instanceDeploy.PersistentFlags().StringSliceVarP(&instanceProviders, "providers", "p", nil, "list of providers to enter")
+	instanceDeploy.PersistentFlags().StringSliceVarP(&instanceProviders, "providers", "p", nil, "[Required] comma seperated list conatinaing any of the following available providers: AWS,DO")
 	instanceDeploy.MarkPersistentFlagRequired("providers")
 
-	instanceDeploy.PersistentFlags().IntVarP(&instanceCount, "count", "c", 0, "number of instances to deploy")
+	instanceDeploy.PersistentFlags().IntVarP(&instanceCount, "count", "c", 0, "[Required] number of instances to deploy")
 	instanceDeploy.MarkPersistentFlagRequired("count")
 
-	instanceDeploy.PersistentFlags().StringVarP(&instancePrivateKey, "privatekey", "v", "", "full path to private key to connect to instances")
+	instanceDeploy.PersistentFlags().StringVarP(&instancePrivateKey, "privatekey", "v", "", "[Required] local file path to private ssh key to connect to instance")
 	instanceDeploy.MarkPersistentFlagRequired("privatekey")
 
-	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "full path to public key corresponding to the private key")
+	instanceDeploy.PersistentFlags().StringVarP(&instancePublicKey, "publickey", "b", "", "[Required] local file path to the public key corresponding to the specified private key")
 	instanceDeploy.MarkPersistentFlagRequired("publickey")
 
-	instanceDestroy.PersistentFlags().StringVarP(&instanceDestroyIndices, "input", "i", "", "indices of instances to destroy")
+	instanceDestroy.PersistentFlags().StringVarP(&instanceDestroyIndices, "input", "i", "", "[Required] indices of instances to destroy")
 	instanceDestroy.MarkPersistentFlagRequired("input")
 
 	//TODO: default all regions
-	instanceDeploy.PersistentFlags().StringSliceVar(&regionAws, "region-aws", []string{"us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "ap-south-1", "sa-east-1"}, "list of regions for aws. ex: us-east-1,us-west-2,ap-northeast-1")
-	instanceDeploy.PersistentFlags().StringSliceVar(&regionDo, "region-do", []string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"}, "list of regions for digital ocean. ex: AMS2,SFO2,NYC1")
-	instanceDeploy.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "list of regions for azure. ex: centralus, eastus, westus")
-	instanceDeploy.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "list of regions for google. ex: us-east1, us-west1, us-central1")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionAws, "region-aws",
+		[]string{"us-east-1", "us-east-2", "us-west-1", "us-west-2", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "ap-south-1", "sa-east-1"},
+		"[Optional] comma seperated list of regions for aws")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionDo, "region-do",
+		[]string{"nyc1", "sgp1", "lon1", "nyc3", "ams3", "fra1", "tor1", "sfo2", "blr1"},
+		"[Optional] comma sperated list of digital ocean regions")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionAzure, "region-azure", []string{"westus", "centralus"}, "[Optional] comma seperated list of regions for azure")
+	instanceDeploy.PersistentFlags().StringSliceVar(&regionGoogle, "region-google", []string{"us-west1", "us-east1"}, "[Optional] comma seperated list of regions for google cloud")
 
 }

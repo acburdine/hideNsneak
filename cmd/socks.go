@@ -161,13 +161,12 @@ func init() {
 	rootCmd.AddCommand(socks)
 	socks.AddCommand(socksDeploy, socksDestroy, socksList, proxychains, socksd)
 
-	socksDeploy.PersistentFlags().IntVarP(&socksPort, "port", "p", 8081, "Start port for socks proxy")
-	socksDeploy.MarkPersistentFlagRequired("port")
+	socksDeploy.PersistentFlags().IntVarP(&socksPort, "port", "p", 8081, "[Optional] port to start incrementing from for socks proxies")
 
-	socksDeploy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "Indices of the instances to deploy")
+	socksDeploy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "[Required] indices of the instances to deploy a socks proxy to")
 	socksDeploy.MarkPersistentFlagRequired("index")
 
-	socksDestroy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "Indices of the instances to deploy")
+	socksDestroy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "[Required] indices of the instances to destroy the socks proxy for")
 	socksDestroy.MarkPersistentFlagRequired("index")
 
 }

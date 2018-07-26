@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"hideNsneak/deployer"
 
@@ -29,8 +30,8 @@ var apiIndices string
 
 var api = &cobra.Command{
 	Use:   "api",
-	Short: "API Gateway parent command",
-	Long:  `parent command for deploying API gateways, via a target parameter`,
+	Short: "API Gateway",
+	Long:  `API Gateway parent command. Use -h to see options`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Run 'api --help' for usage.")
 	},
@@ -39,8 +40,8 @@ var api = &cobra.Command{
 var apiDeploy = &cobra.Command{
 	//TODO: need to trim spaces
 	Use:   "deploy",
-	Short: "deploys an API Gateway",
-	Long:  `deploys an API Gateway for AWS only at this time`,
+	Short: "deploy an API Gateway",
+	Long:  `deploy an API Gateway`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		deployer.InitializeTerraformFiles()
 		if !deployer.ProviderCheck(instanceProviders) {
@@ -62,6 +63,8 @@ var apiDeploy = &cobra.Command{
 		marshalledState := deployer.TerraformStateMarshaller()
 		wrappers := deployer.CreateWrappersFromState(marshalledState)
 
+		apiProvider = strings.ToUpper(apiProvider)
+
 		wrappers = deployer.APIDeploy(apiProvider, targetURI, wrappers)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
@@ -75,7 +78,7 @@ var apiDeploy = &cobra.Command{
 var apiDestroy = &cobra.Command{
 	Use:   "destroy",
 	Short: "destroys an API Gateway",
-	Long:  `destroys an API Gateway by choosing an index`,
+	Long:  `destroys an API Gateway via an index`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		err := deployer.IsValidNumberInput(apiIndices)
 
@@ -115,7 +118,7 @@ var apiDestroy = &cobra.Command{
 
 var apiList = &cobra.Command{
 	Use:   "list",
-	Short: "detailed list of API Gateways",
+	Short: "list of API Gateways",
 	Long:  `list API Gateways and show their target URIs, invoke URIs, providers and names`,
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
@@ -134,12 +137,12 @@ func init() {
 	rootCmd.AddCommand(api)
 	api.AddCommand(apiDeploy, apiList, apiDestroy)
 
-	apiDeploy.PersistentFlags().StringVarP(&apiProvider, "provider", "p", "", "the provider to use: i.e. AWS")
+	apiDeploy.PersistentFlags().StringVarP(&apiProvider, "provider", "p", "", "[Required] the cloud provider to use. AWS is the only currently supported provider")
 	apiDeploy.MarkPersistentFlagRequired("providers")
 
-	apiDeploy.PersistentFlags().StringVarP(&targetURI, "target", "t", "", "the target URI: i.e. https://google.com/")
+	apiDeploy.PersistentFlags().StringVarP(&targetURI, "target", "t", "", "[Required] the target URL of the endpoint i.e. https://google.com")
 	apiDeploy.MarkPersistentFlagRequired("target")
 
-	apiDestroy.PersistentFlags().StringVarP(&apiIndices, "input", "i", "", "comma-seperated list of indices to destroy")
+	apiDestroy.PersistentFlags().StringVarP(&apiIndices, "input", "i", "", "[Required] the indices of API Gateways to destroy i.e 0,2-4")
 	apiDestroy.MarkPersistentFlagRequired("input")
 }
