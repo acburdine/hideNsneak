@@ -93,7 +93,7 @@ var nmap = &cobra.Command{
 			return err
 		}
 
-		err = deployer.ValidateNumberOfInstances(commandIndices)
+		err = deployer.ValidateNumberOfInstances(commandIndices, "instance")
 		if err != nil {
 			return err
 		}
@@ -133,7 +133,7 @@ var socatRedirect = &cobra.Command{
 	Short: "redirects ports to target hosts",
 	Long:  "initializes scat redirector that sends all traffic from the specified port to the specified target",
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(commandIndices)
+		return deployer.ValidateNumberOfInstances(commandIndices, "instance")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		apps := []string{"socat", "socat-exec"}
@@ -205,7 +205,7 @@ var cobaltStrikeRun = &cobra.Command{
 		if !match {
 			return fmt.Errorf("invalid kill date format, need YYYY-MM-DD")
 		}
-		err := deployer.ValidateNumberOfInstances(commandIndices)
+		err := deployer.ValidateNumberOfInstances(commandIndices, "instance")
 		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -247,7 +247,7 @@ var collaboratorRun = &cobra.Command{
 	Short: "Starts burp collaborator server",
 	Long:  "Checks for burp collaborator installation, installs if it does not exist, and starts it",
 	Args: func(cmd *cobra.Command, args []string) error {
-		err := deployer.ValidateNumberOfInstances(commandIndices)
+		err := deployer.ValidateNumberOfInstances(commandIndices, "instance")
 		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {

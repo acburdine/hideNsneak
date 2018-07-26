@@ -212,16 +212,38 @@ func WriteToFile(path string, content string) {
 }
 
 //ValidateNumberOfInstances makes sure that the number input is actually available in our list of active instances
-func ValidateNumberOfInstances(numberInput []int) error {
+func ValidateNumberOfInstances(numberInput []int, listType string) error {
 	marshalledState := TerraformStateMarshaller()
-	list := ListInstances(marshalledState)
 
-	largestInstanceNumToInstall := FindLargestNumber(numberInput)
+	switch listType {
+	case "instance":
+		list := ListInstances(marshalledState)
+		largestInstanceNum := FindLargestNumber(numberInput)
 
-	//make sure the largestInstanceNumToInstall is not bigger than totalInstancesAvailable
-	if len(list) < largestInstanceNumToInstall {
-		return errors.New("the number you entered is too big; try running `list` to see the number of instances you have")
+		//make sure the largestInstanceNumToInstall is not bigger than totalInstancesAvailable
+		if len(list) < largestInstanceNum {
+			return errors.New("the number you entered is too big; try running `list` to see the number of instances you have")
+		}
+	case "api":
+		list := ListAPIs(marshalledState)
+		largestInstanceNum := FindLargestNumber(numberInput)
+
+		//make sure the largestInstanceNumToInstall is not bigger than totalInstancesAvailable
+		if len(list) < largestInstanceNum {
+			return errors.New("the number you entered is too big; try running `list` to see the number of instances you have")
+		}
+	case "domainfront":
+		list := ListDomainFronts(marshalledState)
+		largestInstanceNum := FindLargestNumber(numberInput)
+
+		//make sure the largestInstanceNumToInstall is not bigger than totalInstancesAvailable
+		if len(list) < largestInstanceNum {
+			return errors.New("the number you entered is too big; try running `list` to see the number of instances you have")
+		}
+	default:
+		return fmt.Errorf("Unknown list type specified")
 	}
+
 	return nil
 }
 

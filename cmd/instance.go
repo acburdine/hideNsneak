@@ -130,7 +130,7 @@ var instanceDestroy = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(instanceDestroyIndices)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err

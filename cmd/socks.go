@@ -23,7 +23,7 @@ import (
 )
 
 var socksPort int
-var socksInstanceInput []int
+var socksInstanceInput string
 
 // helloCmd represents the hello command
 var socks = &cobra.Command{
@@ -40,14 +40,30 @@ var socksDeploy = &cobra.Command{
 	Short: "Deploy SOCKS Proxy",
 	Long:  `Deploy SOCKS Proxy`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(socksInstanceInput)
+		err := deployer.IsValidNumberInput(socksInstanceInput)
+
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(socksInstanceInput)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
 		list := deployer.ListInstances(marshalledState)
 
-		for _, num := range socksInstanceInput {
+		expandedNumIndex := deployer.ExpandNumberInput(socksInstanceInput)
+
+		for _, num := range expandedNumIndex {
 			err := deployer.CreateSingleSOCKS(list[num].PrivateKey, list[num].Username, list[num].IP, socksPort)
 			if err != nil {
 				fmt.Println("SOCKS creation failed for " + list[num].IP)
@@ -63,15 +79,30 @@ var socksDestroy = &cobra.Command{
 	Short: "Destroy a SOCKS Proxy",
 	Long:  `Destroy a SOCKS Proxy`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return deployer.ValidateNumberOfInstances(socksInstanceInput)
+		err := deployer.IsValidNumberInput(socksInstanceInput)
 
+		if err != nil {
+			return err
+		}
+
+		expandedNumIndex := deployer.ExpandNumberInput(socksInstanceInput)
+
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
+
+		if err != nil {
+			return err
+		}
+
+		return err
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		marshalledState := deployer.TerraformStateMarshaller()
 
 		list := deployer.ListInstances(marshalledState)
 
-		for _, num := range socksInstanceInput {
+		expandedNumIndex := deployer.ExpandNumberInput(socksInstanceInput)
+
+		for _, num := range expandedNumIndex {
 			deployer.DestroySOCKS(list[num].IP)
 		}
 
@@ -133,10 +164,10 @@ func init() {
 	socksDeploy.PersistentFlags().IntVarP(&socksPort, "port", "p", 8081, "Start port for socks proxy")
 	socksDeploy.MarkPersistentFlagRequired("port")
 
-	socksDeploy.PersistentFlags().IntSliceVarP(&socksInstanceInput, "index", "i", []int{}, "Indices of the instances to deploy")
+	socksDeploy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "Indices of the instances to deploy")
 	socksDeploy.MarkPersistentFlagRequired("index")
 
-	socksDestroy.PersistentFlags().IntSliceVarP(&socksInstanceInput, "index", "i", []int{}, "Indices of the instances to deploy")
+	socksDestroy.PersistentFlags().StringVarP(&socksInstanceInput, "index", "i", "", "Indices of the instances to deploy")
 	socksDestroy.MarkPersistentFlagRequired("index")
 
 }
