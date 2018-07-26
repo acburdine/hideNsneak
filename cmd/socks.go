@@ -48,7 +48,7 @@ var socksDeploy = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(socksInstanceInput)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err
@@ -87,7 +87,7 @@ var socksDestroy = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(socksInstanceInput)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err

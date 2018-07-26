@@ -53,7 +53,7 @@ var collaboratorInstall = &cobra.Command{
 
 		expandedInstallIndex := deployer.ExpandNumberInput(installIndex)
 
-		err = deployer.ValidateNumberOfInstances(expandedInstallIndex)
+		err = deployer.ValidateNumberOfInstances(expandedInstallIndex, "instance")
 
 		if err != nil {
 			return err
@@ -129,7 +129,7 @@ var cobaltStrikeInstall = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err
@@ -179,7 +179,7 @@ var goPhishInstall = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err
@@ -229,7 +229,7 @@ var letsEncryptInstall = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err
@@ -279,7 +279,7 @@ var nmapInstall = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err
@@ -329,7 +329,7 @@ var socatInstall = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err
@@ -379,7 +379,7 @@ var sqlMapInstall = &cobra.Command{
 
 		expandedNumIndex := deployer.ExpandNumberInput(installIndex)
 
-		err = deployer.ValidateNumberOfInstances(expandedNumIndex)
+		err = deployer.ValidateNumberOfInstances(expandedNumIndex, "instance")
 
 		if err != nil {
 			return err
