@@ -215,19 +215,19 @@ func init() {
 	rootCmd.AddCommand(firewall)
 	firewall.AddCommand(firewallAdd, firewallDelete, firewallList)
 
-	firewallAdd.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "Specify the id for the remote server")
+	firewallAdd.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "[Required] the id for the remote server")
 	firewallAdd.MarkFlagRequired("id")
 
-	firewallAdd.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "Specify the tcp ports to add i.e. 22,23")
-	firewallAdd.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "Specify the udp ports to add i.e. 500,53")
+	firewallAdd.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "[Optional] the tcp ports to add i.e. 22,23")
+	firewallAdd.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "[Optional] the udp ports to add i.e. 500,53")
 
-	firewallDelete.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "Specify the id for the remote server")
+	firewallDelete.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "[Required] the id for the remote server")
 	firewallDelete.MarkFlagRequired("id")
 
-	firewallDelete.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "Specify the tcp ports to delete i.e. 22,23")
-	firewallDelete.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "Specify the udp ports to delete i.e. 500,53")
+	firewallDelete.PersistentFlags().StringSliceVarP(&ufwTCPPorts, "tcp", "t", []string{}, "[Optional] the tcp ports to delete i.e. 22,23")
+	firewallDelete.PersistentFlags().StringSliceVarP(&ufwUDPPorts, "udp", "u", []string{}, "[Optional] the udp ports to delete i.e. 500,53")
 
-	firewallList.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "Specify the id for the remote server")
+	firewallList.PersistentFlags().StringVarP(&ufwIndices, "id", "i", "", "[Required] the id for the remote server")
 	firewallList.MarkFlagRequired("id")
 
 }
