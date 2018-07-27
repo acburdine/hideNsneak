@@ -53,7 +53,7 @@ var instanceDeploy = &cobra.Command{
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}
 		if deployer.ContainsString(instanceProviders, "DO") {
-			availableDORegions := deployer.GetDoRegions()
+			availableDORegions := deployer.GetDoRegions(cfgFile)
 			var unavailableRegions []string
 			for _, region := range regionDo {
 				if !deployer.ContainsString(availableDORegions, strings.ToLower(region)) {
@@ -75,13 +75,13 @@ var instanceDeploy = &cobra.Command{
 
 		oldList := deployer.ListInstances(marshalledState)
 
-		wrappers = deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, "hidensneak", wrappers)
+		wrappers = deployer.InstanceDeploy(instanceProviders, regionAws, regionDo, regionAzure, regionGoogle, instanceCount, instancePrivateKey, instancePublicKey, "hidensneak", wrappers, cfgFile)
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
-		deployer.CreateTerraformMain(mainFile)
+		deployer.CreateTerraformMain(mainFile, cfgFile)
 
-		deployer.TerraformApply()
+		deployer.TerraformApply(cfgFile)
 
 		fmt.Println("Waiting for instances to initialize...")
 
@@ -154,7 +154,7 @@ var instanceDestroy = &cobra.Command{
 
 		namesToDelete = append(namesToDelete, emptyEC2Modules...)
 
-		deployer.TerraformDestroy(namesToDelete)
+		deployer.TerraformDestroy(namesToDelete, cfgFile)
 		return
 	},
 }

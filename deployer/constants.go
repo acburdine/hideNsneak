@@ -1,6 +1,5 @@
 package deployer
 
-const configFile = "config/config.json"
 const tfMainFile = "terraform/main.tf"
 const tfVariablesFile = "terraform/variables.tf"
 const tfVarsFile = "terraform/terraform.tfvars"
