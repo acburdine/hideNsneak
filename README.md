@@ -37,7 +37,8 @@ At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're h
 1. Create a new AWS S3 bucket for your state
 	- Ensure this is not public as it will hold your terraform state
 2. run `./setup.sh`
-3. copy config/example-config.json to config/config.json and fill in the values
+3. `cp config/example-config.json to config/config.json` 
+	- fill in the values
 	- aws_access_id, aws_secret_key, aws_bucket_name are required at minimum
 4. `go build -o hidensneak main.go`
 11. now you can use with `hidensneak [command]`
