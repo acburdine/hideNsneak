@@ -14,7 +14,7 @@
 
 package main
 
-import "hideNsneak/cmd"
+import "github.com/rmikehodges/hideNsneak/cmd"
 
 func main() {
 	cmd.Execute()

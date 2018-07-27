@@ -19,7 +19,7 @@ import (
 	"regexp"
 	"strings"
 
-	"hideNsneak/deployer"
+	"github.com/rmikehodges/hideNsneak/deployer"
 
 	"github.com/spf13/cobra"
 )

@@ -16,7 +16,7 @@ package cmd
 
 import (
 	"fmt"
-	"hideNsneak/deployer"
+	"github.com/rmikehodges/hideNsneak/deployer"
 	"os"
 	"path/filepath"
 	"strings"

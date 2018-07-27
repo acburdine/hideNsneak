@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"hideNsneak/deployer"
+	"github.com/rmikehodges/hideNsneak/deployer"
 
 	"github.com/schollz/progressbar"
 	"github.com/spf13/cobra"
