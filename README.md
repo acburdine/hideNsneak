@@ -34,25 +34,12 @@ Running locally
 ---------------
 At this time, all hosts are assumed `Ubuntu 16.04 Linux`. In the future, we're hoping to add on a docker container to decrease initial setup time. 
 
-1. install [go](https://golang.org/dl/)
-2. install [terraform](https://www.terraform.io/intro/getting-started/install.html)
-3. install [ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-4. download zip file [custom providers](https://github.com/nbering/terraform-provider-ansible/) --> then, `cd $HOME/.terraform.d/` and `mkdir plugins`--> then, download the executable for your platform here `https://github.com/nbering/terraform-provider-ansible/releases` and unzip it in `$HOME/.terraform.d/plugins` (make sure you move the binary into the /plugins/ directory)
-5. `git clone https://github.com/rmikehodges/hideNsneak.git`
-6. `cd hideNsneak`
-7. `go get -u github.com/spf13/cobra/cobra`
-8. `go get -u github.com/aws/aws-sdk-go/aws`
-9. Fill in values in `config.yaml` with your keys and filepaths for the cloud providers you'd like to use:
-		```
-		aws_access_key = "YOUR_SECRET_KEY"
-		aws_secret_key = "YOUR_SECRET_KEY"
-		do_token = "YOUR_SECRET_KEY"
-		azure_tenant_id = "YOUR_SECRET_KEY"
-		azure_client_id = "YOUR_SECRET_KEY"
-		azure_client_secret = "YOUR_SECRET_KEY"
-		azure_subscription_id = "YOUR_SECRET_KEY"
-		```
-10. run `go build -o hidensneak main.go` to build the hidensneak executable
+1. Create a new AWS S3 bucket for your state
+	- Ensure this is not public as it will hold your terraform state
+2. run `./setup.sh`
+3. copy config/example-config.json to config/config.json and fill in the values
+	- aws_access_id, aws_secret_key, aws_bucket_name are required at minimum
+4. `go build -o hidensneak main.go`
 11. now you can use with `hidensneak [command]`
 
 
