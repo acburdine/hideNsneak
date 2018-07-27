@@ -83,7 +83,6 @@ Organization
 * `_cmd` --> frontend interface 
 * `_deployer` --> backend commands and structs
 * `main.go` --> where the magic happens 
-* `secrets.go` --> a file that you write yourself, with all your secret stuff
 
 
 Contributions
