@@ -53,14 +53,12 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "$GOPATH/src/github.com/rmikehodges/hideNsneak/config/config.json", "config file")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig expands the filepath for the user
 func initConfig() {
-	goPath := os.Getenv("GOPATH")
-	cfgFile = goPath + "/src/github.com/rmikehodges/hideNsneak/config/config.json"
+	if cfgFile == "$GOPATH/src/github.com/rmikehodges/hideNsneak/config/config.json" {
+		goPath := os.Getenv("GOPATH")
+		cfgFile = goPath + "/src/github.com/rmikehodges/hideNsneak/config/config.json"
+	}
 }
