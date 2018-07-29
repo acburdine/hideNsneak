@@ -16,9 +16,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/rmikehodges/hideNsneak/deployer"
 	"regexp"
 	"strings"
+
+	"github.com/rmikehodges/hideNsneak/deployer"
 
 	"github.com/spf13/cobra"
 )
@@ -71,9 +72,9 @@ var domainFrontDeploy = &cobra.Command{
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
-		deployer.CreateTerraformMain(mainFile)
+		deployer.CreateTerraformMain(mainFile, cfgFile)
 
-		deployer.TerraformApply()
+		deployer.TerraformApply(cfgFile)
 	},
 }
 
@@ -102,9 +103,9 @@ var domainFrontDestroy = &cobra.Command{
 		currentDomainfront := list[domainFrontIndex]
 
 		if list[domainFrontIndex].Provider == "AWS" {
-			fmt.Println(deployer.AWSCloudFrontDestroy(currentDomainfront))
+			fmt.Println(deployer.AWSCloudFrontDestroy(currentDomainfront, cfgFile))
 		} else {
-			deployer.TerraformDestroy([]string{list[domainFrontIndex].Name})
+			deployer.TerraformDestroy([]string{list[domainFrontIndex].Name}, cfgFile)
 		}
 	},
 }
@@ -154,9 +155,9 @@ var domainFrontDisable = &cobra.Command{
 		}
 		mainFile := deployer.CreateMasterFile(wrappers)
 
-		deployer.CreateTerraformMain(mainFile)
+		deployer.CreateTerraformMain(mainFile, cfgFile)
 
-		deployer.TerraformApply()
+		deployer.TerraformApply(cfgFile)
 
 	},
 }
@@ -207,9 +208,9 @@ var domainFrontEnable = &cobra.Command{
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
-		deployer.CreateTerraformMain(mainFile)
+		deployer.CreateTerraformMain(mainFile, cfgFile)
 
-		deployer.TerraformApply()
+		deployer.TerraformApply(cfgFile)
 	},
 }
 

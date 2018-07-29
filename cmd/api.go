@@ -43,7 +43,7 @@ var apiDeploy = &cobra.Command{
 	Short: "deploy an API Gateway",
 	Long:  `deploy an API Gateway`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		deployer.InitializeTerraformFiles()
+		deployer.InitializeTerraformFiles(cfgFile)
 		if !deployer.ProviderCheck(instanceProviders) {
 			return fmt.Errorf("invalid providers specified: %v", instanceProviders)
 		}
@@ -69,9 +69,9 @@ var apiDeploy = &cobra.Command{
 
 		mainFile := deployer.CreateMasterFile(wrappers)
 
-		deployer.CreateTerraformMain(mainFile)
+		deployer.CreateTerraformMain(mainFile, cfgFile)
 
-		deployer.TerraformApply()
+		deployer.TerraformApply(cfgFile)
 	},
 }
 
@@ -108,7 +108,7 @@ var apiDestroy = &cobra.Command{
 			namesToDelete = append(namesToDelete, list[numIndex].Name)
 		}
 
-		deployer.TerraformDestroy(namesToDelete)
+		deployer.TerraformDestroy(namesToDelete, cfgFile)
 		if len(apiIndices) > 2 {
 			fmt.Println("Destroying multiple API gateways a few minutes...")
 		}
